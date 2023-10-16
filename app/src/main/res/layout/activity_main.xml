@@ -6,13 +6,77 @@
     android:layout_height="match_parent"
     tools:context=".Client.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+<!--    &lt;!&ndash; Auto layout, variables, and unit scale are not yet supported &ndash;&gt;-->
+<!--    <RelativeLayout-->
+<!--        xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--        android:id="@+id/android_lar"-->
+<!--        android:layout_width="800dp"-->
+<!--        android:layout_height="360dp"-->
+<!--        android:clipToOutline="true"-->
+<!--        android:background="@drawable/android_lar"-->
+<!--        />-->
+
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:aapt="http://schemas.android.com/aapt"
+        android:id="@+id/android_lar"
+        android:layout_width="889dp"
+        android:layout_height="409dp"
+        android:clipToOutline="true"
+        android:background="@drawable/android_lar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
+
+
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--<vector-->
+<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--xmlns:aapt="http://schemas.android.com/aapt"-->
+<!--android:width="891dp"-->
+<!--android:height="411dp"-->
+<!--android:viewportWidth="491"-->
+<!--android:viewportHeight="411">-->
+<!--<group>-->
+<!--    <clip-path-->
+<!--        android:pathData="M0 0H800V360H0V0Z"-->
+<!--        />-->
+<!--    <group-->
+<!--        android:translateX="1"-->
+<!--        android:translateY="0"-->
+<!--        android:pivotX="400"-->
+<!--        android:pivotY="180"-->
+<!--        android:scaleX="2"-->
+<!--        android:scaleY="2"-->
+<!--        android:rotation="90"-->
+<!--        >-->
+<!--        <path-->
+<!--            android:pathData="M0 0V360H800V0"-->
+<!--            >-->
+<!--            <aapt:attr name="android:fillColor">-->
+<!--                <gradient-->
+<!--                    android:type="linear"-->
+<!--                    android:startX="200"-->
+<!--                    android:startY="180"-->
+<!--                    android:endX="600"-->
+<!--                    android:endY="180"-->
+<!--                    >-->
+<!--                    <item-->
+<!--                        android:color="#0D5876"-->
+<!--                        android:offset="0"-->
+<!--                        />-->
+<!--                    <item-->
+<!--                        android:color="#00052A38"-->
+<!--                        android:offset="1"-->
+<!--                        />-->
+<!--                </gradient>-->
+<!--            </aapt:attr>-->
+<!--        </path>-->
+<!--    </group>-->
+<!--</group>-->
+<!--</vector>-->
