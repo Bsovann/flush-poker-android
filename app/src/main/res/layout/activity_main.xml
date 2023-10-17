@@ -8,8 +8,6 @@
     tools:context=".Client.MainActivity"
     android:background="#052E3E"
     >
-
-
     <LinearLayout
         android:id="@+id/credit"
         android:layout_width="155dp"
@@ -70,49 +68,3 @@
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--<vector-->
-<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--xmlns:aapt="http://schemas.android.com/aapt"-->
-<!--android:width="891dp"-->
-<!--android:height="411dp"-->
-<!--android:viewportWidth="491"-->
-<!--android:viewportHeight="411">-->
-<!--<group>-->
-<!--    <clip-path-->
-<!--        android:pathData="M0 0H800V360H0V0Z"-->
-<!--        />-->
-<!--    <group-->
-<!--        android:translateX="1"-->
-<!--        android:translateY="0"-->
-<!--        android:pivotX="400"-->
-<!--        android:pivotY="180"-->
-<!--        android:scaleX="2"-->
-<!--        android:scaleY="2"-->
-<!--        android:rotation="90"-->
-<!--        >-->
-<!--        <path-->
-<!--            android:pathData="M0 0V360H800V0"-->
-<!--            >-->
-<!--            <aapt:attr name="android:fillColor">-->
-<!--                <gradient-->
-<!--                    android:type="linear"-->
-<!--                    android:startX="200"-->
-<!--                    android:startY="180"-->
-<!--                    android:endX="600"-->
-<!--                    android:endY="180"-->
-<!--                    >-->
-<!--                    <item-->
-<!--                        android:color="#0D5876"-->
-<!--                        android:offset="0"-->
-<!--                        />-->
-<!--                    <item-->
-<!--                        android:color="#00052A38"-->
-<!--                        android:offset="1"-->
-<!--                        />-->
-<!--                </gradient>-->
-<!--            </aapt:attr>-->
-<!--        </path>-->
-<!--    </group>-->
-<!--</group>-->
-<!--</vector>-->
