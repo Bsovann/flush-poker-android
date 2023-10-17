@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">flush-poker-android</string>
+    <string name="logo">Flush</string>
+    <string name="pokerTable">Poker Table</string>
+    <string name="dot">. . .</string>
 </resources>
