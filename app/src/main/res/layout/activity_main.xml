@@ -15,7 +15,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="28dp"
-        android:background="@drawable/credit"
+        android:background="@drawable/rectangle"
         android:elevation="4dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -60,11 +60,81 @@
         app:layout_constraintLeft_toRightOf="parent">
 
         <ImageView
-            android:id="@+id/vectorImage"
+            android:id="@+id/settingImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/setting" />
+    </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/infoIcon"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circle"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:textAppearance="@style/generalText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/infoImage"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:src="@drawable/info" />
+    </RelativeLayout>
+
+<!--    Layout for Challenge and Find Match Button-->
+    <LinearLayout
+        android:id="@+id/challengeButton"
+        android:layout_width="231dp"
+        android:layout_height="206dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.921">
+
+
+
+        <!--Challenge Button -->
+        <com.example.flush_poker_android.customviews.ChallengeButton
+            android:layout_width="match_parent"
+            android:layout_height="122dp" />
+
+        <!--Find Match Button -->
+        <com.example.flush_poker_android.customviews.FindMatchButton
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/levelExperience"
+        android:layout_width="172dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/experienceborder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/profile"
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:layout_marginRight="716dp"
+            android:background="@drawable/experienceborder"
+            />
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
