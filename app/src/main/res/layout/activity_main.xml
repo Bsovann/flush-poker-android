@@ -47,7 +47,7 @@
 
     </LinearLayout>
 
-    <Button
+    <RelativeLayout
         android:id="@+id/settingIcon"
         android:layout_width="38dp"
         android:layout_height="36dp"
@@ -56,12 +56,18 @@
         android:background="@drawable/circle"
         android:elevation="4dp"
         android:gravity="center"
-        android:text="$"
         android:textAppearance="@style/generalText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toRightOf="parent" />
+        app:layout_constraintLeft_toRightOf="parent">
 
+        <ImageView
+            android:id="@+id/vectorImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/setting" />
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
