@@ -14,7 +14,7 @@
         android:screenOrientation="landscape"
         tools:targetApi="31">
         <activity
-            android:name=".Logo"
+            android:name=".Client.Logo"
             android:exported="false" />
         <activity
             android:name=".Client.MainActivity"
