@@ -1,8 +1,10 @@
-package com.example.flush_poker_android;
+package com.example.flush_poker_android.Client;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.flush_poker_android.R;
 
 public class Logo extends AppCompatActivity {
 
