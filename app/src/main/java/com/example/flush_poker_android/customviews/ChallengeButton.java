@@ -4,11 +4,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.example.flush_poker_android.R;
 
-public class ChallengeButton extends RelativeLayout {
+public class ChallengeButton extends LinearLayout {
     public ChallengeButton(Context context) {
         super(context);
         init();

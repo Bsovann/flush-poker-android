@@ -5,11 +5,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RelativeLayout;
-
+import android.widget.LinearLayout;
 import com.example.flush_poker_android.R;
 
-public class FindMatchButton extends RelativeLayout {
+public class FindMatchButton extends LinearLayout {
     public FindMatchButton(Context context) {
         super(context);
         init();
