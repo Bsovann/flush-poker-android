@@ -41,9 +41,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="42dp"
-        android:text="Challenge Friends"
         android:layout_gravity="center_horizontal"
-        android:textAppearance="@style/buttonTextStyle"
-        android:textAlignment="center"/>
+        android:text="Challenge Friends"
+        android:textAlignment="center"
+        android:textAppearance="@style/buttonTextStyle" />
 
 </LinearLayout>
