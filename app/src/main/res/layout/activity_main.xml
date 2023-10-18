@@ -31,14 +31,16 @@
             android:elevation="4dp"
             android:gravity="center"
             android:text="$"
+            android:textAlignment="center"
             android:textAppearance="@style/generalText" />
 
         <TextView
             android:id="@+id/amount"
-            android:layout_width="95dp"
-            android:layout_height="24dp"
-            android:gravity="right|center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:text="9000.00"
+
             android:textAppearance="@style/generalText"
             tools:layout_editor_absoluteX="751dp"
             tools:layout_editor_absoluteY="41dp" />
