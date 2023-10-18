@@ -81,7 +81,7 @@
 
         <ImageView
             android:id="@+id/infoImage"
-            android:layout_width="15dp"
+            android:layout_width="12dp"
             android:layout_height="15dp"
             android:src="@drawable/info" />
     </RelativeLayout>
@@ -105,12 +105,14 @@
         <!--Challenge Button -->
         <com.example.flush_poker_android.customviews.ChallengeButton
             android:layout_width="match_parent"
-            android:layout_height="122dp" />
+            android:layout_height="122dp"
+            android:gravity="center"/>
 
         <!--Find Match Button -->
         <com.example.flush_poker_android.customviews.FindMatchButton
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -147,11 +149,41 @@
         </RelativeLayout>
 
         <TextView
-            android:layout_width="120dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textAppearance="@style/buttonTextStyle"
-            android:text="Level 1" />
+            android:text="Level 1"
+            android:textAppearance="@style/buttonTextStyle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/score_board"
+        android:layout_width="155dp"
+        android:layout_height="187dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/scoreboard"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.082"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/levelExperience"
+        app:layout_constraintVertical_bias="0.148">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:gravity="center"
+            android:textAppearance="@style/generalText"
+            android:text="Score Board" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/scoreBoardView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:foregroundGravity="center_vertical"/>
 
     </LinearLayout>
 
