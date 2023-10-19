@@ -20,10 +20,8 @@ public class ChallengeButton extends LinearLayout {
         init();
     }
 
-    // Action here
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.challenge_button, this, true);
-        setOnClickListener(view -> Log.i("Challenge Button", "Bondith CLick!"));
     }
 }
 
