@@ -5,7 +5,7 @@
     android:layout_width="226dp"
     android:layout_height="94dp"
     android:orientation="vertical"
-    android:background="@drawable/rectangle"
+    android:background="@drawable/custom_border_background"
     android:layout_centerInParent="true"
     android:layout_gravity="center"
     app:layout_constraintBottom_toBottomOf="parent"

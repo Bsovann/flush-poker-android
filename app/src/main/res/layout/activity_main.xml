@@ -15,7 +15,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="28dp"
-        android:background="@drawable/rectangle"
+        android:background="@drawable/custom_border_background"
         android:elevation="4dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -27,7 +27,7 @@
             android:id="@+id/label"
             android:layout_width="38dp"
             android:layout_height="36dp"
-            android:background="@drawable/circle"
+            android:background="@drawable/custom_border_background"
             android:elevation="4dp"
             android:gravity="center"
             android:text="$"
@@ -53,7 +53,7 @@
         android:layout_height="36dp"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/circle"
+        android:background="@drawable/custom_border_background"
         android:elevation="4dp"
         android:gravity="center"
         android:textAppearance="@style/generalText"
@@ -74,7 +74,7 @@
         android:layout_height="36dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/circle"
+        android:background="@drawable/custom_border_background"
         android:elevation="4dp"
         android:gravity="center"
         android:textAppearance="@style/generalText"
@@ -111,10 +111,17 @@
             android:gravity="center"/>
 
         <!--Find Match Button -->
-        <com.example.flush_poker_android.customviews.FindMatchButton
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"/>
+        <Button xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/findMatchButton"
+            android:layout_width="164dp"
+            android:layout_height="54dp"
+            android:orientation="vertical"
+            android:text="Find Match"
+            android:textAppearance="@style/buttonTextStyle"
+            android:background="@drawable/custom_border_background"
+            android:layout_centerInParent="true">
+        </Button>
 
     </LinearLayout>
 
@@ -128,7 +135,7 @@
         android:layout_marginStart="52dp"
         android:layout_marginTop="16dp"
         android:orientation="horizontal"
-        android:background="@drawable/experienceborder"
+        android:background="@drawable/custom_border_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -139,15 +146,15 @@
             android:layout_height="62dp"
             android:layout_gravity="center"
             android:src="@drawable/android"
-            android:background="@drawable/avatar"
+            android:background="@drawable/custom_border_background"
              >
+
             <ImageView
                 android:id="@+id/profileImage"
                 android:layout_width="43dp"
                 android:layout_height="42dp"
-                android:src="@drawable/android"
                 android:layout_centerInParent="true"
-                />
+                android:src="@drawable/smilingface" />
         </RelativeLayout>
 
         <TextView
@@ -165,7 +172,7 @@
         android:layout_height="187dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:background="@drawable/scoreboard"
+        android:background="@drawable/custom_border_background"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
