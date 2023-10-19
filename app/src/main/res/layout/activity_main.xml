@@ -1,18 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Client.MainActivity">
+    tools:context=".Client.MainActivity"
+    android:background="#052E3E"
+    >
+    <LinearLayout
+        android:id="@+id/credit"
+        android:layout_width="155dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="28dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.042">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="38dp"
+            android:layout_height="36dp"
+            android:background="@drawable/custom_border_background"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:text="$"
+            android:textAlignment="center"
+            android:textAppearance="@style/generalText" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="9000.00"
+
+            android:textAppearance="@style/generalText"
+            tools:layout_editor_absoluteX="751dp"
+            tools:layout_editor_absoluteY="41dp" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/settingIcon"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:textAppearance="@style/generalText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="parent">
+
+        <ImageView
+            android:id="@+id/settingImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/setting" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/infoIcon"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:textAppearance="@style/generalText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/infoImage"
+            android:layout_width="12dp"
+            android:layout_height="15dp"
+            android:src="@drawable/info" />
+    </RelativeLayout>
+
+<!--    Layout for Challenge and Find Match Button-->
+    <LinearLayout
+        android:id="@+id/challengeButton"
+        android:layout_width="231dp"
+        android:layout_height="206dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.921">
+
+        <!--Challenge Button -->
+        <com.example.flush_poker_android.customviews.ChallengeButton
+            android:layout_width="match_parent"
+            android:layout_height="122dp"
+            android:gravity="center"/>
+
+        <!--Find Match Button -->
+        <Button xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/findMatchButton"
+            android:layout_width="164dp"
+            android:layout_height="54dp"
+            android:orientation="vertical"
+            android:text="Find Match"
+            android:textAppearance="@style/buttonTextStyle"
+            android:background="@drawable/custom_border_background"
+            android:layout_centerInParent="true">
+        </Button>
+
+    </LinearLayout>
+
+<!--  Experience Layout -->
+    <LinearLayout
+        android:id="@+id/levelExperience"
+        android:layout_width="172dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:background="@drawable/custom_border_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <RelativeLayout
+            android:id="@+id/profile"
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:layout_gravity="center"
+            android:background="@drawable/custom_border_background"
+             >
+
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Level 1"
+            android:textAppearance="@style/buttonTextStyle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/score_board"
+        android:layout_width="155dp"
+        android:layout_height="187dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/custom_border_background"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.082"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/levelExperience"
+        app:layout_constraintVertical_bias="0.148">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:gravity="center"
+            android:textAppearance="@style/generalText"
+            android:text="Score Board" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/scoreBoardView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:foregroundGravity="center_vertical"/>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
