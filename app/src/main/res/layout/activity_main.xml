@@ -68,6 +68,7 @@
         android:background="@drawable/custom_border_background"
         android:elevation="4dp"
         android:gravity="center"
+        android:onClick="onClickSettingIcon"
         android:textAppearance="@style/generalText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,7 +82,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/infoIcon"
+        android:id="@+id/instructionIcon"
         android:layout_width="38dp"
         android:layout_height="36dp"
         android:layout_marginStart="16dp"
@@ -90,6 +91,7 @@
         android:elevation="4dp"
         android:gravity="center"
         android:textAppearance="@style/generalText"
+        android:onClick="onClickInstructionIcon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -104,7 +106,6 @@
 
     <!--  Experience Layout -->
     <LinearLayout
-        android:id="@+id/challengeButton"
         android:layout_width="231dp"
         android:layout_height="206dp"
         android:layout_alignParentTop="true"
@@ -120,21 +121,23 @@
 
         <!--Challenge Button -->
         <com.example.flush_poker_android.customviews.ChallengeButton
+            android:id="@+id/challengeButton"
             android:layout_width="match_parent"
+            android:onClick="onClickChallengeBtn"
             android:layout_height="122dp"
             android:gravity="center" />
 
         <!--Find Match Button -->
-        <Button xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <Button
             android:id="@+id/findMatchButton"
             android:layout_width="164dp"
             android:layout_height="54dp"
             android:layout_centerInParent="true"
             android:background="@drawable/custom_border_background"
+            android:onClick="onClickFindMatchBtn"
             android:orientation="vertical"
             android:text="Find Match"
-            android:textAppearance="@style/buttonTextStyle"/>
+            android:textAppearance="@style/buttonTextStyle" />
 
     </LinearLayout>
 

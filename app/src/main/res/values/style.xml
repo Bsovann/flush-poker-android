@@ -12,25 +12,4 @@
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:fontFamily">@font/paytone_one</item>
     </style>
-
-    <style name="flush">
-        <item name="android:textSize">64sp</item>
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:fontFamily">sans-serif-black</item>
-    </style>
-
-    <style name="poker_table">
-        <item name="android:textSize">32sp</item>
-        <item name="android:letterSpacing">0.3</item>
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:fontFamily">sans-serif-black</item>
-        <item name="android:visibility">visible</item>
-    </style>
-
-    <style name="dot">
-        <item name="android:textSize">45sp</item>
-        <item name="android:letterSpacing">0.05</item>
-        <item name="android:textColor">#FFFFFF</item>
-        <item name="android:fontFamily">sans-serif-black</item>
-    </style>
 </resources>
