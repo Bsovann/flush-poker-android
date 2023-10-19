@@ -47,6 +47,18 @@
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="411dp"
+        android:layout_height="203dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <RelativeLayout
         android:id="@+id/settingIcon"
         android:layout_width="38dp"
@@ -89,6 +101,8 @@
     </RelativeLayout>
 
 <!--    Layout for Challenge and Find Match Button-->
+
+    <!--  Experience Layout -->
     <LinearLayout
         android:id="@+id/challengeButton"
         android:layout_width="231dp"
@@ -96,19 +110,19 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:elevation="4dp"
-        android:orientation="vertical"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.921">
+        app:layout_constraintVertical_bias="1.0">
 
         <!--Challenge Button -->
         <com.example.flush_poker_android.customviews.ChallengeButton
             android:layout_width="match_parent"
             android:layout_height="122dp"
-            android:gravity="center"/>
+            android:gravity="center" />
 
         <!--Find Match Button -->
         <Button xmlns:android="http://schemas.android.com/apk/res/android"
@@ -116,16 +130,14 @@
             android:id="@+id/findMatchButton"
             android:layout_width="164dp"
             android:layout_height="54dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/custom_border_background"
             android:orientation="vertical"
             android:text="Find Match"
-            android:textAppearance="@style/buttonTextStyle"
-            android:background="@drawable/custom_border_background"
-            android:layout_centerInParent="true">
-        </Button>
+            android:textAppearance="@style/buttonTextStyle"/>
 
     </LinearLayout>
 
-<!--  Experience Layout -->
     <LinearLayout
         android:id="@+id/levelExperience"
         android:layout_width="172dp"
