@@ -2,6 +2,7 @@ package com.example.flush_poker_android.Client;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,8 +40,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void onClickSettingIcon(View view){
-        RelativeLayout icon = findViewById(R.id.settingIcon);
-        Log.i("Icon", "Setting icon got clicked");
+//        RelativeLayout icon = findViewById(R.id.settingIcon);
+//        Log.i("Icon", "Setting icon got clicked");
+        Dialog settingDialog = new Dialog(this);
+        settingDialog.setContentView(R.layout.setting_dialog);
+
+        // Exit button
+
     }
 
     public void onClickInstructionIcon(View view){
