@@ -40,12 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void onClickSettingIcon(View view){
-//        RelativeLayout icon = findViewById(R.id.settingIcon);
-//        Log.i("Icon", "Setting icon got clicked");
+
+        // SettingDialog
         Dialog settingDialog = new Dialog(this);
         settingDialog.setContentView(R.layout.setting_dialog);
+        settingDialog.show();
 
         // Exit button
+        Button closeSettingBtn = settingDialog.findViewById(R.id.closeSettingButton);
+        closeSettingBtn.setOnClickListener(x -> settingDialog.dismiss());
 
     }
 
