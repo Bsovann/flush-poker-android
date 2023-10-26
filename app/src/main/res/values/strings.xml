@@ -5,4 +5,5 @@
     <string name="dot">. . .</string>
     <string name="settingTittle">Setting</string>
     <string name="closeSettingButton">Close</string>
+    <string name="findTable">Find Table</string>
 </resources>
