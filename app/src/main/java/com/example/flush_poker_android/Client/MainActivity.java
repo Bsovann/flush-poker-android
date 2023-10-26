@@ -1,25 +1,20 @@
 package com.example.flush_poker_android.Client;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Dialog;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-
 import com.example.flush_poker_android.R;
-import com.example.flush_poker_android.customviews.ChallengeButton;
 
 public class MainActivity extends AppCompatActivity {
 
     private Dialog dialog;
-    private Button closeSettingBtn;
+
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
     @Override
@@ -40,13 +35,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickFindMatchBtn(View view){
-        Button findMatchBtn = findViewById(R.id.findMatchButton);
-        Log.i("Button", "Find Match got clicked");
+        // Find Match Dialog
+        dialog.setContentView(R.layout.findmatch_dialog);
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+
+        // Join button
+        Button joinBtn = dialog.findViewById(R.id.joinBtn);
+        joinBtn.setOnClickListener(x -> dialog.dismiss());
     }
     public void onClickChallengeBtn(View view){
-        ChallengeButton challengeBtn = findViewById(R.id.challengeButton);
-        Log.i("Button", "Challenge Button got clicked");
+        // Challenge Friends Dialog
+        dialog.setContentView(R.layout.challenge_dialog);
 
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+
+        // Join button
+        Button startBtn = dialog.findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
     public void onClickSettingIcon(View view){
@@ -54,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         // SettingDialog
         dialog.setContentView(R.layout.setting_dialog);
         brightnessSeekBar = dialog.findViewById(R.id.brightnessSeekBar);
-        closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         brightnessSeekBar.setProgress((int) (screenBrightness * 255));
@@ -64,13 +71,20 @@ public class MainActivity extends AppCompatActivity {
         setupSeekBarListener();
 
         // Exit button
-        closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
+        Button closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
     public void onClickInstructionIcon(View view){
-        RelativeLayout instructionIcon = findViewById(R.id.instructionIcon);
-        Log.i("Icon", "Instruction Icon got clicked");
+        // Instruction Dialog
+        dialog.setContentView(R.layout.instruction_dialog);
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+
+        // Exit button
+        Button closeInstructionBtn = dialog.findViewById(R.id.closeInstructionButton);
+        closeInstructionBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
     public void setupSeekBarListener(){
