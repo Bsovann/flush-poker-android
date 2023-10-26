@@ -1,6 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="600dp"
+    android:layout_height="350dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/custom_border_background"
+    android:layout_centerInParent="true"
+    android:layout_gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settingTittle"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:textAppearance="@style/buttonTextStyle"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="235dp"
+            android:padding="50dp">
+
+            <!--    Control Brightness    -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:text="Brightness:"
+                        android:layout_gravity="center"
+                        android:textAppearance="@style/generalText"
+                        />
+                    <SeekBar
+                        android:id="@+id/brightnessSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="255"
+                        android:progress="127"
+                        android:layout_gravity="center_vertical|center" />
+                </LinearLayout>
+
+                <!--    Control Sound    -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:text="Sound:"
+                        android:layout_gravity="center"
+                        android:textAppearance="@style/generalText"
+                        />
+                    <SeekBar
+                        android:id="@+id/soundSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|center" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <Button
+            android:id="@+id/closeSettingButton"
+            android:layout_width="110dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/custom_border_background"
+            android:layout_gravity="center"
+            android:text="@string/closeSettingButton" />
+
+    </LinearLayout>
+
 
 </RelativeLayout>

@@ -3,4 +3,6 @@
     <string name="logo">Flush</string>
     <string name="pokerTable">Poker Table</string>
     <string name="dot">. . .</string>
+    <string name="settingTittle">Setting</string>
+    <string name="closeSettingButton">Close</string>
 </resources>
