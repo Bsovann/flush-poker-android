@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Client.MainActivity"
+    android:background="#052E3E"
+    >
+
+
+
+    <LinearLayout
+        android:id="@+id/credit"
+        android:layout_width="155dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="28dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.042">
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="38dp"
+            android:layout_height="36dp"
+            android:background="@drawable/custom_border_background"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:text="$"
+            android:textAlignment="center"
+            android:textAppearance="@style/generalText" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="9000.00"
+
+            android:textAppearance="@style/generalText"
+            tools:layout_editor_absoluteX="751dp"
+            tools:layout_editor_absoluteY="41dp" />
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/chahtIcon"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:onClick="onClickSettingIcon"
+        android:textAppearance="@style/generalText"
+        app:layout_constraintBottom_toTopOf="@+id/settingIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <ImageView
+            android:id="@+id/chatImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/chats" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/settingIcon"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:onClick="onClickSettingIcon"
+        android:textAppearance="@style/generalText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="parent">
+
+        <ImageView
+            android:id="@+id/settingImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/setting" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/instructionIcon"
+        android:layout_width="38dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/custom_border_background"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:textAppearance="@style/generalText"
+        android:onClick="onClickInstructionIcon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/infoImage"
+            android:layout_width="12dp"
+            android:layout_height="15dp"
+            android:src="@drawable/info" />
+    </RelativeLayout>
+
+    <!--    Layout for Challenge and Find Match Button-->
+
+
+    <LinearLayout
+        android:id="@+id/levelExperience"
+        android:layout_width="172dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_border_background"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <RelativeLayout
+            android:id="@+id/profile"
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:layout_gravity="center"
+            android:background="@drawable/custom_border_background">
+
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Level 1"
+            android:textAppearance="@style/buttonTextStyle" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="400dp"
+        android:layout_height="200dp"
+        android:background="@drawable/table"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.516">
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/player1"
+        android:layout_width="63dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center"
+        android:background="@drawable/custom_border_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.954">
+
+        <ImageView
+            android:id="@+id/player1Image"
+            android:layout_width="43dp"
+            android:layout_height="42dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/smilingface" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="320dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/player1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.954">
+
+
+        <Button
+            android:id="@+id/checkBtn"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/game_button"
+            android:text="Check"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/generalText"></Button>
+
+        <Button
+            android:id="@+id/callBtn"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/game_button"
+            android:text="Call"
+            android:textAppearance="@style/generalText"></Button>
+
+        <Button
+            android:id="@+id/betBtn"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/game_button"
+            android:text="Bet"
+            android:textAppearance="@style/generalText"></Button>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="320dp"
+        android:layout_height="58dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/player1"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/instructionIcon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.954">
+
+
+        <Button
+            android:id="@+id/exitBtn"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="107dp"
+            android:layout_toStartOf="@+id/foldBtn"
+            android:background="@drawable/game_button"
+            android:text="Exit"
+            android:textAlignment="gravity"
+            android:textAppearance="@style/generalText" />
+
+        <Button
+            android:id="@+id/foldBtn"
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/game_button"
+            android:text="Fold"
+            android:textAppearance="@style/generalText" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
