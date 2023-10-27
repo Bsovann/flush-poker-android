@@ -1,4 +1,4 @@
-package com.example.flush_poker_android.customviews;
+package com.example.flush_poker_android.Client.customviews;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
