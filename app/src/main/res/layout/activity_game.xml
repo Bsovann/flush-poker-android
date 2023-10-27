@@ -52,7 +52,7 @@
 
 
     <RelativeLayout
-        android:id="@+id/chahtIcon"
+        android:id="@+id/chatIcon"
         android:layout_width="38dp"
         android:layout_height="36dp"
         android:layout_marginEnd="16dp"
@@ -60,7 +60,7 @@
         android:background="@drawable/custom_border_background"
         android:elevation="4dp"
         android:gravity="center"
-        android:onClick="onClickSettingIcon"
+        android:onClick="onClickChatIcon"
         android:textAppearance="@style/generalText"
         app:layout_constraintBottom_toTopOf="@+id/settingIcon"
         app:layout_constraintEnd_toEndOf="parent"
@@ -164,12 +164,62 @@
         android:layout_width="400dp"
         android:layout_height="200dp"
         android:background="@drawable/table"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.516">
+
+        <RelativeLayout
+            android:layout_width="270dp"
+            android:layout_height="95dp"
+            android:layout_centerInParent="true">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_centerInParent="true">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/card_bg" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="5dp"
+                    android:background="@drawable/card_bg" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="5dp"
+                    android:background="@drawable/card_bg" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="5dp"
+                    android:background="@drawable/card_bg" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="5dp"
+                    android:background="@drawable/card_bg" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
@@ -213,10 +263,11 @@
             android:layout_gravity="bottom"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/game_button"
+            android:onClick="onClickCheckBtn"
+            android:background="@drawable/game_btn_bg"
             android:text="Check"
             android:textAlignment="gravity"
-            android:textAppearance="@style/generalText"></Button>
+            android:textAppearance="@style/generalText"/>
 
         <Button
             android:id="@+id/callBtn"
@@ -224,18 +275,20 @@
             android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/game_button"
+            android:onClick="onClickCallBtn"
+            android:background="@drawable/game_btn_bg"
             android:text="Call"
-            android:textAppearance="@style/generalText"></Button>
+            android:textAppearance="@style/generalText"/>
 
         <Button
             android:id="@+id/betBtn"
             android:layout_width="90dp"
             android:layout_height="40dp"
             android:layout_gravity="bottom"
-            android:background="@drawable/game_button"
+            android:onClick="onClickBetBtn"
+            android:background="@drawable/game_btn_bg"
             android:text="Bet"
-            android:textAppearance="@style/generalText"></Button>
+            android:textAppearance="@style/generalText"/>
 
     </LinearLayout>
 
@@ -259,7 +312,7 @@
             android:layout_marginEnd="107dp"
             android:layout_toStartOf="@+id/foldBtn"
             android:onClick="onClickExitBtn"
-            android:background="@drawable/game_button"
+            android:background="@drawable/game_btn_bg"
             android:text="Exit"
             android:textAlignment="gravity"
             android:textAppearance="@style/generalText" />
@@ -269,7 +322,8 @@
             android:layout_width="90dp"
             android:layout_height="40dp"
             android:layout_gravity="bottom"
-            android:background="@drawable/game_button"
+            android:onClick="onClickFoldBtn"
+            android:background="@drawable/game_btn_bg"
             android:text="Fold"
             android:textAppearance="@style/generalText" />
 
