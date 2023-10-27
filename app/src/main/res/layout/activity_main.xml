@@ -120,7 +120,7 @@
         app:layout_constraintVertical_bias="1.0">
 
         <!--Challenge Button -->
-        <com.example.flush_poker_android.customviews.ChallengeButton
+        <com.example.flush_poker_android.Client.customviews.ChallengeButton
             android:id="@+id/challengeButton"
             android:layout_width="match_parent"
             android:onClick="onClickChallengeBtn"
