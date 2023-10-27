@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="600dp"
+    android:layout_width="500dp"
     android:layout_height="350dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/custom_border_background"
@@ -16,27 +16,27 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Instruction"
+            android:text="Challenge Friends"
             android:layout_marginTop="20dp"
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="235dp"
+            android:layout_height="210dp"
             android:padding="50dp">
 
 
         </ScrollView>
 
         <Button
-            android:id="@+id/closeInstructionButton"
-            android:layout_width="110dp"
+            android:id="@+id/startBtn"
+            android:layout_width="100dp"
             android:layout_height="40dp"
             android:layout_marginBottom="20dp"
             android:background="@drawable/custom_border_background"
             android:layout_gravity="center"
-            android:text="@string/sendChatButton" />
+            android:text="Start" />
 
     </LinearLayout>
 

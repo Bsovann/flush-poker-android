@@ -1,5 +1,4 @@
 package com.example.flush_poker_android.Client;
-
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -10,18 +9,18 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Toast;
+
 import com.example.flush_poker_android.R;
 
-public class MainActivity extends AppCompatActivity {
-
+public class GameActivity extends AppCompatActivity {
     private Dialog dialog;
-
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
 
         dialog = new Dialog(this);
 
@@ -32,42 +31,39 @@ public class MainActivity extends AppCompatActivity {
 
         // Set screen orientation to landscape
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
     }
 
-    public void onClickFindMatchBtn(View view){
-        // Find Match Dialog
-        dialog.setContentView(R.layout.findmatch_dialog);
+    public void onClickExitBtn(View view){
+        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 
+    public void onClickFoldBtn(View view){
+        Toast.makeText(this, "Fold Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickCheckBtn(View view){
+        Toast.makeText(this, "Check Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickCallBtn(View view){
+        Toast.makeText(this, "Call Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickBetBtn(View view){
+        Toast.makeText(this, "Bet Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickChatIcon(View view){
+        // Chat Dialog
+        dialog.setContentView(R.layout.chat_dialog);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
 
-        // Join button
-        Button joinBtn = dialog.findViewById(R.id.joinBtn);
-        joinBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
-    public void onClickChallengeBtn(View view){
-        // Challenge Friends Dialog
-        dialog.setContentView(R.layout.challenge_dialog);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.show();
-
-        // Join button
-        Button startBtn = dialog.findViewById(R.id.startBtn);
-        startBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
-                startActivity(intent);
-            }
-        });
+        // Exit button
+        Button sendChatBtn = dialog.findViewById(R.id.sendChatButton);
+        sendChatBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
     public void onClickSettingIcon(View view){
