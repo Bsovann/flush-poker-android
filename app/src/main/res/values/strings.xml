@@ -6,4 +6,5 @@
     <string name="settingTittle">Setting</string>
     <string name="closeSettingButton">Close</string>
     <string name="findTable">Find Table</string>
+    <string name="activity_game">Game Activity\n</string>
 </resources>
