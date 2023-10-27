@@ -44,7 +44,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Join button
         Button joinBtn = dialog.findViewById(R.id.joinBtn);
-        joinBtn.setOnClickListener(x -> dialog.dismiss());
+        joinBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                startActivity(intent);
+            }
+        });
     }
     public void onClickChallengeBtn(View view){
         // Challenge Friends Dialog
