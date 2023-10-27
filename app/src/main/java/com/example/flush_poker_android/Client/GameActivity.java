@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Toast;
+
 import com.example.flush_poker_android.R;
 
 public class GameActivity extends AppCompatActivity {
@@ -35,6 +37,33 @@ public class GameActivity extends AppCompatActivity {
     public void onClickExitBtn(View view){
         Intent intent = new Intent(GameActivity.this, MainActivity.class);
         startActivity(intent);
+    }
+
+    public void onClickFoldBtn(View view){
+        Toast.makeText(this, "Fold Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickCheckBtn(View view){
+        Toast.makeText(this, "Check Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickCallBtn(View view){
+        Toast.makeText(this, "Call Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickBetBtn(View view){
+        Toast.makeText(this, "Bet Btn got Clicked!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onClickChatIcon(View view){
+        // Chat Dialog
+        dialog.setContentView(R.layout.chat_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+
+        // Exit button
+        Button sendChatBtn = dialog.findViewById(R.id.sendChatButton);
+        sendChatBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
     public void onClickSettingIcon(View view){
