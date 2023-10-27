@@ -1,6 +1,7 @@
 package com.example.flush_poker_android.Client;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -29,6 +30,11 @@ public class GameActivity extends AppCompatActivity {
         // Set screen orientation to landscape
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setContentView(R.layout.activity_game);
+    }
+
+    public void onClickExitBtn(View view){
+        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
     public void onClickSettingIcon(View view){

@@ -258,6 +258,7 @@
             android:layout_gravity="bottom"
             android:layout_marginEnd="107dp"
             android:layout_toStartOf="@+id/foldBtn"
+            android:onClick="onClickExitBtn"
             android:background="@drawable/game_button"
             android:text="Exit"
             android:textAlignment="gravity"

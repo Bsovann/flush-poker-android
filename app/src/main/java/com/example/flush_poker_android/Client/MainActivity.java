@@ -2,6 +2,7 @@ package com.example.flush_poker_android.Client;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -54,7 +55,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Join button
         Button startBtn = dialog.findViewById(R.id.startBtn);
-        startBtn.setOnClickListener(x -> dialog.dismiss());
+        startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void onClickSettingIcon(View view){
