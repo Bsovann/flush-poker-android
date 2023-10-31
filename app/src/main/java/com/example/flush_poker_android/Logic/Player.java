@@ -2,6 +2,7 @@ package com.example.flush_poker_android.Logic;
 
 public class Player extends Hand {
     private String name;
+    private int currentBet;
     private int credits;
     public Player(String name, int credits) {
         super();
@@ -23,6 +24,10 @@ public class Player extends Hand {
 
     public void raise(int amount) {
         // Implement raising logic
+    }
+
+    public void setCurrentBet(int bet){
+        this.currentBet = bet;
     }
 }
 
