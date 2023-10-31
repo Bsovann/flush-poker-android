@@ -50,7 +50,7 @@ public class Hand {
         }
     }
 
-    public Card getCard(){
+    public Card getCards(){
         return (Card) this.cards;
     }
 
