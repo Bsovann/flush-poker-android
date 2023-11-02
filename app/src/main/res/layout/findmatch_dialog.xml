@@ -21,13 +21,15 @@
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
 
-        <ScrollView
+        <fragment
+            class="com.example.flush_poker_android.Client.DeviceListFragment"
+            android:id="@+id/frag_list"
             android:layout_width="match_parent"
+            android:padding="50dp"
             android:layout_height="210dp"
-            android:padding="50dp">
-
-
-        </ScrollView>
+            android:drawSelectorOnTop="false">
+            <!-- Preview: layout=@layout/row_devices -->
+        </fragment>
 
         <Button
             android:id="@+id/joinBtn"
