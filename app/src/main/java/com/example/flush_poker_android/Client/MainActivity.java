@@ -14,30 +14,20 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import com.example.flush_poker_android.R;
 import android.Manifest;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
-import network.WiFiDirectBroadcastReceiver;
+import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
 public class MainActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
 
@@ -95,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             return false;
         }
         // Hardware capability check
-        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (wifiManager == null) {
             Log.e(TAG, "Cannot get Wi-Fi system service.");
             return false;
@@ -117,16 +107,16 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         return true;
     }
 
-    public void onClickFindMatchBtn(View view){
+    public void onClickPracticeBtn(View view){
         // Find Match Dialog
-        dialog.setContentView(R.layout.findmatch_dialog);
+        dialog.setContentView(R.layout.practice_dialog);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
 
-        // Join button
-        Button joinBtn = dialog.findViewById(R.id.joinBtn);
-        joinBtn.setOnClickListener(new View.OnClickListener() {
+        // Start button
+        Button startBtn = dialog.findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
@@ -141,8 +131,17 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
 
+        // Find button
+        Button findBtn = dialog.findViewById(R.id.findBtn);
+        findBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initDiscover();
+            }
+        });
+
         // Join button
-        Button startBtn = dialog.findViewById(R.id.findBtn);
+        Button startBtn = dialog.findViewById(R.id.startBtn);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,6 +150,29 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             }
         });
     }
+
+    private void initDiscover(){
+        if (!isWifiP2pEnabled) {
+            Toast.makeText(MainActivity.this, R.string.p2p_off_warning,
+                    Toast.LENGTH_SHORT).show();
+        }
+        final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
+                .findFragmentById(R.id.frag_list);
+        fragment.onInitiateDiscovery();
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(MainActivity.this, "Discovery Initiated",
+                        Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onFailure(int reasonCode) {
+                Toast.makeText(MainActivity.this, "Discovery Failed : " + reasonCode,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     public void onClickSettingIcon(View view){
 
@@ -213,49 +235,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         this.isWifiP2pEnabled = isWifiP2pEnabled;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.atn_direct_enable:
-                if (manager != null && channel != null) {
-                    // Since this is the system wireless settings activity, it's
-                    // not going to send us a result. We will be notified by
-                    // WiFiDeviceBroadcastReceiver instead.
-                    startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));
-                } else {
-                    Log.e(TAG, "channel or manager is null");
-                }
-                return true;
-            case R.id.atn_direct_discover:
-                if (!isWifiP2pEnabled) {
-                    Toast.makeText(MainActivity.this, R.string.p2p_off_warning,
-                            Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
-                        .findFragmentById(R.id.frag_list);
-                fragment.onInitiateDiscovery();
-                manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(MainActivity.this, "Discovery Initiated",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    @Override
-                    public void onFailure(int reasonCode) {
-                        Toast.makeText(MainActivity.this, "Discovery Failed : " + reasonCode,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+
 
     @Override
     public void showDetails(WifiP2pDevice device) {
