@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         dialog.show();
 
         // Join button
-        Button startBtn = dialog.findViewById(R.id.startBtn);
+        Button startBtn = dialog.findViewById(R.id.findBtn);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

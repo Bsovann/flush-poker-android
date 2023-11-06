@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/findTable"
+            android:text="@string/practice"
             android:layout_marginTop="20dp"
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
@@ -38,7 +38,7 @@
             android:layout_marginBottom="20dp"
             android:background="@drawable/custom_border_background"
             android:layout_gravity="center"
-            android:text="Join" />
+            android:text="Start" />
 
     </LinearLayout>
 
