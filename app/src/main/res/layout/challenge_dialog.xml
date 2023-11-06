@@ -23,20 +23,18 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
+            android:padding="15dp"
             android:layout_height="210dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:orientation="vertical">
-
-
-
-
-
-
-            </LinearLayout>
+            <fragment
+                class="com.example.flush_poker_android.Client.DeviceListFragment"
+                android:id="@+id/frag_list"
+                android:layout_width="match_parent"
+                android:padding="50dp"
+                android:layout_height="210dp"
+                android:drawSelectorOnTop="false">
+                <!-- Preview: layout=@layout/row_devices -->
+            </fragment>
 
         </RelativeLayout>
 

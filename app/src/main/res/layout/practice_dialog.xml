@@ -21,18 +21,17 @@
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
 
-        <fragment
-            class="com.example.flush_poker_android.Client.DeviceListFragment"
-            android:id="@+id/frag_list"
+        <ImageView
+            android:id="@+id/practic_image"
             android:layout_width="match_parent"
             android:padding="50dp"
             android:layout_height="210dp"
             android:drawSelectorOnTop="false">
             <!-- Preview: layout=@layout/row_devices -->
-        </fragment>
+        </ImageView>
 
         <Button
-            android:id="@+id/joinBtn"
+            android:id="@+id/startBtn"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:layout_marginBottom="20dp"
