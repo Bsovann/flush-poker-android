@@ -1,4 +1,4 @@
-package network;
+package com.example.flush_poker_android.network;
 
 // Copyright 2011 Google Inc. All Rights Reserved.
 import android.app.IntentService;

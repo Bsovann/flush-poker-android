@@ -1,4 +1,4 @@
-package network;
+package com.example.flush_poker_android.network;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
