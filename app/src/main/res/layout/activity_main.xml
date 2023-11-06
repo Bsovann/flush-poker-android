@@ -136,7 +136,7 @@
             android:background="@drawable/custom_border_background"
             android:onClick="onClickFindMatchBtn"
             android:orientation="vertical"
-            android:text="@string/findTable"
+            android:text="@string/practice"
             android:textAppearance="@style/buttonTextStyle" />
 
     </LinearLayout>
