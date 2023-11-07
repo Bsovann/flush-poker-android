@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         dialog.show();
 
         // Start button
-        Button startBtn = dialog.findViewById(R.id.startBtn);
+        Button startBtn = (Button) dialog.findViewById(R.id.startBtn);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         dialog.show();
 
         // Find button
-        Button findBtn = dialog.findViewById(R.id.findBtn);
+        Button findBtn = (Button) dialog.findViewById(R.id.findBtn);
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         }
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
                 .findFragmentById(R.id.frag_list);
-        fragment.onInitiateDiscovery();
+//        fragment.onInitiateDiscovery();
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
