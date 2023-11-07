@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId = "com.example.flush_poker_android"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 32
         versionCode = 1
         versionName = "1.0"
 
