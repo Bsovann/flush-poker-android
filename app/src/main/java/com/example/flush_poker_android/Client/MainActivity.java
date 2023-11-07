@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -29,6 +30,11 @@ import android.widget.Toast;
 
 import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
 
     // Wifi Direct
@@ -45,11 +51,20 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initWork();
+    }
 
+    private void initWork(){
+        if (!initP2p()) {
+            finish();
+        }
+
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
         dialog = new Dialog(this);
+
 
         // Enable immersive mode
         View decorView = getWindow().getDecorView();
@@ -65,9 +80,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-        if (!initP2p()) {
-            finish();
-        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -86,15 +99,21 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         }
         // Hardware capability check
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
         if (wifiManager == null) {
             Log.e(TAG, "Cannot get Wi-Fi system service.");
             return false;
-        }
-        if (!wifiManager.isP2pSupported()) {
-            Log.e(TAG, "Wi-Fi Direct is not supported by the hardware or Wi-Fi is off.");
-            return false;
+        }else
+            wifiManager.setWifiEnabled(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (!wifiManager.isP2pSupported()) {
+                Log.e(TAG, "Wi-Fi Direct is not supported by the hardware or Wi-Fi is off.");
+                return false;
+            }
         }
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+
         if (manager == null) {
             Log.e(TAG, "Cannot get Wi-Fi Direct system service.");
             return false;
@@ -164,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             public void onSuccess() {
                 Toast.makeText(MainActivity.this, "Discovery Initiated",
                         Toast.LENGTH_SHORT).show();
+                Log.i("Init Peer Discover", fragment.getDevice().toString());
             }
             @Override
             public void onFailure(int reasonCode) {
@@ -191,6 +211,20 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         Button closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
+
+    ArrayList<WifiP2pDevice> peers = new ArrayList<>();
+    public WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
+        @Override
+        public void onPeersAvailable(WifiP2pDeviceList peerList) {
+            peers.clear();
+            peers.addAll(peerList.getDeviceList());
+            if (peers.size() == 0) {
+                Log.d(MainActivity.TAG, "No devices found");
+                return;
+            }
+            Log.i("Peers", peers.toString());
+        }
+    };
 
     public void onClickInstructionIcon(View view){
         // Instruction Dialog
@@ -327,6 +361,8 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
                     Log.e(TAG, "Fine location permission is not granted!");
                     finish();
                 }
+                else
+                    Toast.makeText(this, "Fine Location is permiited", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -334,7 +370,6 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     @Override
     public void onResume() {
         super.onResume();
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
         registerReceiver(receiver, intentFilter);
     }
     @Override
