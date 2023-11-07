@@ -5,6 +5,8 @@
     <string name="dot">. . .</string>
     <string name="settingTittle">Setting</string>
     <string name="sendChatButton">Send</string>
-    <string name="findTable">Find Table</string>
+    <string name="practice">Practice</string>
     <string name="activity_game">Game Activity\n</string>
+    <string name="closeText">Close</string>
+    <string name="p2p_off_warning">Off WARNING</string>
 </resources>
