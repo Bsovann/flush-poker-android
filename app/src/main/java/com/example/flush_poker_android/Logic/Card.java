@@ -19,7 +19,7 @@ public class Card {
 
     @Override
     public String toString() {
-        return rank.getName() + " of " + suit.getName();
+        return rank.getName().toLowerCase() + "_of_" + suit.getName().toLowerCase();
     }
 }
 
