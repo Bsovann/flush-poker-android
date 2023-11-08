@@ -9,14 +9,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
-
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.R;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,9 +35,13 @@ public class GameActivity extends AppCompatActivity {
 
         initWork();
 
-
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
 
     private void initWork(){
 
