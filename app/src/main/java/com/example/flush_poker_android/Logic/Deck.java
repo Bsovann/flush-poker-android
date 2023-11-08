@@ -14,10 +14,9 @@ public class Deck {
                 cards.add(new Card(rank, suit));
             }
         }
-        shuffle();
     }
 
-    private void shuffle() {
+    public void shuffle() {
         Collections.shuffle(cards);
     }
 
