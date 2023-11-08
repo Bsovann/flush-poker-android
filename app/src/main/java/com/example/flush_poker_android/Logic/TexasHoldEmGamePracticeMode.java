@@ -8,19 +8,49 @@ public class TexasHoldEmGamePracticeMode {
     private List<Player> players;
     private List<Card> communityCards;
     private List<Player> bettingRound;
+
+    private Player currentPlayer;
     private int dealerPosition;
     private int pot;
 
     public TexasHoldEmGamePracticeMode(){
+        initializeGame();
+    }
+
+    private void initializeGame() {
         this.deck = new Deck();
         this.players = new ArrayList<>(5);
         this.communityCards = new ArrayList<>();
         this.dealerPosition = 0;
 
-        // Start the Game
+        players.add(new Player("Player0", 2000));
+        players.add(new Player("Player1", 2000));
+        players.add(new Player("Player2", 2000));
+        players.add(new Player("Player3", 2000));
+        players.add(new Player("Player4", 2000));
+
+        // DeckShuffle
+        deck.shuffle();
+
+        // Initialize hands
+        dealTwoHoleCardsToPlayers();
+
+        // Set CurrentPlayer
+        currentPlayer = players.get(0);
 
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public int getPot() {
+        return pot;
+    }
 
 
     private void dealTwoHoleCardsToPlayers(){
