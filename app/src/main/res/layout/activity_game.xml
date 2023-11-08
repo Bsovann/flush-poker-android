@@ -10,7 +10,6 @@
     >
 
 
-
     <LinearLayout
         android:id="@+id/credit"
         android:layout_width="155dp"
@@ -172,50 +171,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.516">
 
+
+
         <RelativeLayout
             android:layout_width="270dp"
-            android:layout_height="95dp"
+            android:layout_height="85dp"
             android:layout_centerInParent="true">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_centerInParent="true">
+                android:layout_centerInParent="true"
+                android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/card_bg" />
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="5dp"
-                    android:background="@drawable/card_bg" />
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="5dp"
-                    android:background="@drawable/card_bg" />
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="5dp"
-                    android:background="@drawable/card_bg" />
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="5dp"
-                    android:background="@drawable/card_bg" />
+                <GridView
+                    android:id="@+id/communityCardGrid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numColumns="5"
+                    android:padding="20dp" />
 
             </LinearLayout>
 
@@ -224,7 +198,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/player1"
+        android:id="@+id/myProfile"
         android:layout_width="63dp"
         android:layout_height="62dp"
         android:layout_gravity="center"
@@ -236,7 +210,94 @@
         app:layout_constraintVertical_bias="0.954">
 
         <ImageView
+            android:layout_width="43dp"
+            android:layout_height="42dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/smilingface" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/player1"
+        android:layout_width="63dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="168dp"
+        android:background="@drawable/custom_border_background"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/relativeLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498">
+
+        <ImageView
             android:id="@+id/player1Image"
+            android:layout_width="43dp"
+            android:layout_height="42dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/smilingface" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/player2"
+        android:layout_width="63dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center"
+
+        android:background="@drawable/custom_border_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.065"
+        app:layout_constraintStart_toEndOf="@+id/relativeLayout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498">
+
+        <ImageView
+            android:id="@+id/player2Image"
+            android:layout_width="43dp"
+            android:layout_height="42dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/smilingface" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/player3"
+        android:layout_width="63dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="112dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/custom_border_background"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintStart_toEndOf="@+id/levelExperience"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <ImageView
+            android:id="@+id/player3Image"
+            android:layout_width="43dp"
+            android:layout_height="42dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/smilingface" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/player4"
+        android:layout_width="63dp"
+        android:layout_height="62dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+
+        android:background="@drawable/custom_border_background"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintEnd_toStartOf="@+id/credit"
+        app:layout_constraintStart_toEndOf="@+id/player3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <ImageView
+            android:id="@+id/player4Image"
             android:layout_width="43dp"
             android:layout_height="42dp"
             android:layout_centerInParent="true"
@@ -246,12 +307,11 @@
     <LinearLayout
         android:layout_width="320dp"
         android:layout_height="58dp"
-        android:layout_marginStart="16dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/player1"
+        app:layout_constraintStart_toEndOf="@+id/myProfile"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.954">
 
@@ -263,11 +323,11 @@
             android:layout_gravity="bottom"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="10dp"
-            android:onClick="onClickCheckBtn"
             android:background="@drawable/game_btn_bg"
+            android:onClick="onClickCheckBtn"
             android:text="Check"
             android:textAlignment="gravity"
-            android:textAppearance="@style/generalText"/>
+            android:textAppearance="@style/generalText" />
 
         <Button
             android:id="@+id/callBtn"
@@ -275,20 +335,20 @@
             android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:layout_marginEnd="10dp"
-            android:onClick="onClickCallBtn"
             android:background="@drawable/game_btn_bg"
+            android:onClick="onClickCallBtn"
             android:text="Call"
-            android:textAppearance="@style/generalText"/>
+            android:textAppearance="@style/generalText" />
 
         <Button
             android:id="@+id/betBtn"
             android:layout_width="90dp"
             android:layout_height="40dp"
             android:layout_gravity="bottom"
-            android:onClick="onClickBetBtn"
             android:background="@drawable/game_btn_bg"
+            android:onClick="onClickBetBtn"
             android:text="Bet"
-            android:textAppearance="@style/generalText"/>
+            android:textAppearance="@style/generalText" />
 
     </LinearLayout>
 
@@ -297,7 +357,7 @@
         android:layout_height="58dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/player1"
+        app:layout_constraintEnd_toStartOf="@+id/myProfile"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/instructionIcon"
         app:layout_constraintTop_toTopOf="parent"
@@ -311,8 +371,8 @@
             android:layout_gravity="bottom"
             android:layout_marginEnd="107dp"
             android:layout_toStartOf="@+id/foldBtn"
-            android:onClick="onClickExitBtn"
             android:background="@drawable/game_btn_bg"
+            android:onClick="onClickExitBtn"
             android:text="Exit"
             android:textAlignment="gravity"
             android:textAppearance="@style/generalText" />
@@ -322,8 +382,8 @@
             android:layout_width="90dp"
             android:layout_height="40dp"
             android:layout_gravity="bottom"
-            android:onClick="onClickFoldBtn"
             android:background="@drawable/game_btn_bg"
+            android:onClick="onClickFoldBtn"
             android:text="Fold"
             android:textAppearance="@style/generalText" />
 
