@@ -8,20 +8,54 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.R;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
+    GridView communityCardView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        initWork();
+
+        communityCardView = findViewById(R.id.communityCardGrid);
+
+        List<Integer> communityCardImages = new LinkedList<>();
+
+        communityCardImages.add(R.drawable.ace_of_diamonds);
+        communityCardImages.add(R.drawable.ace_of_hearts);
+        communityCardImages.add(R.drawable.jack_of_clubs);
+        communityCardImages.add(R.drawable.nine_of_clubs);
+        communityCardImages.add(R.drawable.eight_of_clubs);
+
+        Collections.reverse(communityCardImages);
+
+        CardAdapter cardAdapter = new CardAdapter(this, communityCardImages);
+
+        communityCardView.setAdapter(cardAdapter);
+//        renderCommunityCards(communityCardImages);
+
+    }
+
+
+    private void initWork(){
         dialog = new Dialog(this);
 
         // Enable immersive mode
