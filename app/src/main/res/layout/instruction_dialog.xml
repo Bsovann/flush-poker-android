@@ -24,22 +24,32 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="235dp"
-            android:padding="50dp">
+            android:padding="25dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hello">
-                </TextView>
+                    android:layout_height="match_parent"
+                    android:textAppearance="@style/headingText"
+                    android:text="Starting the Round"/>
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hello">
-                </TextView>
+                    android:layout_height="match_parent"
+                    android:text="@string/rules_rounds"
+                    android:textAppearance="@style/generalText"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Poker Hands"
+                    android:textAppearance="@style/headingText"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/hands"
+                    android:textAppearance="@style/generalText"/>
             </LinearLayout>
 
 
