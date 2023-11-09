@@ -127,8 +127,8 @@ public class TexasHoldEmGamePracticeMode {
 
 
     public void dealTwoHoleCardsToPlayers(){
-            for (Player player : players)
-                player.addCard(deck.dealCard());
+        for (Player player : players)
+            player.addCard(deck.dealCard());
     }
 
     public Player getWinner(){
