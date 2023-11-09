@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="600dp"
     android:layout_height="350dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/custom_border_background"
     android:layout_centerInParent="true"
     android:layout_gravity="center">
@@ -16,7 +15,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Instruction"
+            android:text="How to Play"
+            android:fontFamily="@font/belgrano"
             android:layout_marginTop="20dp"
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
@@ -30,29 +30,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textAppearance="@style/headingText"
-                    android:text="Starting the Round"/>
+                    android:fontFamily="@font/belgrano"
+                    android:text="Starting the Round"
+                    android:textAppearance="@style/headingText" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/rules_rounds"
-                    android:textAppearance="@style/generalText"/>
+                    android:textAppearance="@style/generalText" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:fontFamily="@font/belgrano"
                     android:text="Poker Hands"
-                    android:textAppearance="@style/headingText"/>
+                    android:textAppearance="@style/headingText" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/hands"
-                    android:textAppearance="@style/generalText"/>
+                    android:textAppearance="@style/generalText" />
             </LinearLayout>
-
-
         </ScrollView>
 
         <Button
@@ -63,8 +67,5 @@
             android:background="@drawable/custom_border_background"
             android:layout_gravity="center"
             android:text="@string/closeText" />
-
     </LinearLayout>
-
-
 </RelativeLayout>
