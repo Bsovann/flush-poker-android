@@ -2,8 +2,10 @@ package com.example.flush_poker_android.Logic;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Hand {
@@ -50,43 +52,48 @@ public class Hand {
         }
     }
 
-    public Card getCards(){
-        return (Card) this.cards;
-    }
-
-    // Check if it's a royal flush
     private boolean isRoyalFlush(List<Card> cards) {
-        return isStraightFlush(cards) && cards.get(4).getRank() == Rank.ACE;
+        if (cards.size() < 5) {
+            return false;
+        }
+        return isStraightFlush(cards) && cards.get(6).getRank() == Rank.ACE;
     }
 
-    // Check if it's a straight flush
     private boolean isStraightFlush(List<Card> cards) {
+        if (cards.size() < 5) {
+            return false;
+        }
         return isFlush(cards) && isStraight(cards);
     }
 
-    // Check if it's a four of a kind
     private boolean isFourOfAKind(List<Card> cards) {
         Map<Rank, Long> rankCounts = cards.stream()
                 .collect(Collectors.groupingBy(Card::getRank, Collectors.counting()));
-
         return rankCounts.containsValue(4L);
     }
 
-    // Check if it's a full house
     private boolean isFullHouse(List<Card> cards) {
         Map<Rank, Long> rankCounts = cards.stream()
                 .collect(Collectors.groupingBy(Card::getRank, Collectors.counting()));
-
         return rankCounts.containsValue(3L) && rankCounts.containsValue(2L);
     }
 
-    // Check if it's a flush
-    private boolean isFlush(List<Card> cards) {
-        Suit suit = cards.get(0).getSuit();
-        return cards.stream().allMatch(card -> card.getSuit() == suit);
+//    private boolean isFlush(List<Card> cards) {
+//        Suit suit = cards.get(0).getSuit();
+//        int count = 0;
+//        return cards.stream().allMatch(card -> card.getSuit() == suit);
+//    }
+private boolean isFlush(List<Card> cards) {
+    Map<Suit, Integer> suitCounts = new HashMap<>();
+
+    for (Card card : cards) {
+        Suit suit = card.getSuit();
+        suitCounts.put(suit, suitCounts.getOrDefault(suit, 0) + 1);
     }
 
-    // Check if it's a straight
+    return suitCounts.values().stream().anyMatch(count -> count >= 5);
+}
+
     private boolean isStraight(List<Card> cards) {
         for (int i = 1; i < cards.size(); i++) {
             if (cards.get(i).getRank().getValue() - cards.get(i - 1).getRank().getValue() != 1) {
@@ -96,28 +103,26 @@ public class Hand {
         return true;
     }
 
-    // Check if it's a three of a kind
     private boolean isThreeOfAKind(List<Card> cards) {
         Map<Rank, Long> rankCounts = cards.stream()
                 .collect(Collectors.groupingBy(Card::getRank, Collectors.counting()));
-
         return rankCounts.containsValue(3L);
     }
 
-    // Check if it's two pairs
     private boolean isTwoPairs(List<Card> cards) {
         Map<Rank, Long> rankCounts = cards.stream()
                 .collect(Collectors.groupingBy(Card::getRank, Collectors.counting()));
-
         return rankCounts.values().stream().filter(count -> count == 2).count() == 2;
     }
 
-    // Check if it's a pair
     private boolean isPair(List<Card> cards) {
         Map<Rank, Long> rankCounts = cards.stream()
                 .collect(Collectors.groupingBy(Card::getRank, Collectors.counting()));
-
         return rankCounts.containsValue(2L);
+    }
+
+    public void clearHand() {
+        this.cards.clear();
     }
 
     private class CardComparator implements Comparator<Card> {
@@ -125,5 +130,9 @@ public class Hand {
         public int compare(Card card1, Card card2) {
             return card1.getRank().getValue() - card2.getRank().getValue();
         }
+    }
+
+    public List<Card> getCards() {
+        return this.cards;
     }
 }
