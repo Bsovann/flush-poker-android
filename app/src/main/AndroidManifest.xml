@@ -20,8 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:screenOrientation="landscape"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar"
-        tools:targetApi="32">
+        android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity
             android:name=".Client.GameActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

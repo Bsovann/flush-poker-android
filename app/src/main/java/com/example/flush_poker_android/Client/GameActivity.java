@@ -8,21 +8,42 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.SeekBar;
 import android.widget.Toast;
-
+import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.R;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
+    GridView communityCardView;
+    List<GridView> playersView;
+
+    List<CardAdapter> playerAdapter;
+    CardAdapter commnityCardAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        dialog = new Dialog(this);
+        initWork();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    private void initWork(){
 
         // Enable immersive mode
         View decorView = getWindow().getDecorView();
@@ -32,6 +53,38 @@ public class GameActivity extends AppCompatActivity {
         // Set screen orientation to landscape
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setContentView(R.layout.activity_game);
+
+        dialog = new Dialog(this);
+
+        playersView = new ArrayList<>(5);
+        communityCardView = findViewById(R.id.communityCardGrid);
+        playerAdapter = new ArrayList<>(5);
+
+        playersView.add(findViewById(R.id.myCards));
+        playersView.add(findViewById(R.id.player1Cards));
+        playersView.add(findViewById(R.id.player2Cards));
+        playersView.add(findViewById(R.id.player3Cards));
+        playersView.add(findViewById(R.id.player4Cards));
+
+        // Add players cards images and render
+        for(int i = 0; i < 5; i++) {
+            playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
+        }
+
+        // Render card
+        for(int i = 0; i < 5; i++) {
+            playersView.get(i).setAdapter(playerAdapter.get(i));
+        }
+        List<Integer> communityCardImages = new LinkedList<>();
+        // Add Community cards images
+        communityCardImages.add(R.drawable.ace_of_diamonds);
+        communityCardImages.add(R.drawable.ace_of_hearts);
+        communityCardImages.add(R.drawable.jack_of_clubs);
+        communityCardImages.add(R.drawable.nine_of_clubs);
+        communityCardImages.add(R.drawable.eight_of_clubs);
+        Collections.reverse(communityCardImages);
+        commnityCardAdapter = new CardAdapter(this, communityCardImages);
+        communityCardView.setAdapter(commnityCardAdapter);
     }
 
     public void onClickExitBtn(View view){
