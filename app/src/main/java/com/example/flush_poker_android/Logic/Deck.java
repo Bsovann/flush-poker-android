@@ -1,17 +1,19 @@
 package com.example.flush_poker_android.Logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 public class Deck {
-    private List<Card> cards;
+    private Stack<Card> cards;
 
     public Deck() {
-        cards = new ArrayList<>();
+        cards = new Stack<>();
         for (Suit suit : Suit.values()) {
             for (Rank rank : Rank.values()) {
-                cards.add(new Card(rank, suit));
+                cards.push(new Card(rank, suit));
             }
         }
     }
@@ -26,6 +28,27 @@ public class Deck {
             return null;
         }
         return cards.remove(0);
+    }
+
+    public Collection<? extends Card> draw(int i) {
+        List<Card> drawCards = new ArrayList<>();
+        for(int j = 0; j < i; j++)
+            drawCards.add(cards.pop());
+
+        return drawCards;
+    }
+
+    public void reset() {
+        cards = new Stack<>();
+        for (Suit suit : Suit.values()) {
+            for (Rank rank : Rank.values()) {
+                cards.add(new Card(rank, suit));
+            }
+        }
+    }
+
+    public int size() {
+        return cards.size();
     }
 }
 
