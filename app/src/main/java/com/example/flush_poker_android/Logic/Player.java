@@ -37,5 +37,10 @@ public class Player extends Hand {
     public void setCurrentBet(int bet){
         this.currentBet = bet;
     }
+
+    public void addToChipCount(int pot) {
+        this.credits += pot;
+    }
+
 }
 
