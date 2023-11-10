@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.example.flush_poker_android.Client.MainActivity;
+import com.example.flush_poker_android.Client.P2PActivity;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,21 +45,21 @@ public class FileTransferService extends IntentService {
             Socket socket = new Socket();
             int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
             try {
-                Log.d(MainActivity.TAG, "Opening client socket - ");
+                Log.d(P2PActivity.TAG, "Opening client socket - ");
                 socket.bind(null);
                 socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
-                Log.d(MainActivity.TAG, "Client socket - " + socket.isConnected());
+                Log.d(P2PActivity.TAG, "Client socket - " + socket.isConnected());
                 OutputStream stream = socket.getOutputStream();
                 ContentResolver cr = context.getContentResolver();
                 InputStream is = null;
                 try {
                     is = cr.openInputStream(Uri.parse(fileUri));
                 } catch (FileNotFoundException e) {
-                    Log.d(MainActivity.TAG, e.toString());
+                    Log.d(P2PActivity.TAG, e.toString());
                 }
-                Log.d(MainActivity.TAG, "Client: Data written");
+                Log.d(P2PActivity.TAG, "Client: Data written");
             } catch (IOException e) {
-                Log.e(MainActivity.TAG, e.getMessage());
+                Log.e(P2PActivity.TAG, e.getMessage());
             } finally {
                 if (socket != null) {
                     if (socket.isConnected()) {

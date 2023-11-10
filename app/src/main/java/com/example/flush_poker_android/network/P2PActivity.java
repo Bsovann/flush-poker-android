@@ -30,12 +30,9 @@ import android.widget.Toast;
 
 import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
+public class P2PActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
 
     // Wifi Direct
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1001;
@@ -85,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MainActivity.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
+                    P2PActivity.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
             // After this point you wait for callback in
             // onRequestPermissionsResult(int, String[], int[]) overridden method
         }
@@ -138,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                Intent intent = new Intent(P2PActivity.this, GameActivity.class);
                 startActivity(intent);
             }
         });
@@ -164,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                Intent intent = new Intent(P2PActivity.this, GameActivity.class);
                 startActivity(intent);
             }
         });
@@ -172,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
 
     private void initDiscover(){
         if (!isWifiP2pEnabled) {
-            Toast.makeText(MainActivity.this, R.string.p2p_off_warning,
+            Toast.makeText(P2PActivity.this, R.string.p2p_off_warning,
                     Toast.LENGTH_SHORT).show();
         }
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
@@ -181,13 +178,13 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                Toast.makeText(MainActivity.this, "Discovery Initiated",
+                Toast.makeText(P2PActivity.this, "Discovery Initiated",
                         Toast.LENGTH_SHORT).show();
                 Log.i("Init Peer Discover", fragment.getDevice().toString());
             }
             @Override
             public void onFailure(int reasonCode) {
-                Toast.makeText(MainActivity.this, "Discovery Failed : " + reasonCode,
+                Toast.makeText(P2PActivity.this, "Discovery Failed : " + reasonCode,
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -219,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             peers.clear();
             peers.addAll(peerList.getDeviceList());
             if (peers.size() == 0) {
-                Log.d(MainActivity.TAG, "No devices found");
+                Log.d(P2PActivity.TAG, "No devices found");
                 return;
             }
             Log.i("Peers", peers.toString());
@@ -294,12 +291,12 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
                 manager.cancelConnect(channel, new ActionListener() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(MainActivity.this, "Aborting connection",
+                        Toast.makeText(P2PActivity.this, "Aborting connection",
                                 Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onFailure(int reasonCode) {
-                        Toast.makeText(MainActivity.this,
+                        Toast.makeText(P2PActivity.this,
                                 "Connect abort request failed. Reason Code: " + reasonCode,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -317,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             }
             @Override
             public void onFailure(int reason) {
-                Toast.makeText(MainActivity.this, "Connect failed. Retry.",
+                Toast.makeText(P2PActivity.this, "Connect failed. Retry.",
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -332,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             }
             @Override
             public void onSuccess() {
-                Toast.makeText(MainActivity.this, "Peer Connected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(P2PActivity.this, "Peer Connected", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -32,7 +32,7 @@
             android:name=".Client.Logo"
             android:exported="false" />
         <activity
-            android:name=".Client.MainActivity"
+            android:name=".Client.P2PActivity"
             android:exported="true">
 
             <intent-filter>

@@ -11,7 +11,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
 import com.example.flush_poker_android.Client.DeviceListFragment;
-import com.example.flush_poker_android.network.P;
+import com.example.flush_poker_android.network.P2PActivity;
 import com.example.flush_poker_android.R;
 
 /**
@@ -60,7 +60,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 manager.requestPeers(channel, (PeerListListener) activity.getFragmentManager()
                         .findFragmentById(R.id.frag_list));
             }
-            Log.d(MainActivity.TAG, "P2P peers changed");
+            Log.d(P2PActivity.TAG, "P2P peers changed");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
             if (manager == null) {
                 return;

@@ -88,7 +88,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void onClickExitBtn(View view){
-        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        Intent intent = new Intent(GameActivity.this, P2PActivity.class);
         startActivity(intent);
     }
 
