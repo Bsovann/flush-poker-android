@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         dialog.show();
 
         // Start button
-        Button startBtn = (Button) dialog.findViewById(R.id.startBtn);
+        Button startBtn = dialog.findViewById(R.id.startBtn);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         dialog.show();
 
         // Find button
-        Button findBtn = (Button) dialog.findViewById(R.id.findBtn);
+        Button findBtn = dialog.findViewById(R.id.findBtn);
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -355,15 +355,12 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION:
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "Fine location permission is not granted!");
-                    finish();
-                }
-                else
-                    Toast.makeText(this, "Fine Location is permiited", Toast.LENGTH_SHORT).show();
-                break;
+        if (requestCode == PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "Fine location permission is not granted!");
+                finish();
+            } else
+                Toast.makeText(this, "Fine Location is permiited", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -371,7 +368,13 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     public void onResume() {
         super.onResume();
         registerReceiver(receiver, intentFilter);
+        startPokerGame();
     }
+
+    private void startPokerGame() {
+
+    }
+
     @Override
     public void onPause() {
         super.onPause();
