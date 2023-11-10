@@ -113,7 +113,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         Intent serviceIntent = new Intent(getActivity(), MessageService.class);
 //        serviceIntent.setAction(MessageService.ACTION_SEND_FILE);
 //        serviceIntent.putExtra(MessageService.EXTRAS_FILE_PATH, uri.toString());
-//        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_ADDRESS,
+        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_ADDRESS,
                 info.groupOwnerAddress.getHostAddress());
 //        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_PORT, 8988);
         getActivity().startService(serviceIntent);
@@ -175,7 +175,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         view.setText(R.string.empty);
         view = (TextView) mContentView.findViewById(R.id.status_text);
         view.setText(R.string.empty);
-        mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
+//        mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
         this.getView().setVisibility(View.GONE);
     }
     /**
@@ -197,9 +197,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         protected String doInBackground(Void... params) {
             try {
                 ServerSocket serverSocket = new ServerSocket(8988);
-                Log.d(WiFiDirectActivity.TAG, "Server: Socket opened");
+                Log.d(P2PActivity.TAG, "Server: Socket opened");
                 Socket client = serverSocket.accept();
-                Log.d(WiFiDirectActivity.TAG, "Server: connection done");
+                Log.d(P2PActivity.TAG, "Server: connection done");
                 final File f = new File(context.getExternalFilesDir("received"),
                         "wifip2pshared-" + System.currentTimeMillis()
                                 + ".jpg");
@@ -207,13 +207,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 if (!dirs.exists())
                     dirs.mkdirs();
                 f.createNewFile();
-                Log.d(WiFiDirectActivity.TAG, "server: copying files " + f.toString());
+                Log.d(P2PActivity.TAG, "server: copying files " + f.toString());
                 InputStream inputstream = client.getInputStream();
                 copyFile(inputstream, new FileOutputStream(f));
                 serverSocket.close();
                 return f.getAbsolutePath();
             } catch (IOException e) {
-                Log.e(WiFiDirectActivity.TAG, e.getMessage());
+                Log.e(P2PActivity.TAG, e.getMessage());
                 return null;
             }
         }
