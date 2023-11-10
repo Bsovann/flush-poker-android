@@ -35,6 +35,8 @@ import android.widget.TextView;
 
 import com.example.flush_poker_android.R;
 import com.example.flush_poker_android.Client.DeviceListFragment.DeviceActionListener;
+import com.example.flush_poker_android.network.MessageService;
+import com.example.flush_poker_android.network.P2PActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,7 +61,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mContentView = inflater.inflate(R.layout.device_detail, null);
+//        mContentView = inflater.inflate(R.layout.device_detail, null);
         mContentView.findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,18 +106,16 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // User has picked an image. Transfer it to group owner i.e peer using
-        // FileTransferService.
         Uri uri = data.getData();
         TextView statusText = (TextView) mContentView.findViewById(R.id.status_text);
         statusText.setText("Sending: " + uri);
-        Log.d(WiFiDirectActivity.TAG, "Intent----------- " + uri);
-        Intent serviceIntent = new Intent(getActivity(), FileTransferService.class);
-        serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
-        serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, uri.toString());
-        serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_ADDRESS,
+        Log.d(P2PActivity.TAG, "Intent----------- " + uri);
+        Intent serviceIntent = new Intent(getActivity(), MessageService.class);
+//        serviceIntent.setAction(MessageService.ACTION_SEND_FILE);
+//        serviceIntent.putExtra(MessageService.EXTRAS_FILE_PATH, uri.toString());
+//        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_ADDRESS,
                 info.groupOwnerAddress.getHostAddress());
-        serviceIntent.putExtra(FileTransferService.EXTRAS_GROUP_OWNER_PORT, 8988);
+//        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_PORT, 8988);
         getActivity().startService(serviceIntent);
     }
     @Override
@@ -224,16 +224,16 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-                statusText.setText("File copied - " + result);
-                File recvFile = new File(result);
-                Uri fileUri = FileProvider.getUriForFile(
-                        context,
-                        "com.example.android.wifidirect.fileprovider",
-                        recvFile);
-                Intent intent = new Intent();
-                intent.setAction(android.content.Intent.ACTION_VIEW);
-                intent.setDataAndType(fileUri, "image/*");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                statusText.setText("File copied - " + result);
+//                File recvFile = new File(result);
+//                Uri fileUri = MessageService.getUriForFile(
+//                        context,
+//                        "com.example.android.wifidirect.fileprovider",
+//                        recvFile);
+//                Intent intent = new Intent();
+//                intent.setAction(android.content.Intent.ACTION_VIEW);
+//                intent.setDataAndType(fileUri, "image/*");
+//                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 context.startActivity(intent);
             }
         }
@@ -256,7 +256,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
             out.close();
             inputStream.close();
         } catch (IOException e) {
-            Log.d(WiFiDirectActivity.TAG, e.toString());
+            Log.d(P2PActivity.TAG, e.toString());
             return false;
         }
         return true;
