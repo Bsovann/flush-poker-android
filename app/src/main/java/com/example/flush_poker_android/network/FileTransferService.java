@@ -1,77 +1,133 @@
-package com.example.flush_poker_android.network;
-
-// Copyright 2011 Google Inc. All Rights Reserved.
-import android.app.IntentService;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
-
-import com.example.flush_poker_android.network.P2PActivity;
-
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
-/**
- * A service that process each file transfer request i.e Intent by opening a
- * socket connection with the WiFi Direct Group Owner and writing the file
- */
-public class FileTransferService extends IntentService {
-    private static final int SOCKET_TIMEOUT = 5000;
-    public static final String ACTION_SEND_FILE = "com.example.android.wifidirect.SEND_FILE";
-    public static final String EXTRAS_FILE_PATH = "file_url";
-    public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
-    public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
-    public FileTransferService(String name) {
-        super(name);
-    }
-    public FileTransferService() {
-        super("FileTransferService");
-    }
-    /*
-     * (non-Javadoc)
-     * @see android.app.IntentService#onHandleIntent(android.content.Intent)
+
+public class MessageService {
+
+    private static final int SERVER_PORT = 8888;
+
+    /**
+     * Starts the server thread.
      */
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        Context context = getApplicationContext();
-        if (intent.getAction().equals(ACTION_SEND_FILE)) {
-            String fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
-            String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
-            Socket socket = new Socket();
-            int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
-            try {
-                Log.d(P2PActivity.TAG, "Opening client socket - ");
-                socket.bind(null);
-                socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
-                Log.d(P2PActivity.TAG, "Client socket - " + socket.isConnected());
-                OutputStream stream = socket.getOutputStream();
-                ContentResolver cr = context.getContentResolver();
-                InputStream is = null;
-                try {
-                    is = cr.openInputStream(Uri.parse(fileUri));
-                } catch (FileNotFoundException e) {
-                    Log.d(P2PActivity.TAG, e.toString());
+    public void startServer() {
+        new ServerThread().start();
+    }
+
+    /**
+     * Connects to the server.
+     *
+     * @param hostAddress The IP address of the group owner (server).
+     */
+    public void startClient(String hostAddress) {
+        new ClientThread(hostAddress).start();
+    }
+
+    /**
+     * Server thread to handle incoming client connections.
+     */
+    private class ServerThread extends Thread {
+        @Override
+        public void run() {
+            try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
+                while (!Thread.currentThread().isInterrupted()) {
+                    Socket clientSocket = serverSocket.accept();
+                    new ClientHandlerThread(clientSocket).start();
                 }
-                Log.d(P2PActivity.TAG, "Client: Data written");
             } catch (IOException e) {
-                Log.e(P2PActivity.TAG, e.getMessage());
-            } finally {
-                if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            // Give up
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                // Handle exceptions
             }
+        }
+    }
+
+    /**
+     * Client thread to connect to the server.
+     */
+    private class ClientThread extends Thread {
+        private final String hostAddress;
+
+        public ClientThread(String hostAddress) {
+            this.hostAddress = hostAddress;
+        }
+
+        @Override
+        public void run() {
+            try (Socket socket = new Socket(hostAddress, SERVER_PORT)) {
+                // Handle socket connection for sending and receiving messages
+                handleSocketConnection(socket);
+            } catch (IOException e) {
+                // Handle exceptions
+            }
+        }
+    }
+
+    /**
+     * Thread to handle communication with a connected client.
+     */
+    private class ClientHandlerThread extends Thread {
+        private final Socket clientSocket;
+
+        public ClientHandlerThread(Socket socket) {
+            this.clientSocket = socket;
+        }
+
+        @Override
+        public void run() {
+            try {
+                handleSocketConnection(clientSocket);
+            } catch (IOException e) {
+                // Handle exceptions
+            }
+        }
+    }
+
+    /**
+     * Handles the socket connection for sending and receiving messages.
+     *
+     * @param socket The socket connection.
+     */
+    private void handleSocketConnection(Socket socket) throws IOException {
+        // Create input and output streams
+        OutputStream outputStream = socket.getOutputStream();
+        InputStream inputStream = socket.getInputStream();
+        PrintWriter writer = new PrintWriter(outputStream, true);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        // Example: Send a message
+        writer.println("Hello from " + (socket.isClosed() ? "Client" : "Server"));
+
+        // Example: Read a message
+        String message;
+        while ((message = reader.readLine()) != null) {
+            handleMessage(message);
+        }
+    }
+
+    /**
+     * Handles a received message.
+     *
+     * @param message The received message.
+     */
+    private void handleMessage(String message) {
+        // Process the received message
+    }
+
+    /**
+     * Send a message to a connected peer.
+     *
+     * @param message The message to send.
+     * @param socket  The socket representing the connection to the peer.
+     */
+    public void sendMessage(String message, Socket socket) {
+        try {
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            writer.println(message);
+        } catch (IOException e) {
+            // Handle exceptions
         }
     }
 }
