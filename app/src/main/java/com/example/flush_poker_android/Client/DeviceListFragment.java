@@ -34,6 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.flush_poker_android.R;
+import com.example.flush_poker_android.network.P2PActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         return device;
     }
     private static String getDeviceStatus(int deviceStatus) {
-        Log.d(com.example.flush_poker_android.Client.P2PActivity.TAG, "Peer status :" + deviceStatus);
+        Log.d(P2PActivity.TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {
             case WifiP2pDevice.AVAILABLE:
                 return "Available";
@@ -145,7 +146,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         peers.addAll(peerList.getDeviceList());
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
         if (peers.size() == 0) {
-            Log.d(com.example.flush_poker_android.Client.P2PActivity.TAG, "No devices found");
+            Log.d(P2PActivity.TAG, "No devices found");
             return;
         }
     }

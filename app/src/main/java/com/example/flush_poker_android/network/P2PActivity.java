@@ -1,4 +1,4 @@
-package com.example.flush_poker_android.Client;
+package com.example.flush_poker_android.network;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
@@ -28,7 +28,8 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
+import com.example.flush_poker_android.Client.DeviceListFragment;
+import com.example.flush_poker_android.Client.GameActivity;
 
 import java.util.ArrayList;
 

@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.example.flush_poker_android.Client.P2PActivity;
+import com.example.flush_poker_android.network.P2PActivity;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

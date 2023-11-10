@@ -11,8 +11,11 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
 import android.widget.Toast;
+
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.R;
+import com.example.flush_poker_android.network.P2PActivity;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
