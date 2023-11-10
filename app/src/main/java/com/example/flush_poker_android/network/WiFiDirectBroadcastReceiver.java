@@ -11,7 +11,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 
 import com.example.flush_poker_android.Client.DeviceListFragment;
-import com.example.flush_poker_android.Client.MainActivity;
+import com.example.flush_poker_android.network.P;
 import com.example.flush_poker_android.R;
 
 /**
@@ -20,14 +20,14 @@ import com.example.flush_poker_android.R;
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager manager;
     private Channel channel;
-    private MainActivity activity;
+    private P2PActivity activity;
     /**
      * @param manager WifiP2pManager system service
      * @param channel Wifi p2p channel
      * @param activity activity associated with the receiver
      */
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,
-                                       MainActivity activity) {
+                                       P2PActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;
@@ -51,7 +51,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 activity.setIsWifiP2pEnabled(false);
                 activity.resetData();
             }
-            Log.d(MainActivity.TAG, "P2P state changed - " + state);
+            Log.d(P2PActivity.TAG, "P2P state changed - " + state);
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             // request available peers from the wifi p2p manager. This is an
             // asynchronous call and the calling activity is notified with a
@@ -70,9 +70,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             if (networkInfo.isConnected()) {
                 // we are connected with the other device, request connection
                 // info to find group owner IP
-//                DeviceDetailFragment fragment = (DeviceDetailFragment) activity
-//                        .getFragmentManager().findFragmentById(R.id.frag_detail);
-//                manager.requestConnectionInfo(channel, fragment);
+                DeviceDetailFragment fragment = (DeviceDetailFragment) activity
+                        .getFragmentManager().findFragmentById(R.id.frag_detail);
+                manager.requestConnectionInfo(channel, fragment);
             } else {
                 // It's a disconnect
                 activity.resetData();
