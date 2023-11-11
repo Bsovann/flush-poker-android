@@ -1,4 +1,4 @@
-package com.example.flush_poker_android.network;
+package com.example.flush_poker_android.Client;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
+
 import com.example.flush_poker_android.R;
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -28,8 +29,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.flush_poker_android.Client.DeviceListFragment;
-import com.example.flush_poker_android.Client.GameActivity;
+import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
 import java.util.ArrayList;
 
@@ -175,7 +175,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
         }
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
                 .findFragmentById(R.id.frag_list);
-//        fragment.onInitiateDiscovery();
+        fragment.onInitiateDiscovery();
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
@@ -271,7 +271,9 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
 
     @Override
     public void showDetails(WifiP2pDevice device) {
-
+        DeviceDetailFragment fragment = (DeviceDetailFragment) getFragmentManager()
+                .findFragmentById(R.id.frag_detail);
+        fragment.showDetails(device);
     }
 
     @Override

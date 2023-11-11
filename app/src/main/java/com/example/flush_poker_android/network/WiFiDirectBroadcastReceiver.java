@@ -11,7 +11,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
 import com.example.flush_poker_android.Client.DeviceListFragment;
 import com.example.flush_poker_android.Client.DeviceDetailFragment;
-import com.example.flush_poker_android.network.P2PActivity;
+import com.example.flush_poker_android.Client.P2PActivity;
 import com.example.flush_poker_android.R;
 
 /**
@@ -27,7 +27,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
      * @param activity activity associated with the receiver
      */
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,
-                                       com.example.flush_poker_android.network.P2PActivity activity) {
+                                       P2PActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;

@@ -36,7 +36,6 @@ import android.widget.TextView;
 import com.example.flush_poker_android.R;
 import com.example.flush_poker_android.Client.DeviceListFragment.DeviceActionListener;
 import com.example.flush_poker_android.network.MessageService;
-import com.example.flush_poker_android.network.P2PActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,7 +60,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        mContentView = inflater.inflate(R.layout.device_detail, null);
+        mContentView = inflater.inflate(R.layout.device_detail, null);
         mContentView.findViewById(R.id.btn_connect).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,8 +112,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         Intent serviceIntent = new Intent(getActivity(), MessageService.class);
 //        serviceIntent.setAction(MessageService.ACTION_SEND_FILE);
 //        serviceIntent.putExtra(MessageService.EXTRAS_FILE_PATH, uri.toString());
-        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_ADDRESS,
-                info.groupOwnerAddress.getHostAddress());
+//        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_ADDRESS,
+//                info.groupOwnerAddress.getHostAddress());
 //        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_PORT, 8988);
         getActivity().startService(serviceIntent);
     }
@@ -128,8 +127,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         // The owner IP is now known.
         TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
         view.setText(getResources().getString(R.string.group_owner_text)
-                + ((info.isGroupOwner == true) ? getResources().getString(R.string.yes)
-                : getResources().getString(R.string.no)));
+                + ((info.isGroupOwner == true) ? "Yes"
+                : "No"));
         // InetAddress from WifiP2pInfo struct.
         view = (TextView) mContentView.findViewById(R.id.device_info);
         view.setText("Group Owner IP - " + info.groupOwnerAddress.getHostAddress());
@@ -143,8 +142,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
             // The other device acts as the client. In this case, we enable the
             // get file button.
             mContentView.findViewById(R.id.btn_start_client).setVisibility(View.VISIBLE);
-            ((TextView) mContentView.findViewById(R.id.status_text)).setText(getResources()
-                    .getString(R.string.client_text));
+//            ((TextView) mContentView.findViewById(R.id.status_text)).setText(getResources()
+//                    .getString(R.string.client_text));
         }
         // hide the connect button
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.GONE);
@@ -168,13 +167,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     public void resetViews() {
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
-        view.setText(R.string.empty);
+        view.setText("");
         view = (TextView) mContentView.findViewById(R.id.device_info);
-        view.setText(R.string.empty);
+        view.setText("");
         view = (TextView) mContentView.findViewById(R.id.group_owner);
-        view.setText(R.string.empty);
+        view.setText("");
         view = (TextView) mContentView.findViewById(R.id.status_text);
-        view.setText(R.string.empty);
+        view.setText("");
 //        mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
         this.getView().setVisibility(View.GONE);
     }
@@ -223,19 +222,19 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
          */
         @Override
         protected void onPostExecute(String result) {
-            if (result != null) {
+//            if (result != null) {
 //                statusText.setText("File copied - " + result);
 //                File recvFile = new File(result);
 //                Uri fileUri = MessageService.getUriForFile(
 //                        context,
 //                        "com.example.android.wifidirect.fileprovider",
 //                        recvFile);
-//                Intent intent = new Intent();
+//               Intent intent = new Intent();
 //                intent.setAction(android.content.Intent.ACTION_VIEW);
 //                intent.setDataAndType(fileUri, "image/*");
 //                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                context.startActivity(intent);
-            }
+//                context.startActivity(intent);
+//            }
         }
         /*
          * (non-Javadoc)

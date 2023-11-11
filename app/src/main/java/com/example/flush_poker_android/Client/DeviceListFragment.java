@@ -34,7 +34,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.flush_poker_android.R;
-import com.example.flush_poker_android.network.P2PActivity;
 
 import java.util.ArrayList;
 import java.util.List;

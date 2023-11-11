@@ -9,4 +9,5 @@
     <string name="activity_game">Game Activity\n</string>
     <string name="closeText">Close</string>
     <string name="p2p_off_warning">Off WARNING</string>
+    <string name="group_owner_text">Kyle</string>
 </resources>
