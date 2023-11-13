@@ -2,11 +2,9 @@ package com.example.flush_poker_android.Client;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -14,17 +12,18 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
+
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
-import com.example.flush_poker_android.Logic.BettingLogic;
-import com.example.flush_poker_android.Logic.TexasHoldEmGamePracticeMode;
+import com.example.flush_poker_android.Logic.Player;
+import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class GameActivity extends AppCompatActivity {
     private Dialog dialog;
@@ -32,72 +31,33 @@ public class GameActivity extends AppCompatActivity {
     private float screenBrightness = 127 / 255.0f;
     GridView communityCardView;
     List<GridView> playersView;
-
     List<CardAdapter> playerAdapter;
     CardAdapter commnityCardAdapter;
-
-    private TextView timerTextView;
-    private BettingLogic bettingLogic;
-    private CountDownTimer countDownTimer;
-    private boolean isRunning = false;
     private final Handler handler = new Handler(Looper.getMainLooper());
-
-    private TexasHoldEmGamePracticeMode gameLogic;
-
+    private List<Player> players;
+    private int pot;
+    private Thread controllerThread;
+    ExecutorService playerThreadPool;
+    private GameController gameController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
         initWork();
-
-        gameLogic.startPlayerTurn();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        this.isRunning = false;
-        gameLoop();
     }
-
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        gameLogic.unregisterReceiver(this);
     }
-
     @Override
     protected void onPause(){
         super.onPause();
-        isRunning = false;
     }
-
-    private void gameLoop() {
-        if (isRunning) {
-            startTimer(30000); // 30 seconds
-            // Handle user input (e.g., touch events) to make player moves
-            //pokerGameView.handleInput();
-//
-//            // Update the game state
-//            pokerGameLogic.update();
-//
-//            // Render the game view
-//            pokerGameView.invalidate(); // This will trigger a redraw of the game view
-            Toast.makeText(this, "Test", Toast.LENGTH_SHORT).show();
-
-            // Define your desired frame rate (e.g., 30 FPS)
-            int frameRate = 1000 / 30;
-
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    gameLoop(); // Call the game loop again after a delay
-                }
-            }, frameRate);
-        }
-    }
-
     private void initWork(){
 
         // Enable immersive mode
@@ -114,7 +74,22 @@ public class GameActivity extends AppCompatActivity {
         playersView = new ArrayList<>(5);
         communityCardView = findViewById(R.id.communityCardGrid);
         playerAdapter = new ArrayList<>(5);
+        players = new ArrayList<>();
 
+        renderImagesTemp();
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(5);
+        this.gameController = new GameController(players, handler, threadPool);
+
+        // Assign Each player to each Thread
+        for(int i = 0; i < 5; i++){
+            threadPool.submit(new Player("Player " + i, 5000, gameController));
+        }
+
+        // Start Controller
+        this.controllerThread = new Thread(gameController);
+    }
+    private void renderImagesTemp(){
         playersView.add(findViewById(R.id.myCards));
         playersView.add(findViewById(R.id.player1Cards));
         playersView.add(findViewById(R.id.player2Cards));
@@ -140,41 +115,23 @@ public class GameActivity extends AppCompatActivity {
         Collections.reverse(communityCardImages);
         commnityCardAdapter = new CardAdapter(this, communityCardImages);
         communityCardView.setAdapter(commnityCardAdapter);
-
-        //
-        timerTextView = findViewById(R.id.timerTextView); // Add a TextView for the timer
-        // Start the countdown timer with a 30-second limit (adjust as needed)
-
-        gameLogic = new TexasHoldEmGamePracticeMode(this, handler);
-
-
     }
-
     public void onClickExitBtn(View view){
         Intent intent = new Intent(GameActivity.this, MainActivity.class);
         startActivity(intent);
     }
-
     public void onClickFoldBtn(View view){
-        Toast.makeText(this, "Fold Btn got Clicked!", Toast.LENGTH_SHORT).show();
         handlePlayerAction("Fold");
     }
-
     public void onClickCheckBtn(View view){
-        Toast.makeText(this, "Check Btn got Clicked!", Toast.LENGTH_SHORT).show();
         handlePlayerAction("Check");
     }
-
     public void onClickCallBtn(View view){
-        Toast.makeText(this, "Call Btn got Clicked!", Toast.LENGTH_SHORT).show();
         handlePlayerAction("Call");
     }
-
     public void onClickBetBtn(View view){
-        Toast.makeText(this, "Bet Btn got Clicked!", Toast.LENGTH_SHORT).show();
         handlePlayerAction("Bet");
     }
-
     private void handlePlayerAction(String action) {
         Intent intent = new Intent("com.example.flush_poker_android.ACTION");
         intent.putExtra("action", action);
@@ -182,29 +139,6 @@ public class GameActivity extends AppCompatActivity {
         // Start the service or broadcast the intent
         sendBroadcast(intent);
     }
-
-    private void startTimer(long milliseconds) {
-        countDownTimer = new CountDownTimer(milliseconds, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timerTextView.setText("Time remaining: " + millisUntilFinished / 1000 + " seconds");
-            }
-            @Override
-            public void onFinish() {
-                // Perform actions when the timer finishes (e.g., force the player to fold)
-                handlePlayerAction("Fold");
-            }
-        }.start();
-    }
-
-    private void stopTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            timerTextView.setText("Timer stopped");
-        }
-    }
-
-
     public void onClickChatIcon(View view){
         // Chat Dialog
         dialog.setContentView(R.layout.chat_dialog);
@@ -215,7 +149,6 @@ public class GameActivity extends AppCompatActivity {
         Button sendChatBtn = dialog.findViewById(R.id.sendChatButton);
         sendChatBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void onClickSettingIcon(View view){
 
         // SettingDialog
@@ -225,7 +158,6 @@ public class GameActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         brightnessSeekBar.setProgress((int) (screenBrightness * 255));
         dialog.show();
-
         // Brightness control
         setupSeekBarListener();
 
@@ -233,7 +165,6 @@ public class GameActivity extends AppCompatActivity {
         Button closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void onClickInstructionIcon(View view){
         // Instruction Dialog
         dialog.setContentView(R.layout.instruction_dialog);
@@ -245,7 +176,6 @@ public class GameActivity extends AppCompatActivity {
         Button closeInstructionBtn = dialog.findViewById(R.id.closeInstructionButton);
         closeInstructionBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void setupSeekBarListener(){
         brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
