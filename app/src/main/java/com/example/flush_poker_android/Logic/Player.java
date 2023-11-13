@@ -3,6 +3,7 @@ package com.example.flush_poker_android.Logic;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.ThemedSpinnerAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,22 +30,21 @@ public class Player extends Hand implements Runnable {
     private Handler handlerUi;
     private Context context;
     private Semaphore turn;
-    public Player(String name, int chips, GameController controller, Handler handler, Context context) {
+    public Player(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
         this.chips = chips;
         this.playerAction = "";
         this.availableActions = new LinkedHashSet<>();
-        this.controller = controller;
         this.handlerUi = handler;
         this.context = context;
     }
     @Override
     public void run() {
         while (true) {
-            synchronized (controller) {
+            synchronized (this) {
                 try {
-                    controller.wait(); // Wait for the controller to signal your turn
+                    this.wait(); // Wait for the controller to signal your turn
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -53,17 +53,24 @@ public class Player extends Hand implements Runnable {
                 makeAutoDecision();
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
-                // Signal the controller that your turn is done
-                actionIsDone = true;
-                controller.endPlayerTurn();
+                synchronized (controller){
+                    // Signal the controller that your turn is done
+                    actionIsDone = true;
+                    controller.notify();
+                    if(this.playerAction.equals("Fold"))
+                        Thread.currentThread().interrupt();
+                }
             }
 
         }
+    }
+    public void setController(GameController controller){
+        this.controller = controller;
     }
 
     private void updateUIToast(String str){
@@ -185,9 +192,9 @@ public class Player extends Hand implements Runnable {
             }
         } else {
             // 25% chance to raise
-//            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
-//            raise(raiseAmount);
-//            setPlayerAction("Raise " + raiseAmount);
+            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
+            raise(raiseAmount);
+            setPlayerAction("Raise");
         }
 
         // Signal that the AI has completed its action
@@ -196,6 +203,10 @@ public class Player extends Hand implements Runnable {
 
     public void setTurnLocker(Semaphore turn) {
         this.turn = turn;
+    }
+
+    public void setActionIsDone(boolean b) {
+        this.actionIsDone = b;
     }
 }
 

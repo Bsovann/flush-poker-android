@@ -6,8 +6,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 public class GameController implements Runnable {
@@ -32,22 +30,24 @@ public class GameController implements Runnable {
     private List<Thread> playerThreads;
 
 
-    public GameController(Handler handler, Context context) {
+    public GameController(List<Player> players, Handler handler, Context context) {
+        this.players = players;
         this.mainUiThread = handler;
         this.gameContext = context;
         this.playerThreads = new ArrayList<>();
         this.turn = new Semaphore(1);
-    }
 
-    public void setPlayersAndInitGame(List<Player> players){
-        this.players = players;
         // Initialize game logic
         initializeGame();
     }
 
+    public void setPlayersAndInitGame(List<Player> players){
+        this.players = players;
+
+    }
+
     @Override
     public void run() {
-        setUpPlayersThread();
         while(this.players.size() > 1){
             startGame();
         }
@@ -92,8 +92,8 @@ public class GameController implements Runnable {
         dealer = players.get(dealerPosition);
 
         // Determine small blind and big blind positions
-        int smallBlindPosition = (dealerPosition + 1);
-        int bigBlindPosition = (dealerPosition + 2);
+        int smallBlindPosition = (dealerPosition + 1) % players.size();
+        int bigBlindPosition = (dealerPosition + 2) % players.size();
 
         // Player in small blind position posts the small blind
         Player smallBlindPlayer = players.get(smallBlindPosition);
@@ -107,26 +107,30 @@ public class GameController implements Runnable {
         dealTwoHoleCardsToPlayers();
 
         // Player, Right of Big Blind (Clockwise)
-        currentPlayerIndex = (bigBlindPosition + 1);
+        currentPlayerIndex = (bigBlindPosition + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
 
-        // Start Betting Round!
-        while (!checkBettingRoundComplete()) {
+        // Deal community cards when
+        dealCommunityCards();
 
-            // Deal community cards and handle betting rounds.
-            dealCommunityCards();
+        // Start Betting Round!
+        while (true) {
+
+            if(checkBettingRoundComplete())
+                dealCommunityCards();
 
             // Players can choose to fold, call, or raise.
             // Update the current bet, pot, and player actions accordingly.
             currentPlayer.setAvailableActions(currentBet);
-            startPlayerTurn(currentPlayer);
+            synchronized (currentPlayer){
+                currentPlayer.notify();
+            }
+
             // Wait for the player's turn to be completed.
-
             while(!currentPlayer.actionIsDone()) {
-
-                synchronized (currentPlayer){
+                synchronized (this){
                     try {
-                        currentPlayer.wait();
+                        this.wait();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -134,17 +138,22 @@ public class GameController implements Runnable {
             }
 
             String playerChoice = currentPlayer.getPlayerAction();
-
+            updateToastUi(currentPlayer.getName() + " " + playerChoice);
 
             // Process the player's action (e.g., update bets, check for folds, etc.)
             processPlayerChoice(playerChoice);
 
-            // Check for showdown and determine the winner.
-            checkShowDownAndDetermineWinner();
-
             updateToastUi(communityCards.toString());
 
+            // Check for showdown and determine the winner.
+            if(determineWinner()) {
+                updateToastUi("The Winner is " + winner.getName());
+                break;
+            }
         }
+
+
+
     }
 
     public synchronized void startPlayerTurn(Player player) {
@@ -174,7 +183,7 @@ public class GameController implements Runnable {
         pot += blindAmount;
         // You can add a log or notification to inform other players about the blind being posted.
     }
-    private void checkShowDownAndDetermineWinner() {
+    private Boolean determineWinner() {
         if (communityCards.size() == 5) {
             this.winner = determineWinner(players, communityCards);
             this.winner.addToChipCount(pot);
@@ -187,12 +196,13 @@ public class GameController implements Runnable {
             communityCards.clear();
             deck.reset();
             deck.shuffle();
-            dealer = players.get((players.indexOf(dealer) + 1) % players.size());
-            currentPlayerIndex = (players.indexOf(dealer) + 1) % players.size();
+            dealerPosition++;
+            return true;
         } else {
             // Move to the next player's turn.
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             currentPlayer = players.get(currentPlayerIndex);
+            return false;
         }
     }
     private void processPlayerChoice(String playerChoice) {
@@ -214,15 +224,17 @@ public class GameController implements Runnable {
 //            pot += currentBet;
         }
     }
-    public synchronized boolean checkBettingRoundComplete() {
+    public boolean checkBettingRoundComplete() {
         // Implement the logic to check if the betting round is complete.
         // You can iterate through the players and check if they have all matched the current bet.
         // Return true if the round is complete; otherwise, return false.
         for (Player player : players) {
-            if (player.getChips() > 0 && !player.hasFolded() && player.getCurrentBet() < currentBet) {
+            if (!player.actionIsDone()) {
                 return false;
             }
         }
+        for (Player player : players)
+            player.setActionIsDone(false);
         return true;
     }
     public synchronized void dealCommunityCards() {

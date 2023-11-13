@@ -78,15 +78,23 @@ public class GameActivity extends AppCompatActivity {
 
         renderImagesTemp();
 
-        this.gameController = new GameController(handler,getApplicationContext());
+        this.playerThreadPool = Executors.newFixedThreadPool(5);
+
+
 
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
-            players.add(new Player("Player "+ i, 50000, gameController, handler, getApplicationContext()));
+            players.add(new Player(
+                    "Player "+ i, 50000, handler, getApplicationContext()));
         }
 
-        // Start Controller
-        this.gameController.setPlayersAndInitGame(players);
+        this.gameController = new GameController(players, handler,getApplicationContext());
+
+        // Set Controller to every player and launch Thread
+        for(Player player : players) {
+            player.setController(gameController);
+            playerThreadPool.submit(player);
+        }
         this.controllerThread = new Thread(gameController);
         controllerThread.start();
     }
@@ -101,6 +109,7 @@ public class GameActivity extends AppCompatActivity {
         for(int i = 0; i < 5; i++) {
             playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
         }
+
 
         // Render card
         for(int i = 0; i < 5; i++) {
