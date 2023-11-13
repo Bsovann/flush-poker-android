@@ -12,7 +12,7 @@ public class TexasHoldEmGamePracticeModeTest {
     private GameController game;
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
 //        game = new TexasHoldEmGamePracticeMode();
         game.startGame();
     }

@@ -2,10 +2,13 @@ package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
 import android.os.Handler;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 public class GameController implements Runnable {
     private Deck deck;
@@ -21,31 +24,49 @@ public class GameController implements Runnable {
     private int currentPlayerIndex;
     private Player winner;
     private Handler mainUiThread;
-    private ExecutorService playerThreadPool;
     private Boolean gameActive = true;
+    private Context gameContext;
+    private Semaphore turn;
+    private Player playerTurn;
 
-    public GameController(List<Player> players, Handler handler, ExecutorService playerThreadPool) {
-        this.players = players;
+    private List<Thread> playerThreads;
+
+
+    public GameController(Handler handler, Context context) {
         this.mainUiThread = handler;
-        this.playerThreadPool = playerThreadPool;
+        this.gameContext = context;
+        this.playerThreads = new ArrayList<>();
+        this.turn = new Semaphore(1);
+    }
+
+    public void setPlayersAndInitGame(List<Player> players){
+        this.players = players;
         // Initialize game logic
         initializeGame();
     }
 
     @Override
     public void run() {
+        setUpPlayersThread();
         while(this.players.size() > 1){
             startGame();
         }
         endGame();
     }
+    private void setUpPlayersThread(){
+        for(int i = 0; i < players.size(); i++){
+            Player player = players.get(i);
+                    player.setTurnLocker(turn);
+
+            Thread thread = new Thread(player);
+            thread.setName(player.getName());
+            playerThreads.add(thread);
+            thread.start();
+        }
+    }
 
     private void endGame() {
         this.gameActive = false;
-    }
-
-    public Boolean isGameActive(){
-        return this.gameActive;
     }
 
     private void initializeGame() {
@@ -55,7 +76,12 @@ public class GameController implements Runnable {
         this.pot = 0;
     }
 
+    public Player getPlayerTurn(){
+        return this.playerTurn;
+    }
+
     public void startGame() {
+
         // DeckShuffle
         deck.shuffle();
 
@@ -93,30 +119,54 @@ public class GameController implements Runnable {
             // Players can choose to fold, call, or raise.
             // Update the current bet, pot, and player actions accordingly.
             currentPlayer.setAvailableActions(currentBet);
+            startPlayerTurn(currentPlayer);
+            // Wait for the player's turn to be completed.
 
             while(!currentPlayer.actionIsDone()) {
-                // Wait for the player's action to be completed
-                synchronized (currentPlayer) {
+
+                synchronized (currentPlayer){
                     try {
                         currentPlayer.wait();
                     } catch (InterruptedException e) {
-                        // Handle the interruption gracefully
-                        System.err.println("Player " + currentPlayer.getName() + " was interrupted while taking an action.");
-                        // You can choose to continue the game by skipping the interrupted player's turn
-                        currentPlayer.setPlayerAction("Fold");
-                        break;
+                        throw new RuntimeException(e);
                     }
                 }
             }
 
             String playerChoice = currentPlayer.getPlayerAction();
+
+
             // Process the player's action (e.g., update bets, check for folds, etc.)
             processPlayerChoice(playerChoice);
 
             // Check for showdown and determine the winner.
             checkShowDownAndDetermineWinner();
 
+            updateToastUi(communityCards.toString());
+
         }
+    }
+
+    public synchronized void startPlayerTurn(Player player) {
+        currentPlayer = player;
+        player.notifyAll(); // Signal the player that it's their turn
+    }
+
+    public synchronized void endPlayerTurn() {
+        notifyAll(); // Signal that the player's turn is done
+    }
+    public synchronized boolean isGameActive() {
+        // Check if the game is active
+        return players.size() > 1;
+    }
+
+    private void updateToastUi(String playerChoice) {
+        mainUiThread.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(gameContext, playerChoice, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void postBlind(Player player, int blindAmount) {

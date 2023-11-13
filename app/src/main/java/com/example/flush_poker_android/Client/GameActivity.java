@@ -78,16 +78,17 @@ public class GameActivity extends AppCompatActivity {
 
         renderImagesTemp();
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(5);
-        this.gameController = new GameController(players, handler, threadPool);
+        this.gameController = new GameController(handler,getApplicationContext());
 
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
-            threadPool.submit(new Player("Player " + i, 5000, gameController));
+            players.add(new Player("Player "+ i, 50000, gameController, handler, getApplicationContext()));
         }
 
         // Start Controller
+        this.gameController.setPlayersAndInitGame(players);
         this.controllerThread = new Thread(gameController);
+        controllerThread.start();
     }
     private void renderImagesTemp(){
         playersView.add(findViewById(R.id.myCards));
