@@ -9,6 +9,13 @@
     android:background="#052E3E"
     >
 
+    <TextView
+        android:id="@+id/timerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/myProfile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/credit"
@@ -252,7 +259,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="63dp"
 
-            android:layout_marginEnd="78dp"
+
+            android:layout_marginEnd="62dp"
             android:horizontalSpacing="-40dp"
             android:numColumns="2" />
 

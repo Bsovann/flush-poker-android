@@ -25,7 +25,7 @@ public class HandTest {
     public void testAddCard() {
         Card card = new Card(Suit.HEARTS, Rank.ACE);
         hand.addCard(card);
-        assertTrue(hand.getCards().contains(card));
+        assertTrue(hand.getHand().contains(card));
     }
 
     @Test
@@ -33,7 +33,7 @@ public class HandTest {
         Card card = new Card(Suit.HEARTS, Rank.ACE);
         hand.addCard(card);
         hand.clear();
-        assertTrue(hand.getCards().isEmpty());
+        assertTrue(hand.getHand().isEmpty());
     }
 
     @Test
@@ -191,7 +191,7 @@ public class HandTest {
         Card card = new Card(Suit.HEARTS, Rank.ACE);
         hand.addCard(card);
         hand.clearHand();
-        assertTrue(hand.getCards().isEmpty());
+        assertTrue(hand.getHand().isEmpty());
     }
 }
 
