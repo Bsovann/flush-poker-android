@@ -9,4 +9,17 @@
     <string name="activity_game">Game Activity\n</string>
     <string name="closeText">Close</string>
     <string name="p2p_off_warning">Off WARNING</string>
+    <string name="rules_rounds">Each player makes a bet about how good their hand is in clockwise order. A player must either match or raise a previous bet, putting their chips in a “pot”. The player can also fold, discarding their hand and forfeiting the pot for the current round. At the end of the round, the remaining players compare their hands, and the player with the best hand wins the pot. \n</string>
+    <string name="hands">Hands are ordered based on rank:\n
+    1. Royal Flush: Ace, King, Queen, Jack, and Ten of the same suit\n
+    2. Straight Flush: Five cards of the same suit in sequential rank\n
+    3. Four of a kind: Four cards of the same rank\n
+    4. Full house: One pair and Three of a kind\n
+    5. Flush: Five cards of the same suit\n
+    6. Straight: Five cards in sequential rank\n
+    7. Three of a kind: Three cards of the same rank\n
+    8. Two pair: Two pairs of cards, each pair having two cards of the same rank\n
+    9. One pair: Two cards of the same rank\n
+    10. High card: No pair, the card of the highest rank of each hand is compared\n
+    </string>
 </resources>
