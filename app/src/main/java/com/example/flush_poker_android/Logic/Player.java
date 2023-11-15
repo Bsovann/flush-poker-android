@@ -2,18 +2,9 @@ package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
-import android.widget.ThemedSpinnerAdapter;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
-import com.example.flush_poker_android.R;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -49,25 +40,61 @@ public class Player extends Hand implements Runnable {
                     e.printStackTrace();
                 }
 
-                // Perform actions for your turn
-                makeAutoDecision();
-
                 try {
                     Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
 
+                // Perform actions for your turn
+                makeDecision();
+
                 synchronized (controller){
                     // Signal the controller that your turn is done
                     actionIsDone = true;
                     controller.notify();
-                    if(this.playerAction.equals("Fold"))
-                        Thread.currentThread().interrupt();
                 }
             }
 
         }
+    }
+
+    private void makeDecision() {
+        // This is a basic AI logic for automatic decision-making.
+        // You can make it more sophisticated based on your game rules.
+        int currentBet = controller.getCurrentBet();
+        int minRaise = currentBet - getCurrentBet() + 1;
+        int maxRaise = getChips();
+
+        Random random = new Random();
+        int decision = random.nextInt(4); // Generate a random decision (0 to 3)
+
+        if (decision == 0) {
+            // 25% chance to fold
+            fold();
+            setPlayerAction("Fold");
+        } else if (decision == 1) {
+            // 25% chance to check
+            if (getCurrentBet() == currentBet) {
+                check();
+                setPlayerAction("Check");
+            }
+        } else if (decision == 2) {
+            // 25% chance to call
+            int callAmount = currentBet - getCurrentBet();
+            if (callAmount > 0 && callAmount <= getChips()) {
+                bet(callAmount);
+                setPlayerAction("Call");
+            }
+        } else {
+            // 25% chance to raise
+            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
+            raise(raiseAmount);
+            setPlayerAction("Raise");
+        }
+
+        // Signal that the AI has completed its action
+        actionIsDone = true;
     }
     public void setController(GameController controller){
         this.controller = controller;
@@ -163,43 +190,7 @@ public class Player extends Hand implements Runnable {
         this.chips -= amount;
     }
 
-    private void makeAutoDecision() {
-        // This is a basic AI logic for automatic decision-making.
-        // You can make it more sophisticated based on your game rules.
-        int currentBet = controller.getCurrentBet();
-        int minRaise = currentBet - getCurrentBet() + 1;
-        int maxRaise = getChips();
 
-        Random random = new Random();
-        int decision = random.nextInt(4); // Generate a random decision (0 to 3)
-
-        if (decision == 0) {
-            // 25% chance to fold
-            fold();
-            setPlayerAction("Fold");
-        } else if (decision == 1) {
-            // 25% chance to check
-            if (getCurrentBet() == currentBet) {
-                check();
-                setPlayerAction("Check");
-            }
-        } else if (decision == 2) {
-            // 25% chance to call
-            int callAmount = currentBet - getCurrentBet();
-            if (callAmount > 0 && callAmount <= getChips()) {
-                bet(callAmount);
-                setPlayerAction("Call");
-            }
-        } else {
-            // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
-            raise(raiseAmount);
-            setPlayerAction("Raise");
-        }
-
-        // Signal that the AI has completed its action
-        actionIsDone = true;
-    }
 
     public void setTurnLocker(Semaphore turn) {
         this.turn = turn;
