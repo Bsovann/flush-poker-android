@@ -129,9 +129,39 @@
 
         <!--Find Match Button -->
         <Button
-            android:id="@+id/findMatchButton"
+            android:id="@+id/findTableButton"
             android:layout_width="164dp"
             android:layout_height="54dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/custom_border_background"
+            android:onClick="onClickFindTableBtn"
+            android:orientation="vertical"
+            android:text="Find Table"
+            android:textAppearance="@style/buttonTextStyle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:elevation="4dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.977"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.48">
+
+        <!--Find Match Button -->
+        <Button
+            android:id="@+id/practiceButton"
+            android:layout_width="155dp"
+            android:layout_height="187dp"
             android:layout_centerInParent="true"
             android:background="@drawable/custom_border_background"
             android:onClick="onClickPracticeBtn"
