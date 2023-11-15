@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class MessageService {
+public class MessageService  {
 
     private static final int SERVER_PORT = 8888;
 
