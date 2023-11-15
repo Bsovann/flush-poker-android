@@ -4,9 +4,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import com.example.flush_poker_android.Logic.Deck;
-import com.example.flush_poker_android.Logic.Player;
-
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
