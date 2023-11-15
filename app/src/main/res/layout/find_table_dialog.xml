@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Challenge Friends"
+            android:text="Find Table"
             android:layout_marginTop="20dp"
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
@@ -24,14 +24,15 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:padding="15dp"
-            android:layout_height="210dp">
+            android:layout_height="240dp">
 
             <fragment
                 class="com.example.flush_poker_android.Client.DeviceListFragment"
                 android:id="@+id/frag_list"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:padding="50dp"
-                android:layout_height="210dp"
+
                 android:drawSelectorOnTop="false">
                 <!-- Preview: layout=@layout/row_devices -->
             </fragment>
@@ -41,7 +42,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_gravity="center">
             <LinearLayout
                 android:layout_width="wrap_content"
