@@ -25,8 +25,6 @@ public class GameController implements Runnable {
     private Boolean gameActive = true;
     private Context gameContext;
     private Semaphore turn;
-    private Player playerTurn;
-
     private List<Thread> playerThreads;
 
 

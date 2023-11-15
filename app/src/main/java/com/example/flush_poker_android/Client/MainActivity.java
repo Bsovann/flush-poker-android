@@ -22,7 +22,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.os.Build;
@@ -301,22 +300,15 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
 
     @Override
     public void connect(WifiP2pConfig config) {
-        manager.connect(channel, config, new ActionListener() {
-            @Override
-            public void onSuccess() {
-                // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
-            }
-            @Override
-            public void onFailure(int reason) {
-                Toast.makeText(MainActivity.this, "Connect failed. Retry.",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        com.example.flush_poker_android.network.ConnectTask connect = new com.example.flush_poker_android.network.ConnectTask(MainActivity.this ,manager, channel, config);
+
+        connect.execute();
     }
 
     @Override
     public void disconnect() {
-        manager.removeGroup(channel, new ActionListener() {
+        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onFailure(int reasonCode) {
                 Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
@@ -338,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             manager.initialize(this, getMainLooper(), this);
         } else {
             Toast.makeText(this,
-                    "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
+                    "Severe! Channel is probably lost permanently. Try Disable/Re-Enable P2P.",
                     Toast.LENGTH_LONG).show();
         }
     }

@@ -109,10 +109,8 @@ public class PeerActivity extends AppCompatActivity {
         playersView.add(findViewById(R.id.player4Cards));
 
         // Add players cards images and render
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < 5; i++)
             playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
-        }
-
 
         // Render card
         for(int i = 0; i < 5; i++) {
