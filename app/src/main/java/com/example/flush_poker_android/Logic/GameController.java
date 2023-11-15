@@ -1,7 +1,12 @@
 package com.example.flush_poker_android.Logic;
+
 import android.content.Context;
 import android.os.Handler;
 import android.widget.Toast;
+
+import com.example.flush_poker_android.Client.GameUpdateListener;
+import com.example.flush_poker_android.Client.Utility.CardUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +29,8 @@ public class GameController implements Runnable {
     private final Handler mainUiThread;
     private final Context gameContext;
     private ExecutorService playerThreadPool;
+    private List<GameUpdateListener> listeners = new ArrayList<>();
+    // Create CardFragment instance
 
     public GameController(List<BotPlayer> players, Handler handler, Context context, ExecutorService playerThreadPool) {
         this.players = players;
@@ -90,13 +97,15 @@ public class GameController implements Runnable {
 
         // Deal community cards when
         dealCommunityCards();
-
+        updateCommunityCardsUI();
 
         // Start Betting Round!
         while (communityCards.size() != 5) {
 
-            if (isBettingRoundComplete())
+            if (isBettingRoundComplete()) {
                 dealCommunityCards();
+                updateCommunityCardsUI();
+            }
             else {
                 updateToastUi(communityCards.toString());
 
@@ -144,6 +153,34 @@ public class GameController implements Runnable {
                     updateToastUi("The Winner is: " + winner.getName());
                 }
     }
+
+    // Update Card UI
+    private void updateCommunityCardsUI() {
+        List<Integer> imagesId = communityCards.stream()
+                .map(card -> CardUtils.getCardImageResourceId(card.toString(), gameContext))
+                .collect(Collectors.toList());
+
+        notifyCardUpdate(imagesId);
+    }
+
+
+    // Other GameController methods...
+
+    public void addGameUpdateListener(GameUpdateListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeGameUpdateListener(GameUpdateListener listener) {
+        listeners.remove(listener);
+    }
+
+    // Call this method when there's a card update
+    private void notifyCardUpdate(List<Integer> updatedCardImages) {
+        for (GameUpdateListener listener : listeners) {
+            listener.onCardUpdate(updatedCardImages);
+        }
+    }
+
     public synchronized boolean isGameActive() {
         // Check if the game is active
         return players.size() > 1;
