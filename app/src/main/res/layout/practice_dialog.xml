@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/practice"
+            android:text="Practice Mode"
             android:layout_marginTop="20dp"
             android:textAlignment="center"
             android:textAppearance="@style/buttonTextStyle"/>
@@ -27,17 +27,20 @@
             android:padding="50dp"
             android:layout_height="210dp"
             android:drawSelectorOnTop="false">
-            <!-- Preview: layout=@layout/row_devices -->
         </ImageView>
 
-        <Button
-            android:id="@+id/startBtn"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/custom_border_background"
-            android:layout_gravity="center"
-            android:text="Start" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:id="@+id/startBtn"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/custom_border_background"
+                android:text="Start" />
+        </RelativeLayout>
+
 
     </LinearLayout>
 

@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     }
 
     public void onClickPracticeBtn(View view){
-        // Find Match Dialog
+        // practice Table Dialog
         dialog.setContentView(R.layout.practice_dialog);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -143,6 +143,24 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     public void onClickChallengeBtn(View view){
         // Challenge Friends Dialog
         dialog.setContentView(R.layout.challenge_dialog);
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+
+        // Join button
+        Button startBtn = dialog.findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, HostActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    public void onClickFindTableBtn(View view){
+        // Challenge Friends Dialog
+        dialog.setContentView(R.layout.find_table_dialog);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
