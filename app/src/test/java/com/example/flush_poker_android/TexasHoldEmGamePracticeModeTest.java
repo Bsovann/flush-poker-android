@@ -4,16 +4,17 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.Player;
-import com.example.flush_poker_android.Logic.TexasHoldEmGamePracticeMode;
+import com.example.flush_poker_android.Logic.GameController;
 
 public class TexasHoldEmGamePracticeModeTest {
 
-    private TexasHoldEmGamePracticeMode game;
+    private GameController game;
 
     @Before
-    public void setUp() {
-        game = new TexasHoldEmGamePracticeMode();
+    public void setUp() throws InterruptedException {
+//        game = new TexasHoldEmGamePracticeMode();
         game.startGame();
     }
 
@@ -31,8 +32,8 @@ public class TexasHoldEmGamePracticeModeTest {
     @Test
     public void testDealHoleCardsToPlayers() {
         game.dealTwoHoleCardsToPlayers();
-        for (Player player : game.getPlayers()) {
-            assertEquals(2, player.getCards().size());
+        for (BotPlayer player : game.getPlayers()) {
+            assertEquals(2, player.getHand().size());
         }
     }
 
@@ -51,7 +52,7 @@ public class TexasHoldEmGamePracticeModeTest {
 
     @Test
     public void testGetCurrentPlayer() {
-        Player currentPlayer = game.getCurrentPlayer();
+        BotPlayer currentPlayer = game.getCurrentPlayer();
         assertNotNull(currentPlayer);
         assertTrue(game.getPlayers().contains(currentPlayer));
     }

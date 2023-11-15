@@ -4,29 +4,30 @@ import android.content.Context;
 import android.os.Handler;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-public class Player extends Hand implements Runnable {
+public class BotPlayer extends Hand implements Runnable {
     private final String name;
     private int currentBet;
     private String playerAction;
-    private Set<String> availableActions;
+    private List<String> availableActions;
     private Boolean hasFold = false;
     private Boolean actionIsDone = false;
     private int chips;
     private GameController controller;
     private Handler handlerUi;
     private Context context;
-    private Semaphore turn;
-    public Player(String name, int chips, Handler handler, Context context) {
+    public BotPlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
         this.chips = chips;
         this.playerAction = "";
-        this.availableActions = new LinkedHashSet<>();
+        this.availableActions = new ArrayList<>();
         this.handlerUi = handler;
         this.context = context;
     }
@@ -36,65 +37,19 @@ public class Player extends Hand implements Runnable {
             synchronized (this) {
                 try {
                     this.wait(); // Wait for the controller to signal your turn
+                    Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
                 // Perform actions for your turn
-                makeDecision();
-
+                makeAutoDecision();
                 synchronized (controller){
                     // Signal the controller that your turn is done
                     actionIsDone = true;
                     controller.notify();
                 }
             }
-
         }
-    }
-
-    private void makeDecision() {
-        // This is a basic AI logic for automatic decision-making.
-        // You can make it more sophisticated based on your game rules.
-        int currentBet = controller.getCurrentBet();
-        int minRaise = currentBet - getCurrentBet() + 1;
-        int maxRaise = getChips();
-
-        Random random = new Random();
-        int decision = random.nextInt(4); // Generate a random decision (0 to 3)
-
-        if (decision == 0) {
-            // 25% chance to fold
-            fold();
-            setPlayerAction("Fold");
-        } else if (decision == 1) {
-            // 25% chance to check
-            if (getCurrentBet() == currentBet) {
-                check();
-                setPlayerAction("Check");
-            }
-        } else if (decision == 2) {
-            // 25% chance to call
-            int callAmount = currentBet - getCurrentBet();
-            if (callAmount > 0 && callAmount <= getChips()) {
-                bet(callAmount);
-                setPlayerAction("Call");
-            }
-        } else {
-            // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
-            raise(raiseAmount);
-            setPlayerAction("Raise");
-        }
-
-        // Signal that the AI has completed its action
-        actionIsDone = true;
     }
     public void setController(GameController controller){
         this.controller = controller;
@@ -117,7 +72,7 @@ public class Player extends Hand implements Runnable {
         return hasFold;
     }
     public void setAvailableActions(int currentBet) {
-        Set<String> actions = new LinkedHashSet<>();
+        List<String> actions = new ArrayList<>();
 
         // Check if the player can Fold
         if (!this.hasFolded()) {
@@ -190,10 +145,44 @@ public class Player extends Hand implements Runnable {
         this.chips -= amount;
     }
 
+    private void makeAutoDecision() {
+        // This is a basic AI logic for automatic decision-making.
+        // You can make it more sophisticated based on your game rules.
+        int currentBet = controller.getCurrentBet();
+        int minRaise = currentBet - getCurrentBet() + 1;
+        int maxRaise = getChips();
 
+        Random random = new Random();
+        int decision = random.nextInt(availableActions.size()); // Generate a random decision (0 to 3)
 
-    public void setTurnLocker(Semaphore turn) {
-        this.turn = turn;
+        String playerAction = availableActions.get(decision);
+
+        if (playerAction.equals("Fold")) {
+            // 25% chance to fold
+            fold();
+            setPlayerAction("Fold");
+        } else if (playerAction.equals("Check")) {
+            // 25% chance to check
+            if (getCurrentBet() == currentBet) {
+                check();
+                setPlayerAction("Check");
+            }
+        } else if (playerAction.equals("Call")) {
+            // 25% chance to call
+            int callAmount = currentBet - getCurrentBet();
+            if (callAmount > 0 && callAmount <= getChips()) {
+                bet(callAmount);
+                setPlayerAction("Call");
+            }
+        } else {
+            // 25% chance to raise
+            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
+            raise(raiseAmount);
+            setPlayerAction("Raise");
+        }
+
+        // Signal that the AI has completed its action
+        actionIsDone = true;
     }
 
     public void setActionIsDone(boolean b) {

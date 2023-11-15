@@ -5,44 +5,64 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
-import android.widget.Toast;
+
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
+import com.example.flush_poker_android.Logic.BotPlayer;
+import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class GameActivity extends AppCompatActivity {
+public class HostActivity extends AppCompatActivity {
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
     GridView communityCardView;
     List<GridView> playersView;
-
     List<CardAdapter> playerAdapter;
     CardAdapter commnityCardAdapter;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private List<BotPlayer> players;
+    private int pot;
+    private Thread controllerThread;
+    ExecutorService playerThreadPool;
+    private GameController gameController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
         initWork();
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
     }
-
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        try {
+            controllerThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
     private void initWork(){
 
         // Enable immersive mode
@@ -59,7 +79,31 @@ public class GameActivity extends AppCompatActivity {
         playersView = new ArrayList<>(5);
         communityCardView = findViewById(R.id.communityCardGrid);
         playerAdapter = new ArrayList<>(5);
+        players = new ArrayList<>();
 
+        renderImagesTemp();
+
+        this.playerThreadPool = Executors.newFixedThreadPool(5);
+
+
+
+        // Assign Each player to each Thread
+        for(int i = 0; i < 5; i++){
+            players.add(new BotPlayer(
+                    "Player "+ i, 50000, handler, getApplicationContext()));
+        }
+
+        this.gameController = new GameController(players, handler,getApplicationContext(), playerThreadPool);
+
+        // Set Controller to every player and launch Thread
+        for(BotPlayer player : players) {
+            player.setController(gameController);
+            playerThreadPool.submit(player);
+        }
+        this.controllerThread = new Thread(gameController);
+        controllerThread.start();
+    }
+    private void renderImagesTemp(){
         playersView.add(findViewById(R.id.myCards));
         playersView.add(findViewById(R.id.player1Cards));
         playersView.add(findViewById(R.id.player2Cards));
@@ -70,6 +114,7 @@ public class GameActivity extends AppCompatActivity {
         for(int i = 0; i < 5; i++) {
             playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
         }
+
 
         // Render card
         for(int i = 0; i < 5; i++) {
@@ -86,28 +131,29 @@ public class GameActivity extends AppCompatActivity {
         commnityCardAdapter = new CardAdapter(this, communityCardImages);
         communityCardView.setAdapter(commnityCardAdapter);
     }
-
     public void onClickExitBtn(View view){
-        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        Intent intent = new Intent(HostActivity.this, MainActivity.class);
         startActivity(intent);
     }
-
     public void onClickFoldBtn(View view){
-        Toast.makeText(this, "Fold Btn got Clicked!", Toast.LENGTH_SHORT).show();
+        handlePlayerAction("Fold");
     }
-
     public void onClickCheckBtn(View view){
-        Toast.makeText(this, "Check Btn got Clicked!", Toast.LENGTH_SHORT).show();
+        handlePlayerAction("Check");
     }
-
     public void onClickCallBtn(View view){
-        Toast.makeText(this, "Call Btn got Clicked!", Toast.LENGTH_SHORT).show();
+        handlePlayerAction("Call");
     }
-
     public void onClickBetBtn(View view){
-        Toast.makeText(this, "Bet Btn got Clicked!", Toast.LENGTH_SHORT).show();
+        handlePlayerAction("Bet");
     }
+    private void handlePlayerAction(String action) {
+        Intent intent = new Intent("com.example.flush_poker_android.ACTION");
+        intent.putExtra("action", action);
 
+        // Start the service or broadcast the intent
+        sendBroadcast(intent);
+    }
     public void onClickChatIcon(View view){
         // Chat Dialog
         dialog.setContentView(R.layout.chat_dialog);
@@ -118,7 +164,6 @@ public class GameActivity extends AppCompatActivity {
         Button sendChatBtn = dialog.findViewById(R.id.sendChatButton);
         sendChatBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void onClickSettingIcon(View view){
 
         // SettingDialog
@@ -128,7 +173,6 @@ public class GameActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         brightnessSeekBar.setProgress((int) (screenBrightness * 255));
         dialog.show();
-
         // Brightness control
         setupSeekBarListener();
 
@@ -136,7 +180,6 @@ public class GameActivity extends AppCompatActivity {
         Button closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void onClickInstructionIcon(View view){
         // Instruction Dialog
         dialog.setContentView(R.layout.instruction_dialog);
@@ -148,7 +191,6 @@ public class GameActivity extends AppCompatActivity {
         Button closeInstructionBtn = dialog.findViewById(R.id.closeInstructionButton);
         closeInstructionBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void setupSeekBarListener(){
         brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

@@ -132,7 +132,7 @@ private boolean isFlush(List<Card> cards) {
         }
     }
 
-    public List<Card> getCards() {
+    public List<Card> getHand() {
         return this.cards;
     }
 }

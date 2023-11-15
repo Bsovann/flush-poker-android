@@ -13,8 +13,8 @@ import java.util.List;
 
 public class CardAdapter extends BaseAdapter {
 
-    private Context context;
-    private List<Integer> cardImages;  // List of card image resource IDs
+    private final Context context;
+    private final List<Integer> cardImages;  // List of card image resource IDs
 
     public CardAdapter(Context context, List<Integer> cardImages) {
         this.context = context;
