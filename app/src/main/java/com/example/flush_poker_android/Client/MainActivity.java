@@ -34,7 +34,7 @@ import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
 import java.util.ArrayList;
 
-public class P2PActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
+public class MainActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
 
     // Wifi Direct
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1001;
@@ -84,7 +84,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
                 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    P2PActivity.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
+                    MainActivity.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
             // After this point you wait for callback in
             // onRequestPermissionsResult(int, String[], int[]) overridden method
         }
@@ -137,7 +137,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(P2PActivity.this, GameActivity.class);
+                Intent intent = new Intent(MainActivity.this, HostActivity.class);
                 startActivity(intent);
             }
         });
@@ -163,7 +163,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(P2PActivity.this, GameActivity.class);
+                Intent intent = new Intent(MainActivity.this, HostActivity.class);
                 startActivity(intent);
             }
         });
@@ -171,7 +171,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
 
     private void initDiscover(){
         if (!isWifiP2pEnabled) {
-            Toast.makeText(P2PActivity.this, R.string.p2p_off_warning,
+            Toast.makeText(MainActivity.this, R.string.p2p_off_warning,
                     Toast.LENGTH_SHORT).show();
         }
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
@@ -208,7 +208,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
             peers.clear();
             peers.addAll(peerList.getDeviceList());
             if (peers.size() == 0) {
-                Log.d(P2PActivity.TAG, "No devices found");
+                Log.d(MainActivity.TAG, "No devices found");
                 return;
             }
             Log.i("Peers", peers.toString());
@@ -241,12 +241,12 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                //do nothing
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                //do nothing
             }
         });
     }
@@ -285,12 +285,12 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
                 manager.cancelConnect(channel, new ActionListener() {
                     @Override
                     public void onSuccess() {
-                        Toast.makeText(P2PActivity.this, "Aborting connection",
+                        Toast.makeText(MainActivity.this, "Aborting connection",
                                 Toast.LENGTH_SHORT).show();
                     }
                     @Override
                     public void onFailure(int reasonCode) {
-                        Toast.makeText(P2PActivity.this,
+                        Toast.makeText(MainActivity.this,
                                 "Connect abort request failed. Reason Code: " + reasonCode,
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -308,7 +308,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
             }
             @Override
             public void onFailure(int reason) {
-                Toast.makeText(P2PActivity.this, "Connect failed. Retry.",
+                Toast.makeText(MainActivity.this, "Connect failed. Retry.",
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -323,7 +323,7 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
             }
             @Override
             public void onSuccess() {
-                Toast.makeText(P2PActivity.this, "Peer Connected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Peer Connected", Toast.LENGTH_SHORT).show();
             }
         });
     }

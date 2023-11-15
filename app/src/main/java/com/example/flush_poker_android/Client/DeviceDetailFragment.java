@@ -108,7 +108,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         Uri uri = data.getData();
         TextView statusText = (TextView) mContentView.findViewById(R.id.status_text);
         statusText.setText("Sending: " + uri);
-        Log.d(P2PActivity.TAG, "Intent----------- " + uri);
+        Log.d(MainActivity.TAG, "Intent----------- " + uri);
         Intent serviceIntent = new Intent(getActivity(), MessageService.class);
 //        serviceIntent.setAction(MessageService.ACTION_SEND_FILE);
 //        serviceIntent.putExtra(MessageService.EXTRAS_FILE_PATH, uri.toString());
@@ -196,9 +196,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         protected String doInBackground(Void... params) {
             try {
                 ServerSocket serverSocket = new ServerSocket(8988);
-                Log.d(P2PActivity.TAG, "Server: Socket opened");
+                Log.d(MainActivity.TAG, "Server: Socket opened");
                 Socket client = serverSocket.accept();
-                Log.d(P2PActivity.TAG, "Server: connection done");
+                Log.d(MainActivity.TAG, "Server: connection done");
                 final File f = new File(context.getExternalFilesDir("received"),
                         "wifip2pshared-" + System.currentTimeMillis()
                                 + ".jpg");
@@ -206,13 +206,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 if (!dirs.exists())
                     dirs.mkdirs();
                 f.createNewFile();
-                Log.d(P2PActivity.TAG, "server: copying files " + f.toString());
+                Log.d(MainActivity.TAG, "server: copying files " + f.toString());
                 InputStream inputstream = client.getInputStream();
                 copyFile(inputstream, new FileOutputStream(f));
                 serverSocket.close();
                 return f.getAbsolutePath();
             } catch (IOException e) {
-                Log.e(P2PActivity.TAG, e.getMessage());
+                Log.e(MainActivity.TAG, e.getMessage());
                 return null;
             }
         }
@@ -255,7 +255,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
             out.close();
             inputStream.close();
         } catch (IOException e) {
-            Log.d(P2PActivity.TAG, e.toString());
+            Log.d(MainActivity.TAG, e.toString());
             return false;
         }
         return true;

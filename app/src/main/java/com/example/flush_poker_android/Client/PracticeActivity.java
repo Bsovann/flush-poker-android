@@ -1,5 +1,5 @@
 package com.example.flush_poker_android.Client;
-import androidx.appcompat.app.AppCompatActivity;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -13,10 +13,13 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
-import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GameActivity extends AppCompatActivity {
+public class PracticeActivity extends AppCompatActivity {
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
@@ -80,8 +83,6 @@ public class GameActivity extends AppCompatActivity {
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
 
-
-
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
             players.add(new Player(
@@ -127,7 +128,7 @@ public class GameActivity extends AppCompatActivity {
         communityCardView.setAdapter(commnityCardAdapter);
     }
     public void onClickExitBtn(View view){
-        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        Intent intent = new Intent(PracticeActivity.this, MainActivity.class);
         startActivity(intent);
     }
     public void onClickFoldBtn(View view){
