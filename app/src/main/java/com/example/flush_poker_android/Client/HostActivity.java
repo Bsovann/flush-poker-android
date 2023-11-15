@@ -14,7 +14,7 @@ import android.widget.GridView;
 import android.widget.SeekBar;
 
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
-import com.example.flush_poker_android.Logic.Player;
+import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.R;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GameActivity extends AppCompatActivity {
+public class HostActivity extends AppCompatActivity {
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
@@ -34,7 +34,7 @@ public class GameActivity extends AppCompatActivity {
     List<CardAdapter> playerAdapter;
     CardAdapter commnityCardAdapter;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private List<Player> players;
+    private List<BotPlayer> players;
     private int pot;
     private Thread controllerThread;
     ExecutorService playerThreadPool;
@@ -53,6 +53,11 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        try {
+            controllerThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
     @Override
     protected void onPause(){
@@ -84,14 +89,14 @@ public class GameActivity extends AppCompatActivity {
 
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
-            players.add(new Player(
+            players.add(new BotPlayer(
                     "Player "+ i, 50000, handler, getApplicationContext()));
         }
 
-        this.gameController = new GameController(players, handler,getApplicationContext());
+        this.gameController = new GameController(players, handler,getApplicationContext(), playerThreadPool);
 
         // Set Controller to every player and launch Thread
-        for(Player player : players) {
+        for(BotPlayer player : players) {
             player.setController(gameController);
             playerThreadPool.submit(player);
         }
@@ -127,7 +132,7 @@ public class GameActivity extends AppCompatActivity {
         communityCardView.setAdapter(commnityCardAdapter);
     }
     public void onClickExitBtn(View view){
-        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        Intent intent = new Intent(HostActivity.this, MainActivity.class);
         startActivity(intent);
     }
     public void onClickFoldBtn(View view){
