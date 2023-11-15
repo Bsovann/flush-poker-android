@@ -185,20 +185,17 @@
             android:layout_centerInParent="true">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_centerInParent="true"
                 android:orientation="horizontal">
 
-                <GridView
-                    android:id="@+id/communityCardGrid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:numColumns="5"
-                    android:horizontalSpacing="-40dp"
-                    android:paddingLeft="30dp"
-                    android:paddingRight="30dp"
-                    />
+                <!-- You can adjust the width and height of the fragment container as needed -->
+                <fragment
+                    class="com.example.flush_poker_android.Client.CardFragment"
+                    android:id="@+id/fragment_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
             </LinearLayout>
 

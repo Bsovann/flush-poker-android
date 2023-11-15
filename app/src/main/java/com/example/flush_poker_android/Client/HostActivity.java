@@ -1,5 +1,5 @@
 package com.example.flush_poker_android.Client;
-import androidx.appcompat.app.AppCompatActivity;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -13,10 +13,13 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,13 +40,30 @@ public class HostActivity extends AppCompatActivity {
     private List<BotPlayer> players;
     private int pot;
     private Thread controllerThread;
-    ExecutorService playerThreadPool;
+    private ExecutorService playerThreadPool;
     private GameController gameController;
+    private CardFragment cardFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
         initWork();
+
+        // Create CardFragment instance
+        cardFragment = new CardFragment();
+
+        // Check if the fragment is already added
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_card, cardFragment) // R.id.fragment_container is the ID of a FrameLayout in your activity's layout
+                    .commit();
+        }
+
+
+
+
     }
 
     @Override
@@ -82,11 +102,7 @@ public class HostActivity extends AppCompatActivity {
         players = new ArrayList<>();
 
         renderImagesTemp();
-
         this.playerThreadPool = Executors.newFixedThreadPool(5);
-
-
-
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
             players.add(new BotPlayer(
@@ -94,6 +110,10 @@ public class HostActivity extends AppCompatActivity {
         }
 
         this.gameController = new GameController(players, handler,getApplicationContext(), playerThreadPool);
+
+        // Add CardFragment as a listener to the GameController
+        gameController.addGameUpdateListener(cardFragment);
+
 
         // Set Controller to every player and launch Thread
         for(BotPlayer player : players) {
@@ -122,11 +142,11 @@ public class HostActivity extends AppCompatActivity {
         }
         List<Integer> communityCardImages = new LinkedList<>();
         // Add Community cards images
-        communityCardImages.add(R.drawable.ace_of_diamonds);
-        communityCardImages.add(R.drawable.ace_of_hearts);
-        communityCardImages.add(R.drawable.jack_of_clubs);
-        communityCardImages.add(R.drawable.nine_of_clubs);
-        communityCardImages.add(R.drawable.eight_of_clubs);
+        communityCardImages.add(R.drawable.back_of_card);
+        communityCardImages.add(R.drawable.back_of_card);
+        communityCardImages.add(R.drawable.back_of_card);
+        communityCardImages.add(R.drawable.back_of_card);
+        communityCardImages.add(R.drawable.back_of_card);
         Collections.reverse(communityCardImages);
         commnityCardAdapter = new CardAdapter(this, communityCardImages);
         communityCardView.setAdapter(commnityCardAdapter);

@@ -7,8 +7,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import com.example.flush_poker_android.R;
-
 import java.util.List;
 
 public class CardAdapter extends BaseAdapter {
