@@ -1,13 +1,10 @@
 package com.example.flush_poker_android.Logic;
-
 import android.content.Context;
 import android.os.Handler;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GameController implements Runnable {
@@ -25,11 +22,8 @@ public class GameController implements Runnable {
     private int currentPlayerIndex;
     private BotPlayer winner;
     private final Handler mainUiThread;
-    private Boolean gameActive = true;
     private final Context gameContext;
-    private BotPlayer playerTurn;
     private ExecutorService playerThreadPool;
-
 
     public GameController(List<BotPlayer> players, Handler handler, Context context, ExecutorService playerThreadPool) {
         this.players = players;
@@ -41,11 +35,6 @@ public class GameController implements Runnable {
         initializeGame();
     }
 
-    public void setPlayersAndInitGame(List<BotPlayer> players) {
-        this.players = players;
-
-    }
-
     @Override
     public void run() {
         while (isGameActive()) {
@@ -53,7 +42,6 @@ public class GameController implements Runnable {
         }
         endGame();
     }
-
     private void endGame() {
         playerThreadPool.shutdown();
         // Notify HostActivity
@@ -64,18 +52,12 @@ public class GameController implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
     private void initializeGame() {
         this.deck = new Deck();
         this.communityCards = new ArrayList<>();
         this.dealerPosition = 0;
         this.pot = 0;
     }
-
-    public BotPlayer getPlayerTurn() {
-        return this.playerTurn;
-    }
-
     public void startGame() {
 
         // DeckShuffle
@@ -162,12 +144,10 @@ public class GameController implements Runnable {
                     updateToastUi("The Winner is: " + winner.getName());
                 }
     }
-
     public synchronized boolean isGameActive() {
         // Check if the game is active
         return players.size() > 1;
     }
-
     private void updateToastUi(String playerChoice) {
         mainUiThread.post(new Runnable() {
             @Override
@@ -176,15 +156,12 @@ public class GameController implements Runnable {
             }
         });
     }
-
     private void postBlind(BotPlayer player, int blindAmount) {
         player.decreaseChips(blindAmount);
         pot += blindAmount;
         // You can add a log or notification to inform other players about the blind being posted.
     }
-
     private Boolean determineWinner() {
-
         if (communityCards.size() == 5) {
             this.winner = determineWinner(players, communityCards);
             this.winner.addToChipCount(pot);
@@ -202,7 +179,6 @@ public class GameController implements Runnable {
         }
         return false;
     }
-
     private void processPlayerChoice(String playerChoice) {
         // Handle the player's choice.
         if (playerChoice.equals("Fold")) {
@@ -223,7 +199,6 @@ public class GameController implements Runnable {
         } else if (playerChoice.equals("Check")) {
         }
     }
-
     public boolean isBettingRoundComplete() {
         // Implement the logic to check if the betting round is complete.
         // You can iterate through the players and check if they have all matched the current bet.
@@ -237,7 +212,6 @@ public class GameController implements Runnable {
             player.setActionIsDone(false);
         return true;
     }
-
     public synchronized void dealCommunityCards() {
         if (communityCards.size() < 3) {
             communityCards.addAll(deck.draw(3));
@@ -247,7 +221,6 @@ public class GameController implements Runnable {
             communityCards.addAll(deck.draw(1));
         }
     }
-
     public BotPlayer determineWinner(List<BotPlayer> players, List<Card> communityCards) {
         BotPlayer winningPlayer = null;
         int bestHandRank = -1;
@@ -263,54 +236,41 @@ public class GameController implements Runnable {
 
         return winningPlayer;
     }
-
     public List<BotPlayer> getPlayers() {
         return players;
     }
-
     public BotPlayer getCurrentPlayer() {
         return currentPlayer;
     }
-
     public int getPot() {
         return pot;
     }
-
     public synchronized void dealTwoHoleCardsToPlayers() {
         for (BotPlayer player : players)
             player.addCard(deck.dealCard());
     }
-
     public BotPlayer getWinner() {
         return this.winner;
     }
-
     public List getCommunityCards() {
         return communityCards;
     }
-
     public int getDealerPosition() {
         return this.dealerPosition;
     }
-
     public void incrementDealerPosition() {
         this.dealerPosition++;
     }
-
     public int getSmallBlind() {
         return this.smallBlind;
     }
-
     public int getBigBlind() {
         return this.bigBlind;
     }
-
     public int getCurrentBet() {
         return this.currentBet;
     }
-
     public Object getDealer() {
         return this.dealer;
     }
-
 }
