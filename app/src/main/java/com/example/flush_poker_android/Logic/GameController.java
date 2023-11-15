@@ -22,7 +22,6 @@ public class GameController implements Runnable {
     private int currentPlayerIndex;
     private Player winner;
     private Handler mainUiThread;
-    private Boolean gameActive = true;
     private Context gameContext;
     private Semaphore turn;
     private List<Thread> playerThreads;
