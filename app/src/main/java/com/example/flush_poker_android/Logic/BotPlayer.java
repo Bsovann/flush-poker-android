@@ -22,7 +22,6 @@ public class BotPlayer extends Hand implements Runnable {
     private GameController controller;
     private Handler handlerUi;
     private Context context;
-    private Semaphore turn;
     public BotPlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
@@ -31,35 +30,25 @@ public class BotPlayer extends Hand implements Runnable {
         this.availableActions = new ArrayList<>();
         this.handlerUi = handler;
         this.context = context;
-        this.turn = new Semaphore(1);
     }
     @Override
     public void run() {
-
         while (true) {
             synchronized (this) {
                 try {
                     this.wait(); // Wait for the controller to signal your turn
+                    Thread.sleep(7000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
                 // Perform actions for your turn
                 makeAutoDecision();
-
                 synchronized (controller){
                     // Signal the controller that your turn is done
                     actionIsDone = true;
                     controller.notify();
                 }
             }
-
         }
     }
     public void setController(GameController controller){
@@ -194,10 +183,6 @@ public class BotPlayer extends Hand implements Runnable {
 
         // Signal that the AI has completed its action
         actionIsDone = true;
-    }
-
-    public void setTurnLocker(Semaphore turn) {
-        this.turn = turn;
     }
 
     public void setActionIsDone(boolean b) {
