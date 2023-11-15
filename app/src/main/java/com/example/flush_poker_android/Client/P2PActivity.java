@@ -29,6 +29,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.flush_poker_android.network.PeerDiscoveryTask;
 import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
 import java.util.ArrayList;
@@ -176,19 +177,9 @@ public class P2PActivity extends AppCompatActivity implements DeviceListFragment
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
                 .findFragmentById(R.id.frag_list);
         fragment.onInitiateDiscovery();
-        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(P2PActivity.this, "Discovery Initiated",
-                        Toast.LENGTH_SHORT).show();
-                Log.i("Init Peer Discover", fragment.getDevice().toString());
-            }
-            @Override
-            public void onFailure(int reasonCode) {
-                Toast.makeText(P2PActivity.this, "Discovery Failed : " + reasonCode,
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        PeerDiscoveryTask pd = new PeerDiscoveryTask(manager, channel, this, fragment);
+        pd.execute();
     }
 
 
