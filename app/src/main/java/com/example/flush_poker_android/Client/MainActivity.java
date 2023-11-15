@@ -30,9 +30,6 @@ import android.widget.Toast;
 
 import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
@@ -138,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                Intent intent = new Intent(MainActivity.this, HostActivity.class);
                 startActivity(intent);
             }
         });
@@ -164,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                Intent intent = new Intent(MainActivity.this, HostActivity.class);
                 startActivity(intent);
             }
         });
