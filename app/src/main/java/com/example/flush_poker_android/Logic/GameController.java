@@ -25,6 +25,8 @@ public class GameController implements Runnable {
     private Context gameContext;
     private Semaphore turn;
     private List<Thread> playerThreads;
+    private Boolean gameActive = false;
+    private Player playerTurn = null;
 
 
     public GameController(List<Player> players, Handler handler, Context context) {
@@ -40,7 +42,6 @@ public class GameController implements Runnable {
 
     public void setPlayersAndInitGame(List<Player> players){
         this.players = players;
-
     }
 
     @Override
@@ -50,6 +51,7 @@ public class GameController implements Runnable {
         }
         endGame();
     }
+
     private void setUpPlayersThread(){
         for(int i = 0; i < players.size(); i++){
             Player player = players.get(i);
@@ -62,8 +64,8 @@ public class GameController implements Runnable {
         }
     }
 
-    private void endGame() {
-        this.gameActive = false;
+    public void endGame() {
+        gameActive = false;
     }
 
     private void initializeGame() {
@@ -71,6 +73,7 @@ public class GameController implements Runnable {
         this.communityCards = new ArrayList<>();
         this.dealerPosition = 0;
         this.pot = 0;
+        gameActive = true;
     }
 
     public Player getPlayerTurn(){
@@ -111,7 +114,7 @@ public class GameController implements Runnable {
         dealCommunityCards();
 
         // Start Betting Round!
-        while (true) {
+        while (gameActive) {
 
             if(checkBettingRoundComplete())
                 dealCommunityCards();

@@ -28,18 +28,18 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.flush_poker_android.network.DisconnectTask;
 import com.example.flush_poker_android.network.PeerDiscoveryTask;
 import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements DeviceListFragment.DeviceActionListener, ChannelListener {
+public class MainActivity extends AppCompatActivity {
 
     // Wifi Direct
-    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1001;
     private WifiP2pManager manager;
+    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1001;
     private boolean isWifiP2pEnabled = false;
-    private boolean retryChannel = false;
     private final IntentFilter intentFilter = new IntentFilter();
     private Channel channel;
     private BroadcastReceiver receiver = null;
@@ -159,12 +159,9 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
 
         // Join button
         Button startBtn = dialog.findViewById(R.id.startBtn);
-        startBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, HostActivity.class);
-                startActivity(intent);
-            }
+        startBtn.setOnClickListener(view1 -> {
+            Intent intent = new Intent(MainActivity.this, HostActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -175,15 +172,14 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         }
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
                 .findFragmentById(R.id.frag_list);
+        fragment.setMainActivityInstance(this);
         fragment.onInitiateDiscovery();
 
         PeerDiscoveryTask pd = new PeerDiscoveryTask(manager, channel, this, fragment);
         pd.execute();
     }
 
-
     public void onClickSettingIcon(View view){
-
         // SettingDialog
         dialog.setContentView(R.layout.setting_dialog);
         brightnessSeekBar = dialog.findViewById(R.id.brightnessSeekBar);
@@ -200,20 +196,6 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
-    ArrayList<WifiP2pDevice> peers = new ArrayList<>();
-    public WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
-        @Override
-        public void onPeersAvailable(WifiP2pDeviceList peerList) {
-            peers.clear();
-            peers.addAll(peerList.getDeviceList());
-            if (peers.size() == 0) {
-                Log.d(MainActivity.TAG, "No devices found");
-                return;
-            }
-            Log.i("Peers", peers.toString());
-        }
-    };
-
     public void onClickInstructionIcon(View view){
         // Instruction Dialog
         dialog.setContentView(R.layout.instruction_dialog);
@@ -226,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         closeInstructionBtn.setOnClickListener(x -> dialog.dismiss());
     }
 
+    /**Brightness Seekbar*/
     public void setupSeekBarListener(){
         brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -257,83 +240,6 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         this.isWifiP2pEnabled = isWifiP2pEnabled;
     }
 
-
-
-    @Override
-    public void showDetails(WifiP2pDevice device) {
-        DeviceDetailFragment fragment = (DeviceDetailFragment) getFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-        fragment.showDetails(device);
-    }
-
-    @Override
-    public void cancelDisconnect() {
-        /*
-         * A cancel abort request by user. Disconnect i.e. removeGroup if
-         * already connected. Else, request WifiP2pManager to abort the ongoing
-         * request
-         */
-        if (manager != null) {
-            final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
-                    .findFragmentById(R.id.frag_list);
-            if (fragment.getDevice() == null
-                    || fragment.getDevice().status == WifiP2pDevice.CONNECTED) {
-                disconnect();
-            } else if (fragment.getDevice().status == WifiP2pDevice.AVAILABLE
-                    || fragment.getDevice().status == WifiP2pDevice.INVITED) {
-                manager.cancelConnect(channel, new ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(MainActivity.this, "Aborting connection",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                    @Override
-                    public void onFailure(int reasonCode) {
-                        Toast.makeText(MainActivity.this,
-                                "Connect abort request failed. Reason Code: " + reasonCode,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
-    }
-
-    @Override
-    public void connect(WifiP2pConfig config) {
-
-        com.example.flush_poker_android.network.ConnectTask connect = new com.example.flush_poker_android.network.ConnectTask(MainActivity.this ,manager, channel, config);
-
-        connect.execute();
-    }
-
-    @Override
-    public void disconnect() {
-        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onFailure(int reasonCode) {
-                Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
-            }
-            @Override
-            public void onSuccess() {
-                Toast.makeText(MainActivity.this, "Peer Connected", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
-    public void onChannelDisconnected() {
-        // we will try once more
-        if (manager != null && !retryChannel) {
-            Toast.makeText(this, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
-            resetData();
-            retryChannel = true;
-            manager.initialize(this, getMainLooper(), this);
-        } else {
-            Toast.makeText(this,
-                    "Severe! Channel is probably lost permanently. Try Disable/Re-Enable P2P.",
-                    Toast.LENGTH_LONG).show();
-        }
-    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -343,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
                 Log.e(TAG, "Fine location permission is not granted!");
                 finish();
             } else
-                Toast.makeText(this, "Fine Location is permiited", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Fine Location is permitted", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -128,6 +128,7 @@ public class PracticeActivity extends AppCompatActivity {
         communityCardView.setAdapter(commnityCardAdapter);
     }
     public void onClickExitBtn(View view){
+        gameController.endGame();
         Intent intent = new Intent(PracticeActivity.this, MainActivity.class);
         startActivity(intent);
     }

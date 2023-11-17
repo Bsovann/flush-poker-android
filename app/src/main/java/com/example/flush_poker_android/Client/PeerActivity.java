@@ -1,17 +1,32 @@
 package com.example.flush_poker_android.Client;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,6 +34,8 @@ import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.R;
+import com.example.flush_poker_android.network.DisconnectTask;
+import com.example.flush_poker_android.network.PeerDiscoveryTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +45,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PeerActivity extends AppCompatActivity {
+/**Activity for connecting a player to a host's game*/
+public class PeerActivity extends AppCompatActivity implements WifiP2pManager.ChannelListener, DeviceListFragment.DeviceActionListener{
+    private static final String TAG = "";
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+    private WifiP2pDevice device; // this peer's device info
+    private boolean retryChannel = false;
+    private BroadcastReceiver receiver = null;
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
@@ -36,17 +60,32 @@ public class PeerActivity extends AppCompatActivity {
     List<GridView> playersView;
     List<CardAdapter> playerAdapter;
     CardAdapter commnityCardAdapter;
-    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private List<Player> players;
     private int pot;
     private Thread controllerThread;
     ExecutorService playerThreadPool;
     private GameController gameController;
+    private Boolean isWifiP2pEnabled = false;
+
+    private WifiP2pDevice dev = null;
+    private WifiP2pConfig config = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         initWork();
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            // Retrieve the WifiP2pDevice object
+            dev = bundle.getParcelable("device");
+
+            // Retrieve the WifiP2pConfig object
+            config = bundle.getParcelable("config");
+
+        }
+        Log.i("ConnectAction", "Connected to: " + dev.deviceName);
     }
 
     @Override
@@ -62,7 +101,6 @@ public class PeerActivity extends AppCompatActivity {
         super.onPause();
     }
     private void initWork(){
-
         // Enable immersive mode
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -83,15 +121,13 @@ public class PeerActivity extends AppCompatActivity {
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
 
-
-
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
             players.add(new Player(
-                    "Player "+ i, 50000, handler, getApplicationContext()));
+                    "Player "+ i, 50000, uiHandler, getApplicationContext()));
         }
 
-        this.gameController = new GameController(players, handler,getApplicationContext());
+        this.gameController = new GameController(players, uiHandler,getApplicationContext());
 
         // Set Controller to every player and launch Thread
         for(Player player : players) {
@@ -128,6 +164,8 @@ public class PeerActivity extends AppCompatActivity {
         communityCardView.setAdapter(commnityCardAdapter);
     }
     public void onClickExitBtn(View view){
+        //TODO: create method that unassigns player from gameController upon exit
+        disconnect();
         Intent intent = new Intent(PeerActivity.this, MainActivity.class);
         startActivity(intent);
     }
@@ -201,13 +239,86 @@ public class PeerActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                //do nothing
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                //do nothing
             }
         });
     }
+    @Override
+    public void showDetails(WifiP2pDevice device) {
+        DeviceDetailFragment fragment = (DeviceDetailFragment) getFragmentManager()
+                .findFragmentById(R.id.frag_detail);
+        fragment.showDetails(device);
+    }
+    @Override
+    public void cancelDisconnect() {
+        /*
+         * A cancel abort request by user. Disconnect i.e. removeGroup if
+         * already connected. Else, request WifiP2pManager to abort the ongoing
+         * request
+         */
+        if (manager != null) {
+            final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
+                    .findFragmentById(R.id.frag_list);
+            if (fragment.getDevice() == null
+                    || fragment.getDevice().status == WifiP2pDevice.CONNECTED) {
+                disconnect();
+            } else if (fragment.getDevice().status == WifiP2pDevice.AVAILABLE
+                    || fragment.getDevice().status == WifiP2pDevice.INVITED) {
+                manager.cancelConnect(channel, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        Toast.makeText(PeerActivity.this, "Aborting connection",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    @Override
+                    public void onFailure(int reasonCode) {
+                        Toast.makeText(PeerActivity.this,
+                                "Connect abort request failed. Reason Code: " + reasonCode,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+    }
+    @Override
+    public void connect(WifiP2pConfig config) {
+        com.example.flush_poker_android.network.ConnectTask connect = new com.example.flush_poker_android.network.ConnectTask(PeerActivity.this ,manager, channel, config, uiHandler);
+
+        connect.execute();
+    }
+    @Override
+    public void disconnect() {
+        DisconnectTask disconnect = new DisconnectTask(manager, channel, PeerActivity.this, uiHandler);
+        disconnect.execute();
+    }
+    @Override
+    public void onChannelDisconnected() {
+        // try to reconnect
+        if (manager != null && !retryChannel) {
+            Toast.makeText(this, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
+            resetData();
+            retryChannel = true;
+            manager.initialize(this, getMainLooper(), this);
+        } else {
+            Toast.makeText(this,
+                    "Severe! Channel is probably lost permanently. Try Disable/Re-Enable P2P.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+    /**
+     * Remove all peers and clear all fields. This is called when disconnecting a channel.
+     */
+    public void resetData() {
+        DeviceListFragment fragmentList = (DeviceListFragment) getFragmentManager()
+                .findFragmentById(R.id.frag_list);
+        if (fragmentList != null) {
+            fragmentList.clearPeers();
+        }
+    }
+
 }

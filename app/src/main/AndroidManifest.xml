@@ -29,6 +29,13 @@
             android:theme="@style/Theme.AppCompat.NoActionBar.Fullscreen">
         </activity>
         <activity
+            android:name=".Client.PeerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:label="@string/activity_game"
+            android:theme="@style/Theme.AppCompat.NoActionBar.Fullscreen">
+        </activity>
+        <activity
             android:name=".Client.Logo"
             android:exported="false" />
         <activity

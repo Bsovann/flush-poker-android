@@ -125,6 +125,7 @@ public class HostActivity extends AppCompatActivity {
         communityCardView.setAdapter(commnityCardAdapter);
     }
     public void onClickExitBtn(View view){
+        gameController.endGame();
         Intent intent = new Intent(HostActivity.this, MainActivity.class);
         startActivity(intent);
     }

@@ -30,7 +30,7 @@ public class ConnectTask extends AsyncTask<Void, Void, Boolean> {
                 Toast.makeText(context, s,
                         Toast.LENGTH_SHORT).show();
             }
-        })
+        });
     }
 
     @Override
@@ -45,5 +45,6 @@ public class ConnectTask extends AsyncTask<Void, Void, Boolean> {
                 updateToast("Connect failed. Retry.");
             }
         });
+        return true;
     }
 }

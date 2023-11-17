@@ -7,8 +7,9 @@ import android.widget.Toast;
 
 import com.example.flush_poker_android.Client.DeviceListFragment;
 import com.example.flush_poker_android.Client.MainActivity;
+import com.example.flush_poker_android.Client.PeerActivity;
 
-public class PeerDiscoveryTask extends AsyncTask<Void, Void, Void> {
+public class PeerDiscoveryTask extends AsyncTask<Void, Void, Boolean> {
     private WifiP2pManager manager = null;
     private WifiP2pManager.Channel channel;
     private MainActivity activity = null;
@@ -22,7 +23,7 @@ public class PeerDiscoveryTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Boolean doInBackground(Void... voids) {
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
@@ -37,5 +38,6 @@ public class PeerDiscoveryTask extends AsyncTask<Void, Void, Void> {
                         Toast.LENGTH_SHORT).show();
             }
         });
+        return true;
     }
 }
