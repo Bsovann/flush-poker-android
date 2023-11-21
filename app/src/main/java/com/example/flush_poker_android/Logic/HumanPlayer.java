@@ -2,29 +2,28 @@ package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
 import android.os.Handler;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import android.widget.Toast;
+import java.util.LinkedHashSet;
 import java.util.Random;
+import java.util.Set;
 
-public class BotPlayer extends Hand implements Player, Runnable, Serializable{
+public class HumanPlayer extends Hand implements Runnable, Player {
     private final String name;
     private int currentBet;
     private String playerAction;
-    private List<String> availableActions;
+    private Set<String> availableActions;
     private Boolean hasFold = false;
     private Boolean actionIsDone = false;
     private int chips;
     private GameController controller;
     private Handler handlerUi;
     private Context context;
-    public BotPlayer(String name, int chips, Handler handler, Context context) {
+    public HumanPlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
         this.chips = chips;
         this.playerAction = "";
-        this.availableActions = new ArrayList<>();
+        this.availableActions = new LinkedHashSet<>();
         this.handlerUi = handler;
         this.context = context;
     }
@@ -37,19 +36,76 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+                try {
+                    Thread.sleep(7000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
                 // Perform actions for your turn
-                makeAutoDecision();
+                makeDecision();
+
                 synchronized (controller){
                     // Signal the controller that your turn is done
                     actionIsDone = true;
                     controller.notify();
                 }
             }
+
         }
+    }
+    private void makeDecision() {
+        // This is a basic AI logic for automatic decision-making.
+        // You can make it more sophisticated based on your game rules.
+        int currentBet = controller.getCurrentBet();
+        int minRaise = currentBet - getCurrentBet() + 1;
+        int maxRaise = getChips();
+
+        Random random = new Random();
+        int decision = random.nextInt(4); // Generate a random decision (0 to 3)
+
+        if (decision == 0) {
+            // 25% chance to fold
+            fold();
+            setPlayerAction("Fold");
+        } else if (decision == 1) {
+            // 25% chance to check
+            if (getCurrentBet() == currentBet) {
+                check();
+                setPlayerAction("Check");
+            }
+        } else if (decision == 2) {
+            // 25% chance to call
+            int callAmount = currentBet - getCurrentBet();
+            if (callAmount > 0 && callAmount <= getChips()) {
+                bet(callAmount);
+                setPlayerAction("Call");
+            }
+        } else {
+            // 25% chance to raise
+            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
+            raise(raiseAmount);
+            setPlayerAction("Raise");
+        }
+
+        // Signal that the AI has completed its action
+        actionIsDone = true;
     }
     @Override
     public void setController(GameController controller){
         this.controller = controller;
+    }
+
+    private void updateUIToast(String str){
+        handlerUi.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void getPlayerChoice() {
     }
     @Override
     public String getPlayerAction(){
@@ -61,7 +117,7 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     }
     @Override
     public void setAvailableActions(int currentBet) {
-        List<String> actions = new ArrayList<>();
+        Set<String> actions = new LinkedHashSet<>();
 
         // Check if the player can Fold
         if (!this.hasFolded()) {
@@ -144,45 +200,6 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     @Override
     public void decreaseChips(int amount) {
         this.chips -= amount;
-    }
-    public void makeAutoDecision() {
-        // This is a basic AI logic for automatic decision-making.
-        // You can make it more sophisticated based on your game rules.
-        int currentBet = controller.getCurrentBet();
-        int minRaise = currentBet - getCurrentBet() + 1;
-        int maxRaise = getChips();
-
-        Random random = new Random();
-        int decision = random.nextInt(availableActions.size()); // Generate a random decision (0 to 3)
-
-        String playerAction = availableActions.get(decision);
-
-        if (playerAction.equals("Fold")) {
-            // 25% chance to fold
-            fold();
-            setPlayerAction("Fold");
-        } else if (playerAction.equals("Check")) {
-            // 25% chance to check
-            if (getCurrentBet() == currentBet) {
-                check();
-                setPlayerAction("Check");
-            }
-        } else if (playerAction.equals("Call")) {
-            // 25% chance to call
-            int callAmount = currentBet - getCurrentBet();
-            if (callAmount > 0 && callAmount <= getChips()) {
-                bet(callAmount);
-                setPlayerAction("Call");
-            }
-        } else {
-            // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
-            raise(raiseAmount);
-            setPlayerAction("Raise");
-        }
-
-        // Signal that the AI has completed its action
-        actionIsDone = true;
     }
     @Override
     public void setActionIsDone(boolean b) {
