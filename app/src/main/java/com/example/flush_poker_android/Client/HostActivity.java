@@ -17,7 +17,7 @@ import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.flush_poker_android.Client.Utility.GameInfo;
+import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;

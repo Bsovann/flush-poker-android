@@ -6,8 +6,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.example.flush_poker_android.Client.Utility.CardUtils;
-import com.example.flush_poker_android.Client.Utility.GameInfo;
+import com.example.flush_poker_android.Logic.Utility.CardUtils;
+import com.example.flush_poker_android.Logic.Utility.GameInfo;
 
 import java.util.ArrayList;
 import java.util.List;
