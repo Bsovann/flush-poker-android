@@ -1,4 +1,4 @@
-package com.example.flush_poker_android.Client.Utility;
+package com.example.flush_poker_android.Logic.Utility;
 
 import android.content.Context;
 

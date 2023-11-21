@@ -6,7 +6,7 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.flush_poker_android.Client.Utility.CardUtils;
+import com.example.flush_poker_android.Logic.Utility.CardUtils;
 
 import org.junit.Test;
 
