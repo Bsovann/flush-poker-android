@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <GridView
-        android:id="@+id/communityCardGrid"
+        android:id="@+id/communityCards"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:numColumns="5"
@@ -12,4 +12,4 @@
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
         />
-</RelativeLayout>
+</FrameLayout>

@@ -184,20 +184,12 @@
             android:layout_height="85dp"
             android:layout_centerInParent="true">
 
-            <LinearLayout
+            <!-- You can adjust the width and height of the fragment container as needed -->
+            <androidx.fragment.app.FragmentContainerView
+                android:name="com.example.flush_poker_android.Client.CardFragment"
+                android:id="@+id/fragment_card"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:orientation="horizontal">
-
-                <!-- You can adjust the width and height of the fragment container as needed -->
-                <fragment
-                    class="com.example.flush_poker_android.Client.CardFragment"
-                    android:id="@+id/fragment_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </LinearLayout>
+                android:layout_height="match_parent" />
 
         </RelativeLayout>
 
