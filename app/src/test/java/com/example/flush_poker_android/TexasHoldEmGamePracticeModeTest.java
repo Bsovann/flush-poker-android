@@ -1,12 +1,14 @@
 package com.example.flush_poker_android;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.example.flush_poker_android.Logic.BotPlayer;
-import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.GameController;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class TexasHoldEmGamePracticeModeTest {
 
