@@ -17,6 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <LinearLayout
         android:id="@+id/credit"
         android:layout_width="155dp"
@@ -179,19 +180,30 @@
         app:layout_constraintVertical_bias="0.516">
 
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="270dp"
             android:layout_height="85dp"
-            android:layout_centerInParent="true">
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
 
             <!-- You can adjust the width and height of the fragment container as needed -->
-            <androidx.fragment.app.FragmentContainerView
-                android:name="com.example.flush_poker_android.Client.CardFragment"
-                android:id="@+id/fragment_card"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
 
-        </RelativeLayout>
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragment_card"
+                android:name="com.example.flush_poker_android.Client.CardFragment"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_centerInParent="true" />
+
+            <TextView
+                android:id="@+id/pot"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAlignment="center"
+                android:textAppearance="@style/generalText"
+                android:text="Pot: 0" />
+
+        </LinearLayout>
 
         <GridView
             android:id="@+id/myCards"
@@ -219,7 +231,7 @@
             />
 
         <GridView
-            android:id="@+id/player2Cards"
+            android:id="@+id/player4Cards"
             android:layout_width="70dp"
             android:layout_height="63dp"
             android:layout_alignParentTop="true"
@@ -231,7 +243,7 @@
             android:numColumns="2" />
 
         <GridView
-            android:id="@+id/player3Cards"
+            android:id="@+id/player2Cards"
             android:layout_width="70dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
@@ -241,7 +253,7 @@
             android:numColumns="2" />
 
         <GridView
-            android:id="@+id/player4Cards"
+            android:id="@+id/player3Cards"
             android:layout_width="70dp"
             android:layout_height="60dp"
             android:layout_alignParentTop="true"
