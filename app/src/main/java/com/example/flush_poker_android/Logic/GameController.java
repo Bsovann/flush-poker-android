@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.Logic.Utility.GameInfo;
 
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-public class GameController implements Runnable {
+public class GameController extends AppCompatActivity implements Runnable {
     List<BotPlayer> remainPlayers;
     private Deck deck;
     private List<BotPlayer> players;
@@ -32,12 +34,15 @@ public class GameController implements Runnable {
     private final Context gameContext;
     private ExecutorService playerThreadPool;
 
+    private List<Integer> communityCardsId;
+    private GameInfo gameInfo;
     public GameController(List<BotPlayer> players, Handler handler, Context context, ExecutorService playerThreadPool) {
         this.players = players;
         this.mainUiThread = handler;
         this.gameContext = context;
         this.playerThreadPool = playerThreadPool;
         this.remainPlayers = players;
+        this.gameInfo =  new GameInfo();
         // Initialize game logic
         initializeGame();
     }
@@ -141,6 +146,7 @@ public class GameController implements Runnable {
 
                 // Process the player's action (e.g., update bets, check for folds, etc.)
                 processPlayerChoice(playerChoice);
+                updatePotUi();
 
                 // Move to the next player's turn.
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
@@ -154,31 +160,45 @@ public class GameController implements Runnable {
                 }
             }
         }
-                if (determineWinner()) {
-                    updateToastUi("The Winner is: " + winner.getName());
-                }
-    }
+        // Show Cards
+        revealHand();
 
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Determine the winner
+        if (determineWinner()) {
+            updateToastUi("The Winner is: " + winner.getName());
+        }
+    }
+    private void updatePotUi(){
+        gameInfo.setPot(this.pot);
+        notifyUpdateToActivity();
+    }
+    private void revealHand(){
+        gameInfo.setRemainingPlayers(this.remainPlayers);
+        notifyUpdateToActivity();
+    }
     // Update Card UI
     private void updateCommunityCardsUI() {
-
-        List<Integer> imagesId = communityCards.stream()
+        this.communityCardsId = communityCards.stream()
                 .map(card -> CardUtils.getCardImageResourceId(card.toString(), gameContext))
                 .collect(Collectors.toList());
 
-        notifyCardUpdate(imagesId);
+        gameInfo.setCommunityCardIds(this.communityCardsId);
+        notifyUpdateToActivity();
     }
 
     // Call this method when there's a card update
-    private void notifyCardUpdate(List<Integer> updatedCardImages) {
-        GameInfo dataObject = new GameInfo(
-                updatedCardImages, this.currentPlayerIndex, this.currentBet,
-                this.pot, this.winner, this.remainPlayers, this.isGameActive());
+    private void notifyUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = 1;
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("dataObject", dataObject);
+        bundle.putSerializable("dataObject", this.gameInfo);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
@@ -287,8 +307,10 @@ public class GameController implements Runnable {
         return pot;
     }
     public synchronized void dealTwoHoleCardsToPlayers() {
-        for (BotPlayer player : players)
-            player.addCard(deck.dealCard());
+        for(int i = 0; i < 2; i++) {
+            for (BotPlayer player : remainPlayers)
+                player.addCard(deck.dealCard());
+        }
     }
     public BotPlayer getWinner() {
         return this.winner;
