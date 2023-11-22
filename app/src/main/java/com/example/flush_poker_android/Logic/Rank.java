@@ -1,6 +1,8 @@
 package com.example.flush_poker_android.Logic;
 
-public enum Rank {
+import java.io.Serializable;
+
+public enum Rank implements Serializable {
     ACE("Ace", 14),
     KING("King", 13),
     QUEEN("Queen", 12),

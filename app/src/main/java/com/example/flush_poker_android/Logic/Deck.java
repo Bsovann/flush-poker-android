@@ -1,12 +1,13 @@
 package com.example.flush_poker_android.Logic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-public class Deck {
+public class Deck implements Serializable {
     private Stack<Card> cards;
 
     public Deck() {
