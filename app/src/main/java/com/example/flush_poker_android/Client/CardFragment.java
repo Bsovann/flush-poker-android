@@ -17,7 +17,7 @@ import com.example.flush_poker_android.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CardFragment extends Fragment implements GameUpdateListener {
+public class CardFragment extends Fragment{
 
     private CardAdapter cardAdapter;
     private List<Integer> cardImages;
@@ -74,8 +74,7 @@ public class CardFragment extends Fragment implements GameUpdateListener {
     }
 
 
-    @Override
-    public void onCardUpdate(List<Integer> updatedCardImages) {
+    public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
         // Update the card images in your adapter and refresh the GridView
         if (cardImages != null && cardAdapter != null && gridView != null) {
             cardImages.clear();
