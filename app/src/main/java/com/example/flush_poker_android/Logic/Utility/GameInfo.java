@@ -12,10 +12,36 @@ public class GameInfo implements Serializable {
     private List<BotPlayer> remainingPlayers;
     private boolean isGameActive;
 
+    public void setCommunityCardIds(List<Integer> communityCardIds) {
+        this.communityCardIds = communityCardIds;
+    }
+
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
+    }
+
+    public void setCurrentBet(int currentBet) {
+        this.currentBet = currentBet;
+    }
+
+    public void setPot(int pot) {
+        this.pot = pot;
+    }
+
+    public void setWinner(BotPlayer winner) {
+        this.winner = winner;
+    }
+
+    public void setRemainingPlayers(List<BotPlayer> remainingPlayers) {
+        this.remainingPlayers = remainingPlayers;
+    }
+
+    public void setGameActive(boolean gameActive) {
+        isGameActive = gameActive;
+    }
+
     // Constructors
-    public GameInfo(List<Integer> communityCardIds, int currentPlayerIndex,
-                    int currentBet, int pot, BotPlayer winner,
-                    List<BotPlayer> remainingPlayers, boolean isGameActive) {
+    public GameInfo() {
 
         this.communityCardIds = communityCardIds;
         this.currentPlayerIndex = currentPlayerIndex;
@@ -43,7 +69,7 @@ public class GameInfo implements Serializable {
     }
 
     public List<BotPlayer> getRemainingPlayers() {
-        return remainingPlayers;
+        return (List<BotPlayer>)remainingPlayers;
     }
 
     public boolean isGameActive() {
