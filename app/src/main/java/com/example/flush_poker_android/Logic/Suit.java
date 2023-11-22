@@ -1,6 +1,8 @@
 package com.example.flush_poker_android.Logic;
 
-public enum Suit {
+import java.io.Serializable;
+
+public enum Suit implements Serializable {
     HEARTS("Hearts"),
     DIAMONDS("Diamonds"),
     CLUBS("Clubs"),

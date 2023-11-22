@@ -1,6 +1,8 @@
 package com.example.flush_poker_android.Logic;
 
-public class Card {
+import java.io.Serializable;
+
+public class Card implements Serializable {
     private final Rank rank;
     private final Suit suit;
 

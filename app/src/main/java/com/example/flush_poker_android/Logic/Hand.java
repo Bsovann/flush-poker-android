@@ -1,5 +1,6 @@
 package com.example.flush_poker_android.Logic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Hand {
+public class Hand implements Serializable {
     private List<Card> cards;
 
     public Hand() {
