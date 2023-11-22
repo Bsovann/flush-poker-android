@@ -14,13 +14,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.Utility.CardUtils;
+import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.R;
 
 import java.util.ArrayList;
@@ -37,7 +39,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
     GridView communityCardView;
-    List<GridView> playersView;
+    List<GridView> playerViews;
     List<CardAdapter> playerAdapter;
     CardAdapter commnityCardAdapter;
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -48,6 +50,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private GameController gameController;
     private CardFragment cardFragment;
     private Set<Integer> communityCardIds = new HashSet<>();
+    private List<BotPlayer> remainPlayers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,10 +80,17 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                     if (dataObject != null) {
                         // Check if the message is new based on its timestamp
                         // Process the new data and call onResume
-                        communityCardIds.addAll(dataObject.getCommunityCardIds());
+                        try{
+                            communityCardIds.addAll(dataObject.getCommunityCardIds());
+                            pot = dataObject.getPot();
+                            remainPlayers = (List<BotPlayer>) dataObject.getRemainingPlayers();
+                        } catch (NullPointerException e){
+                            System.err.println(e);
+                        }
                         onResume();
 
                         Log.i("HandleMessage", communityCardIds.toString());
+//                        Log.i("Remain Players: ", remainPlayers.toString());
                     }
                 }
             }
@@ -99,14 +109,42 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                onCardUpdate(communityCardIds.stream().collect(Collectors.toList()));
+                onCommunityCardsUpdate(communityCardIds.stream().collect(Collectors.toList()));
                 // update playerTurn position
+                onPlayerTurnUpdate();
                 // update current pot
+                onPotUpdate();
                 // update dealer position
+                if(communityCardIds.size() == 5){
+                    revealHands();
+                }
                 // update the winner
             }
         });
     }
+
+    private void revealHands(){
+//        this.remainPlayers = this.players.stream().filter(player -> !player.hasFolded()).collect(Collectors.toList());
+        for(int i = 0; i < remainPlayers.size(); i++) {
+            GridView view = playerViews.get(players.indexOf(remainPlayers.get(i)));
+            List<Integer> playerCardIds = remainPlayers.get(i).getHand()
+                                        .stream().map(card -> CardUtils.getCardImageResourceId(card.toString(), getApplicationContext()))
+                                        .collect(Collectors.toList());
+
+            view.setAdapter(new CardAdapter(this, playerCardIds));
+        }
+    }
+
+    @Override
+    public void onPlayerTurnUpdate(){
+
+    }
+    @Override
+    public void onPotUpdate(){
+        TextView pot = findViewById(R.id.pot);
+        pot.setText("Pot: " + this.pot);
+    }
+
     @Override
     protected void onDestroy(){
         super.onDestroy();
@@ -133,7 +171,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         // Set up work
         dialog = new Dialog(this);
-        playersView = new ArrayList<>(5);
+        playerViews = new ArrayList<>(5);
         playerAdapter = new ArrayList<>(5);
         players = new ArrayList<>();
 
@@ -169,11 +207,11 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
     }
     private void renderImagesTemp(){
-        playersView.add(findViewById(R.id.myCards));
-        playersView.add(findViewById(R.id.player1Cards));
-        playersView.add(findViewById(R.id.player2Cards));
-        playersView.add(findViewById(R.id.player3Cards));
-        playersView.add(findViewById(R.id.player4Cards));
+        playerViews.add(findViewById(R.id.myCards));
+        playerViews.add(findViewById(R.id.player1Cards));
+        playerViews.add(findViewById(R.id.player2Cards));
+        playerViews.add(findViewById(R.id.player3Cards));
+        playerViews.add(findViewById(R.id.player4Cards));
 
         // Add players cards images and render
         for(int i = 0; i < 5; i++) {
@@ -182,7 +220,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         // Render card
         for(int i = 0; i < 5; i++) {
-            playersView.get(i).setAdapter(playerAdapter.get(i));
+            playerViews.get(i).setAdapter(playerAdapter.get(i));
         }
     }
     public void onClickExitBtn(View view){
@@ -269,9 +307,9 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         });
     }
     @Override
-    public void onCardUpdate(List<Integer> updatedCardImages) {
+    public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
         if (cardFragment != null) {
-            cardFragment.onCardUpdate(updatedCardImages);
+            cardFragment.onCommunityCardsUpdate(updatedCardImages);
         } else {
             // Handle the case where cardFragment is null
             Log.e("YourActivity", "cardFragment is null");
