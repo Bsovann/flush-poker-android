@@ -105,6 +105,145 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/posIconPlayer1Layout"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="204dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="136dp"
+        android:background="@drawable/position_border"
+        android:elevation="4dp"
+        android:padding="3dp"
+        android:textAppearance="@style/generalText"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/relativeLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player1"
+        app:layout_constraintVertical_bias="0.0">
+
+        <TextView
+            android:id="@+id/posIconPlayer1TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/info"
+            android:text=""
+            android:textAppearance="@style/generalText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/posIconPlayer2Layout"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/position_border"
+        android:elevation="4dp"
+        android:padding="3dp"
+        android:textAppearance="@style/generalText"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintEnd_toStartOf="@+id/player3"
+        app:layout_constraintHorizontal_bias="0.869"
+        app:layout_constraintStart_toEndOf="@+id/levelExperience"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/posIconPlayer2TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/info"
+            android:text=""
+            android:textAppearance="@style/generalText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/posIconPlayer3Layout"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/position_border"
+        android:elevation="4dp"
+        android:padding="3dp"
+        android:textAppearance="@style/generalText"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.033"
+        app:layout_constraintStart_toEndOf="@+id/player4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/posIconPlayer3TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/info"
+            android:text=""
+            android:textAppearance="@style/generalText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/posIconPlayer4Layout"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="13dp"
+        android:background="@drawable/position_border"
+        android:elevation="4dp"
+        android:padding="3dp"
+        android:textAppearance="@style/generalText"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/relativeLayout"
+        app:layout_constraintTop_toBottomOf="@+id/player2"
+        app:layout_constraintVertical_bias="0.15">
+
+        <TextView
+            android:id="@+id/posIconPlayer4TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/info"
+            android:text=""
+            android:textAppearance="@style/generalText" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/posIconPlayer0Layout"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/position_border"
+        android:elevation="4dp"
+        android:padding="3dp"
+        android:textAppearance="@style/generalText"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/myProfile"
+        app:layout_constraintHorizontal_bias="0.974"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout"
+        app:layout_constraintVertical_bias="0.0">
+
+        <TextView
+            android:id="@+id/posIconPlayer0TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/info"
+            android:text=""
+            android:textAppearance="@style/generalText" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/instructionIcon"
         android:layout_width="38dp"
         android:layout_height="36dp"
@@ -199,9 +338,9 @@
                 android:id="@+id/pot"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:text="Pot: 0"
                 android:textAlignment="center"
-                android:textAppearance="@style/generalText"
-                android:text="Pot: 0" />
+                android:textAppearance="@style/generalText" />
 
         </LinearLayout>
 
@@ -227,8 +366,7 @@
             android:layout_marginTop="63dp"
             android:layout_marginBottom="64dp"
             android:horizontalSpacing="-40dp"
-            android:numColumns="2"
-            />
+            android:numColumns="2" />
 
         <GridView
             android:id="@+id/player4Cards"
@@ -259,8 +397,6 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="63dp"
-
-
             android:layout_marginEnd="62dp"
             android:horizontalSpacing="-40dp"
             android:numColumns="2" />
@@ -375,6 +511,7 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="320dp"
         android:layout_height="58dp"
         android:orientation="horizontal"
