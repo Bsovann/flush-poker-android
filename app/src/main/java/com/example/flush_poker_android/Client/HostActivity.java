@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.R;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class HostActivity extends AppCompatActivity implements GameUpdateListener {
@@ -43,14 +46,21 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     List<CardAdapter> playerAdapter;
     CardAdapter commnityCardAdapter;
     private Handler handler = new Handler(Looper.getMainLooper());
-    private List<BotPlayer> players;
+    private List<Player> players;
     private int pot;
     private Thread controllerThread;
     private ExecutorService playerThreadPool;
     private GameController gameController;
     private CardFragment cardFragment;
     private Set<Integer> communityCardIds = new HashSet<>();
-    private List<BotPlayer> remainPlayers;
+    private List<Player> remainPlayers;
+    private int currentPlayerIndex;
+    private int dealerPosition;
+    private Player winner;
+    private Semaphore objectLocker = new Semaphore(0);
+
+    private List<RelativeLayout> playerPositions = new ArrayList<>();
+    GameInfo dataObject = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,14 +86,17 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                 // Process data received from the background thread
                 if (msg.what == 1) {
                     Bundle bundle = msg.getData();
-                    GameInfo dataObject = (GameInfo) bundle.getSerializable("dataObject");
+                    dataObject = (GameInfo) bundle.getSerializable("dataObject");
                     if (dataObject != null) {
                         // Check if the message is new based on its timestamp
                         // Process the new data and call onResume
                         try{
                             communityCardIds.addAll(dataObject.getCommunityCardIds());
                             pot = dataObject.getPot();
-                            remainPlayers = (List<BotPlayer>) dataObject.getRemainingPlayers();
+                            remainPlayers = dataObject.getRemainingPlayers();
+                            currentPlayerIndex = dataObject.getCurrentPlayerIndex();
+                            dealerPosition = dataObject.getDealerPosition();
+                            winner = dataObject.getWinner();
                         } catch (NullPointerException e){
                             System.err.println(e);
                         }
@@ -109,18 +122,64 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         new Handler().post(new Runnable() {
             @Override
             public void run() {
+                // Dealer, SB, BB position
+                onUpdatePlayerPosition();
                 onCommunityCardsUpdate(communityCardIds.stream().collect(Collectors.toList()));
                 // update playerTurn position
                 onPlayerTurnUpdate();
                 // update current pot
                 onPotUpdate();
-                // update dealer position
-                if(communityCardIds.size() == 5){
-                    revealHands();
+
+                if (winner != null) {
+                    if (communityCardIds.size() == 5)
+                        revealHands();
+
+                    // Delay for a specified time before proceeding to reset the game state
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Code to reset the game state goes here
+                            cleanUp();
+                            synchronized (gameController) {
+                                gameController.notify();
+                            }
+                        }
+                    }, 15000);
                 }
-                // update the winner
             }
         });
+    }
+
+    private void cleanUp() {
+        renderImagesTemp();
+        resetPlayerPositions();
+        communityCardIds.clear();
+        pot = 0;
+        remainPlayers = null;
+        winner = null;
+        dataObject = null;
+    }
+
+    private void resetPlayerPositions() {
+        for(RelativeLayout layout : playerPositions)
+            layout.setVisibility(View.INVISIBLE);
+    }
+
+    private void onUpdatePlayerPosition() {
+        for (int i = 0; i < 3; i++){
+            int posIndex = (this.dealerPosition + i) % playerPositions.size();
+            RelativeLayout layout = playerPositions.get(posIndex);
+            TextView textView = (TextView) layout.getChildAt(0);
+
+            if(posIndex == dealerPosition)
+                textView.setText("D");
+            else if(posIndex == dealerPosition + 1)
+                textView.setText("SB");
+            else
+                textView.setText("BB");
+
+            layout.setVisibility(View.VISIBLE);
+        }
     }
 
     private void revealHands(){
@@ -142,7 +201,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     @Override
     public void onPotUpdate(){
         TextView pot = findViewById(R.id.pot);
-        pot.setText("Pot: " + this.pot);
+        pot.setText(String.format("Pot: %d$", this.pot));
     }
 
     @Override
@@ -177,6 +236,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         // Default info rendering
         renderImagesTemp();
+        setupPlayerPositions();
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
@@ -193,12 +253,16 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         });
 
         // Instantiate GameController
-        this.gameController = new GameController(players, handler, getApplicationContext(), playerThreadPool);
+        this.gameController = new GameController(players,
+                handler,
+                getApplicationContext(),
+                playerThreadPool,
+                objectLocker);
 
         // Set Controller to every player and launch Thread
-        for(BotPlayer player : players) {
+        for(Player player : players) {
             player.setController(gameController);
-            playerThreadPool.submit(player);
+            playerThreadPool.submit((Runnable) player);
         }
 
         // Instantiate controllerThread and start it.
@@ -206,6 +270,15 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         controllerThread.start();
 
     }
+
+    private void setupPlayerPositions() {
+        playerPositions.add(findViewById(R.id.posIconPlayer0Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer1Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer2Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
+    }
+
     private void renderImagesTemp(){
         playerViews.add(findViewById(R.id.myCards));
         playerViews.add(findViewById(R.id.player1Cards));

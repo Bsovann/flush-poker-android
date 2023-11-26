@@ -207,5 +207,9 @@ public class HumanPlayer extends Hand implements Runnable, Player, Serializable 
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
     }
+
+    @Override
+    public void playerStateReset() {
+    }
 }
 
