@@ -126,12 +126,6 @@ public class GameController extends AppCompatActivity implements Runnable {
                 // Update the current bet, pot, and player actions accordingly.
                 synchronized (currentPlayer) {
 
-                    try {
-                        Thread.currentThread().sleep(10000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-
                     currentPlayer.setAvailableActions(currentBet);
                     if (!currentPlayer.hasFolded())
                         currentPlayer.notify();

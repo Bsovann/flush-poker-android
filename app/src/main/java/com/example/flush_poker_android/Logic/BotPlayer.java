@@ -39,6 +39,13 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
                 }
                 // Perform actions for your turn
                 makeAutoDecision();
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
                 synchronized (controller){
                     // Signal the controller that your turn is done
                     actionIsDone = true;
