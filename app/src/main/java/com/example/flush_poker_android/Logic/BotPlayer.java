@@ -87,6 +87,13 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
 
         this.availableActions = actions;
     }
+    public void playerStateReset(){
+        this.playerAction = "";
+        this.actionIsDone = false;
+        this.availableActions.clear();
+        this.hasFold = false;
+        this.clearHand();
+    }
     @Override
     public void check() {
         // Implement checking logic
@@ -188,5 +195,12 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
     }
+
+    @Override
+    public int compareHands(List<Card> communityCards) {
+        return super.compareHands(communityCards);
+    }
+
+
 }
 
