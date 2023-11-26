@@ -1,5 +1,7 @@
 package com.example.flush_poker_android.Logic.Utility;
-import com.example.flush_poker_android.Logic.BotPlayer;
+
+import com.example.flush_poker_android.Logic.Player;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -8,9 +10,19 @@ public class GameInfo implements Serializable {
     private int currentPlayerIndex;
     private int currentBet;
     private int pot;
-    private BotPlayer winner;
-    private List<BotPlayer> remainingPlayers;
+    private Player winner;
+    private List<Player> remainingPlayers;
     private boolean isGameActive;
+
+    public int getDealerPosition() {
+        return dealerPosition;
+    }
+
+    public void setDealerPosition(int dealerPosition) {
+        this.dealerPosition = dealerPosition;
+    }
+
+    private int dealerPosition;
 
     public void setCommunityCardIds(List<Integer> communityCardIds) {
         this.communityCardIds = communityCardIds;
@@ -28,28 +40,16 @@ public class GameInfo implements Serializable {
         this.pot = pot;
     }
 
-    public void setWinner(BotPlayer winner) {
+    public void setWinner(Player winner) {
         this.winner = winner;
     }
 
-    public void setRemainingPlayers(List<BotPlayer> remainingPlayers) {
+    public void setRemainingPlayers(List<Player> remainingPlayers) {
         this.remainingPlayers = remainingPlayers;
     }
 
     public void setGameActive(boolean gameActive) {
         isGameActive = gameActive;
-    }
-
-    // Constructors
-    public GameInfo() {
-
-        this.communityCardIds = communityCardIds;
-        this.currentPlayerIndex = currentPlayerIndex;
-        this.currentBet = currentBet;
-        this.pot = pot;
-        this.winner = winner;
-        this.remainingPlayers = remainingPlayers;
-        this.isGameActive = isGameActive;
     }
 
     public int getCurrentPlayerIndex() {
@@ -64,12 +64,12 @@ public class GameInfo implements Serializable {
         return pot;
     }
 
-    public BotPlayer getWinner() {
+    public Player getWinner() {
         return winner;
     }
 
-    public List<BotPlayer> getRemainingPlayers() {
-        return (List<BotPlayer>)remainingPlayers;
+    public List<Player> getRemainingPlayers() {
+        return (List<Player>)remainingPlayers;
     }
 
     public boolean isGameActive() {

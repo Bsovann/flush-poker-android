@@ -14,45 +14,49 @@ import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GameController extends AppCompatActivity implements Runnable {
-    List<BotPlayer> remainPlayers;
+    List<Player> remainPlayers;
     private Deck deck;
-    private List<BotPlayer> players;
+    private List<Player> players;
     private List<Card> communityCards;
-    private BotPlayer currentPlayer;
+    private Player currentPlayer;
     private int dealerPosition;
     private int smallBlind;
     private int bigBlind;
     private int currentBet;
     private int pot;
-    private BotPlayer dealer;
+    private Player dealer;
     private int currentPlayerIndex;
-    private BotPlayer winner;
+    private Player winner;
     private final Handler mainUiThread;
     private final Context gameContext;
     private ExecutorService playerThreadPool;
 
     private List<Integer> communityCardsId;
     private GameInfo gameInfo;
-    public GameController(List<BotPlayer> players, Handler handler, Context context, ExecutorService playerThreadPool) {
+    private Semaphore objectLocker;
+
+    public GameController(List<Player> players, Handler handler,
+                          Context context,
+                          ExecutorService playerThreadPool,
+                          Semaphore objectLocker) {
         this.players = players;
         this.mainUiThread = handler;
         this.gameContext = context;
         this.playerThreadPool = playerThreadPool;
-        this.remainPlayers = players;
-        this.gameInfo =  new GameInfo();
-        // Initialize game logic
+        this.objectLocker = objectLocker;
+
         initializeGame();
     }
 
     @Override
     public void run() {
-//        while (isGameActive()) {
+        while (isGameActive()) {
             startGame();
-//        }
-//        endGame();
+        }
     }
     private void endGame() {
         playerThreadPool.shutdown();
@@ -69,8 +73,11 @@ public class GameController extends AppCompatActivity implements Runnable {
         this.communityCards = new ArrayList<>();
         this.dealerPosition = 0;
         this.pot = 0;
+        this.remainPlayers = players;
     }
     public void startGame() {
+        // Initialize gameInfo to send to activity
+        this.gameInfo =  new GameInfo();
 
         // DeckShuffle
         deck.shuffle();
@@ -79,18 +86,21 @@ public class GameController extends AppCompatActivity implements Runnable {
         smallBlind = 10;
         bigBlind = 20;
         currentBet = bigBlind;
+
         dealer = players.get(dealerPosition);
+        gameInfo.setDealerPosition(dealerPosition);
+        notifyUpdateToActivity();
 
         // Determine small blind and big blind positions
         int smallBlindPosition = (dealerPosition + 1) % players.size();
         int bigBlindPosition = (dealerPosition + 2) % players.size();
 
         // Player in small blind position posts the small blind
-        BotPlayer smallBlindPlayer = players.get(smallBlindPosition);
+        Player smallBlindPlayer = players.get(smallBlindPosition);
         postBlind(smallBlindPlayer, smallBlind);
 
         // Player in big blind position posts the big blind
-        BotPlayer bigBlindPlayer = players.get(bigBlindPosition);
+        Player bigBlindPlayer = players.get(bigBlindPosition);
         postBlind(bigBlindPlayer, bigBlind);
 
         // Initialize hands
@@ -152,7 +162,8 @@ public class GameController extends AppCompatActivity implements Runnable {
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
                 currentPlayer = players.get(currentPlayerIndex);
 
-                this.remainPlayers = players.stream().filter(player -> player.hasFolded() != true).collect(Collectors.toList());
+                this.remainPlayers = players.stream().filter(player -> player.hasFolded() == false).collect(Collectors.toList());
+                setRemainPlayers(); // set Remain players and compare hands.
                 updateToastUi("Remain Players: " + remainPlayers.size());
 
                 if (remainPlayers.size() == 1) {
@@ -160,25 +171,27 @@ public class GameController extends AppCompatActivity implements Runnable {
                 }
             }
         }
-        // Show Cards
-        revealHand();
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if(determineWinner()){
+            notifyUpdateToActivity();
+            updateToastUi("The Winner is " + winner.getName());
         }
 
-        // Determine the winner
-        if (determineWinner()) {
-            updateToastUi("The Winner is: " + winner.getName());
+        synchronized (this){
+            try {
+                this.wait();
+                gameStateReset();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+        updateToastUi("Game state has been reset!");
     }
     private void updatePotUi(){
         gameInfo.setPot(this.pot);
         notifyUpdateToActivity();
     }
-    private void revealHand(){
+    private void setRemainPlayers(){
         gameInfo.setRemainingPlayers(this.remainPlayers);
         notifyUpdateToActivity();
     }
@@ -215,26 +228,37 @@ public class GameController extends AppCompatActivity implements Runnable {
             }
         });
     }
-    private void postBlind(BotPlayer player, int blindAmount) {
+
+    private void gameStateReset(){
+        // Reset the game state for the next hand.
+        for (Player player : players) {
+            player.playerStateReset();
+        }
+
+        remainPlayers = players;
+        communityCards.clear();
+        communityCardsId.clear();
+        deck.reset();
+        deck.shuffle();
+        dealerPosition = (dealerPosition + 1) % players.size();
+
+        pot = 0;
+        gameInfo.setPot(this.pot);
+        gameInfo.setCommunityCardIds(this.communityCardsId);
+        gameInfo.setRemainingPlayers(this.remainPlayers);
+        gameInfo.setDealerPosition(this.dealerPosition);
+        notifyUpdateToActivity();
+    }
+    private void postBlind(Player player, int blindAmount) {
         player.decreaseChips(blindAmount);
         pot += blindAmount;
-        // You can add a log or notification to inform other players about the blind being posted.
+        notifyUpdateToActivity();
     }
     private Boolean determineWinner() {
         if (communityCards.size() == 5 || remainPlayers.size() == 1) {
             this.winner = determineWinner(remainPlayers, communityCards);
             this.winner.addToChipCount(pot);
-            pot = 0;
-
-            // Reset the game state for the next hand.
-            for (BotPlayer player : players) {
-                player.clearHand();
-            }
-            communityCards.clear();
-            deck.reset();
-            deck.shuffle();
-            this.remainPlayers = players;
-            dealerPosition++;
+            this.gameInfo.setWinner(winner);
             return true;
         }
         return false;
@@ -263,12 +287,12 @@ public class GameController extends AppCompatActivity implements Runnable {
         // Implement the logic to check if the betting round is complete.
         // You can iterate through the players and check if they have all matched the current bet.
         // Return true if the round is complete; otherwise, return false.
-        for (BotPlayer player : remainPlayers) {
+        for (Player player : remainPlayers) {
             if (!player.actionIsDone()) {
                 return false;
             }
         }
-        for (BotPlayer player : players)
+        for (Player player : remainPlayers)
             player.setActionIsDone(false);
         return true;
     }
@@ -281,11 +305,12 @@ public class GameController extends AppCompatActivity implements Runnable {
             communityCards.addAll(deck.draw(1));
         }
     }
-    public BotPlayer determineWinner(List<BotPlayer> players, List<Card> communityCards) {
-        if(players.size() != 1) {
-            BotPlayer winningPlayer = null;
+    public Player determineWinner(List<Player> players, List<Card> communityCards) {
+
+            Player winningPlayer = null;
             int bestHandRank = -1;
-            for (BotPlayer player : players) {
+
+            for (Player player : players) {
                 int playerHandRank = player.compareHands(communityCards);
 
                 if (playerHandRank > bestHandRank) {
@@ -293,14 +318,13 @@ public class GameController extends AppCompatActivity implements Runnable {
                     winningPlayer = player;
                 }
             }
-                return winningPlayer;
-        } else
-            return players.get(0);
+
+            return winningPlayer;
     }
-    public List<BotPlayer> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
-    public BotPlayer getCurrentPlayer() {
+    public Player getCurrentPlayer() {
         return currentPlayer;
     }
     public int getPot() {
@@ -308,11 +332,11 @@ public class GameController extends AppCompatActivity implements Runnable {
     }
     public synchronized void dealTwoHoleCardsToPlayers() {
         for(int i = 0; i < 2; i++) {
-            for (BotPlayer player : remainPlayers)
+            for (Player player : remainPlayers)
                 player.addCard(deck.dealCard());
         }
     }
-    public BotPlayer getWinner() {
+    public Player getWinner() {
         return this.winner;
     }
     public List getCommunityCards() {
