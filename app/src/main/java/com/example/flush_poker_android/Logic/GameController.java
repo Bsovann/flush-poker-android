@@ -117,6 +117,12 @@ public class GameController extends AppCompatActivity implements Runnable {
         // Start Betting Round!
         while (communityCards.size() != 5) {
 
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             if (isBettingRoundComplete()) {
                 dealCommunityCards();
                 updateCommunityCardsUI();

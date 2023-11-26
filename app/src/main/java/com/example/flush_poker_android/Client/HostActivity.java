@@ -133,7 +133,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                 if (winner != null) {
                     if (communityCardIds.size() == 5)
                         revealHands();
-
                     // Delay for a specified time before proceeding to reset the game state
                     new Handler().postDelayed(new Runnable() {
                         @Override
