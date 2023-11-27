@@ -95,7 +95,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             public void handleMessage(Message msg) {
                 // Process data received from the background thread
                 try {
-
                     if (msg.what == COMMUNITY_CARDS_MSG) {
                         Bundle bundle = msg.getData();
                         List<Integer> cards = (List<Integer>) bundle.getSerializable("data");
