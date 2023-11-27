@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.Logic.Utility.GameInfo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +39,13 @@ public class GameController extends AppCompatActivity implements Runnable {
     private List<Integer> communityCardsId;
     private GameInfo gameInfo;
     private Semaphore objectLocker;
+    private final int COMMUNITY_CARDS_MSG = 1;
+    private final int REMAIN_PLAYERS_MSG = 2;
+    private final int DEALER_INDEX_MSG = 3;
+    private final int WINNER_MSG = 4;
+    private final int POT_MSG = 5;
+    private final int PLAYER_INDEX_MSG = 6;
+
 
     public GameController(List<Player> players, Handler handler,
                           Context context,
@@ -89,7 +97,7 @@ public class GameController extends AppCompatActivity implements Runnable {
 
         dealer = players.get(dealerPosition);
         gameInfo.setDealerPosition(dealerPosition);
-        notifyUpdateToActivity();
+        notifyDealerPositionUpdateToActivity();
 
         // Determine small blind and big blind positions
         int smallBlindPosition = (dealerPosition + 1) % players.size();
@@ -109,13 +117,15 @@ public class GameController extends AppCompatActivity implements Runnable {
         // Player, Right of Big Blind (Clockwise)
         currentPlayerIndex = (bigBlindPosition + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
+        gameInfo.setCurrentPlayerIndex(currentPlayerIndex);
 
         // Deal community cards when
         dealCommunityCards();
-        updateCommunityCardsUI();
 
         // Start Betting Round!
         while (communityCards.size() != 5) {
+
+            notifyCurrentPlayerUpdateToActivity();
 
             try {
                 Thread.sleep(2000);
@@ -125,7 +135,6 @@ public class GameController extends AppCompatActivity implements Runnable {
 
             if (isBettingRoundComplete()) {
                 dealCommunityCards();
-                updateCommunityCardsUI();
             }
             else {
                 // Players can choose to fold, call, or raise.
@@ -163,7 +172,7 @@ public class GameController extends AppCompatActivity implements Runnable {
                 currentPlayer = players.get(currentPlayerIndex);
 
                 this.remainPlayers = players.stream().filter(player -> player.hasFolded() == false).collect(Collectors.toList());
-                setRemainPlayers(); // set Remain players and compare hands.
+                notifyRemainPlayersUpdateToActivity(); // set Remain players and compare hands.
                 updateToastUi("Remain Players: " + remainPlayers.size());
 
                 if (remainPlayers.size() == 1) {
@@ -173,7 +182,7 @@ public class GameController extends AppCompatActivity implements Runnable {
         }
 
         if(determineWinner()){
-            notifyUpdateToActivity();
+            notifyWinnerUpdateToActivity();
             updateToastUi("The Winner is " + winner.getName());
         }
 
@@ -187,31 +196,80 @@ public class GameController extends AppCompatActivity implements Runnable {
         }
         updateToastUi("Game state has been reset!");
     }
+
+
+
     private void updatePotUi(){
         gameInfo.setPot(this.pot);
-        notifyUpdateToActivity();
+
     }
     private void setRemainPlayers(){
-        gameInfo.setRemainingPlayers(this.remainPlayers);
-        notifyUpdateToActivity();
+
     }
     // Update Card UI
-    private void updateCommunityCardsUI() {
-        this.communityCardsId = communityCards.stream()
+    private void updateCommunityCardsUI(List<Card> images) {
+        this.communityCardsId = images.stream()
                 .map(card -> CardUtils.getCardImageResourceId(card.toString(), gameContext))
                 .collect(Collectors.toList());
-
-        gameInfo.setCommunityCardIds(this.communityCardsId);
-        notifyUpdateToActivity();
+        notifyCommunityCardsUpdateToActivity(communityCardsId);
     }
 
     // Call this method when there's a card update
-    private void notifyUpdateToActivity() {
+    private void notifyCommunityCardsUpdateToActivity(List<Integer> cardIds) {
         Message message = mainUiThread.obtainMessage();
-        message.what = 1;
+        message.what = this.COMMUNITY_CARDS_MSG;
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("dataObject", this.gameInfo);
+        bundle.putSerializable("data", (Serializable) cardIds);
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+    private void notifyPotUpdateToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.POT_MSG;
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", (Serializable) this.pot);
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+
+    private void notifyWinnerUpdateToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.WINNER_MSG;
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", (Serializable) this.winner);
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+
+    private void notifyRemainPlayersUpdateToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.REMAIN_PLAYERS_MSG;
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", (Serializable) this.remainPlayers);
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+
+    private void notifyCurrentPlayerUpdateToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.PLAYER_INDEX_MSG;
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", (Serializable) this.currentPlayerIndex);
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+
+    private void notifyDealerPositionUpdateToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.DEALER_INDEX_MSG;
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", (Serializable) this.dealerPosition);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
@@ -247,12 +305,12 @@ public class GameController extends AppCompatActivity implements Runnable {
         gameInfo.setCommunityCardIds(this.communityCardsId);
         gameInfo.setRemainingPlayers(this.remainPlayers);
         gameInfo.setDealerPosition(this.dealerPosition);
-        notifyUpdateToActivity();
+
     }
     private void postBlind(Player player, int blindAmount) {
         player.decreaseChips(blindAmount);
         pot += blindAmount;
-        notifyUpdateToActivity();
+        notifyPotUpdateToActivity();
     }
     private Boolean determineWinner() {
         if (communityCards.size() == 5 || remainPlayers.size() == 1) {
@@ -298,11 +356,17 @@ public class GameController extends AppCompatActivity implements Runnable {
     }
     public synchronized void dealCommunityCards() {
         if (communityCards.size() < 3) {
-            communityCards.addAll(deck.draw(3));
+            List<Card> cards = deck.draw(3);
+            communityCards.addAll(cards);
+            updateCommunityCardsUI(cards);
         } else if (communityCards.size() == 3) {
-            communityCards.addAll(deck.draw(1));
+            List<Card> cards = deck.draw(1);
+            communityCards.addAll(cards);
+            updateCommunityCardsUI(cards);
         } else if (communityCards.size() == 4) {
-            communityCards.addAll(deck.draw(1));
+            List<Card> cards = deck.draw(1);
+            communityCards.addAll(cards);
+            updateCommunityCardsUI(cards);
         }
     }
     public Player determineWinner(List<Player> players, List<Card> communityCards) {
