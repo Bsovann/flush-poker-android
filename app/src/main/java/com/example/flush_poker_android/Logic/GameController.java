@@ -9,7 +9,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
-import com.example.flush_poker_android.Logic.Utility.GameInfo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ public class GameController extends AppCompatActivity implements Runnable {
     private ExecutorService playerThreadPool;
 
     private List<Integer> communityCardsId;
-    private GameInfo gameInfo;
     private Semaphore objectLocker;
     private final int COMMUNITY_CARDS_MSG = 1;
     private final int REMAIN_PLAYERS_MSG = 2;
@@ -84,9 +82,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         this.remainPlayers = players;
     }
     public void startGame() {
-        // Initialize gameInfo to send to activity
-        this.gameInfo =  new GameInfo();
-
         // DeckShuffle
         deck.shuffle();
 
@@ -96,7 +91,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         currentBet = bigBlind;
 
         dealer = players.get(dealerPosition);
-        gameInfo.setDealerPosition(dealerPosition);
         notifyDealerPositionUpdateToActivity();
 
         // Determine small blind and big blind positions
@@ -117,7 +111,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         // Player, Right of Big Blind (Clockwise)
         currentPlayerIndex = (bigBlindPosition + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
-        gameInfo.setCurrentPlayerIndex(currentPlayerIndex);
 
         // Deal community cards when
         dealCommunityCards();
@@ -126,12 +119,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         while (communityCards.size() != 5) {
 
             notifyCurrentPlayerUpdateToActivity();
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
 
             if (isBettingRoundComplete()) {
                 dealCommunityCards();
@@ -165,7 +152,6 @@ public class GameController extends AppCompatActivity implements Runnable {
 
                 // Process the player's action (e.g., update bets, check for folds, etc.)
                 processPlayerChoice(playerChoice);
-                updatePotUi();
 
                 // Move to the next player's turn.
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
@@ -197,12 +183,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         updateToastUi("Game state has been reset!");
     }
 
-
-
-    private void updatePotUi(){
-        gameInfo.setPot(this.pot);
-
-    }
     private void setRemainPlayers(){
 
     }
@@ -301,11 +281,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         dealerPosition = (dealerPosition + 1) % players.size();
 
         pot = 0;
-        gameInfo.setPot(this.pot);
-        gameInfo.setCommunityCardIds(this.communityCardsId);
-        gameInfo.setRemainingPlayers(this.remainPlayers);
-        gameInfo.setDealerPosition(this.dealerPosition);
-
     }
     private void postBlind(Player player, int blindAmount) {
         player.decreaseChips(blindAmount);
@@ -316,7 +291,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         if (communityCards.size() == 5 || remainPlayers.size() == 1) {
             this.winner = determineWinner(remainPlayers, communityCards);
             this.winner.addToChipCount(pot);
-            this.gameInfo.setWinner(winner);
             return true;
         }
         return false;
