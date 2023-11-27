@@ -1,6 +1,7 @@
 package com.example.flush_poker_android.Client;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
+import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.Logic.Player;
@@ -29,9 +31,7 @@ import com.example.flush_poker_android.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -52,7 +52,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private ExecutorService playerThreadPool;
     private GameController gameController;
     private CardFragment cardFragment;
-    private Set<Integer> communityCardIds = new HashSet<>();
+    private List<Integer> communityCardIds = new ArrayList<>();
     private List<Player> remainPlayers;
     private int currentPlayerIndex;
     private int dealerPosition;
@@ -61,6 +61,16 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
     private List<RelativeLayout> playerPositions = new ArrayList<>();
     GameInfo dataObject = null;
+
+    private final int COMMUNITY_CARDS_MSG = 1;
+    private final int REMAIN_PLAYERS_MSG = 2;
+    private final int DEALER_INDEX_MSG = 3;
+    private final int WINNER_MSG = 4;
+    private final int POT_MSG = 5;
+    private final int PLAYER_INDEX_MSG = 6;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,27 +94,50 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             @Override
             public void handleMessage(Message msg) {
                 // Process data received from the background thread
-                if (msg.what == 1) {
-                    Bundle bundle = msg.getData();
-                    dataObject = (GameInfo) bundle.getSerializable("dataObject");
-                    if (dataObject != null) {
-                        // Check if the message is new based on its timestamp
-                        // Process the new data and call onResume
-                        try{
-                            communityCardIds.addAll(dataObject.getCommunityCardIds());
-                            pot = dataObject.getPot();
-                            remainPlayers = dataObject.getRemainingPlayers();
-                            currentPlayerIndex = dataObject.getCurrentPlayerIndex();
-                            dealerPosition = dataObject.getDealerPosition();
-                            winner = dataObject.getWinner();
-                        } catch (NullPointerException e){
-                            System.err.println(e);
-                        }
-                        onResume();
+                try {
 
-                        Log.i("HandleMessage", communityCardIds.toString());
-//                        Log.i("Remain Players: ", remainPlayers.toString());
+                    if (msg.what == COMMUNITY_CARDS_MSG) {
+                        Bundle bundle = msg.getData();
+                        List<Integer> cards = (List<Integer>) bundle.getSerializable("data");
+                        communityCardIds.addAll(cards);
+                        onCommunityCardsUpdate(communityCardIds);
+                    } else if (msg.what == REMAIN_PLAYERS_MSG) {
+                        Bundle bundle = msg.getData();
+                        remainPlayers = (List<Player>) bundle.getSerializable("data");
+                    } else if (msg.what == DEALER_INDEX_MSG) {
+                        Bundle bundle = msg.getData();
+                        dealerPosition = (int) bundle.getSerializable("data");
+                        onUpdatePlayerPosition();
+                    } else if (msg.what == WINNER_MSG) {
+                        Bundle bundle = msg.getData();
+                        winner = (Player) bundle.getSerializable("data");
+                        if (winner != null) {
+                            if (communityCardIds.size() == 5)
+                                revealHands();
+                            // Delay for a specified time before proceeding to reset the game state
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Code to reset the game state goes here
+                                    cleanUp();
+                                    synchronized (gameController) {
+                                        gameController.notify();
+                                    }
+                                }
+                            }, 15000);
+                        }
+                    } else if (msg.what == POT_MSG) {
+                        Bundle bundle = msg.getData();
+                        pot = (int) bundle.getSerializable("data");
+                        // update current pot
+                        onPotUpdate();
+                    } else if (msg.what == PLAYER_INDEX_MSG) {
+                        Bundle bundle = msg.getData();
+                        currentPlayerIndex = (int) bundle.getSerializable("data");
+                        onPlayerTurnUpdate();
                     }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -114,39 +147,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     public void onResume() {
         super.onResume();
         cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
-//      handleMessage();
-        renderNewUI();
-    }
 
-    private void renderNewUI(){
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                // Dealer, SB, BB position
-                onUpdatePlayerPosition();
-                onCommunityCardsUpdate(communityCardIds.stream().collect(Collectors.toList()));
-                // update playerTurn position
-                onPlayerTurnUpdate();
-                // update current pot
-                onPotUpdate();
-
-                if (winner != null) {
-                    if (communityCardIds.size() == 5)
-                        revealHands();
-                    // Delay for a specified time before proceeding to reset the game state
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Code to reset the game state goes here
-                            cleanUp();
-                            synchronized (gameController) {
-                                gameController.notify();
-                            }
-                        }
-                    }, 15000);
-                }
-            }
-        });
     }
 
     private void cleanUp() {
@@ -165,20 +166,25 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     }
 
     private void onUpdatePlayerPosition() {
-        for (int i = 0; i < 3; i++){
-            int posIndex = (this.dealerPosition + i) % playerPositions.size();
-            RelativeLayout layout = playerPositions.get(posIndex);
-            TextView textView = (TextView) layout.getChildAt(0);
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 3; i++){
+                    int posIndex = (dealerPosition + i) % playerPositions.size();
+                    RelativeLayout layout = playerPositions.get(posIndex);
+                    TextView textView = (TextView) layout.getChildAt(0);
 
-            if(posIndex == dealerPosition)
-                textView.setText("D");
-            else if(posIndex == dealerPosition + 1)
-                textView.setText("SB");
-            else
-                textView.setText("BB");
+                    if(posIndex == dealerPosition)
+                        textView.setText("D");
+                    else if(posIndex == dealerPosition + 1)
+                        textView.setText("SB");
+                    else
+                        textView.setText("BB");
 
-            layout.setVisibility(View.VISIBLE);
-        }
+                    layout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     private void revealHands(){
@@ -195,7 +201,20 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
     @Override
     public void onPlayerTurnUpdate(){
+        PlayerCountdownView playerCountdownView;
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                String resourceName = "player"+ currentPlayerIndex + "Countdown";
+                Context context = getApplicationContext();
+                int resourceId = context.getResources().getIdentifier(resourceName, "id", context.getPackageName());
 
+                PlayerCountdownView playerCountdownView = findViewById(resourceId);
+                playerCountdownView.setVisibility(View.VISIBLE);
+
+                playerCountdownView.startCountdown(10000); // Start a 30-second countdown
+            }
+        });
     }
     @Override
     public void onPotUpdate(){
@@ -380,11 +399,16 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     }
     @Override
     public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
-        if (cardFragment != null) {
-            cardFragment.onCommunityCardsUpdate(updatedCardImages);
-        } else {
-            // Handle the case where cardFragment is null
-            Log.e("YourActivity", "cardFragment is null");
-        }
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (cardFragment != null) {
+                    cardFragment.onCommunityCardsUpdate(updatedCardImages);
+                } else {
+                    // Handle the case where cardFragment is null
+                    Log.e("YourActivity", "cardFragment is null");
+                }
+            }
+        });
     }
 }
