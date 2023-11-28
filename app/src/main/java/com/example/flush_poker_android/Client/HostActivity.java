@@ -62,12 +62,13 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private List<RelativeLayout> playerPositions = new ArrayList<>();
     GameInfo dataObject = null;
 
-    private final int COMMUNITY_CARDS_MSG = 1;
-    private final int REMAIN_PLAYERS_MSG = 2;
-    private final int DEALER_INDEX_MSG = 3;
-    private final int WINNER_MSG = 4;
-    private final int POT_MSG = 5;
-    private final int PLAYER_INDEX_MSG = 6;
+    private static final int COMMUNITY_CARDS_MSG = 1;
+    private static final int REMAIN_PLAYERS_MSG = 2;
+    private static final int DEALER_INDEX_MSG = 3;
+    private static final int WINNER_MSG = 4;
+    private static final int POT_MSG = 5;
+    private static final int PLAYER_INDEX_MSG = 6;
+    private static final int CURRENT_PLAYER_ACTION_MSG = 7;
 
 
 
@@ -134,12 +135,28 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                         Bundle bundle = msg.getData();
                         currentPlayerIndex = (int) bundle.getSerializable("data");
                         onPlayerTurnUpdate();
+                    } else if (msg.what == CURRENT_PLAYER_ACTION_MSG){
+//                        Bundle bundle = msg.getData();
+                        onPlayerActionUpdate();
                     }
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
         };
+    }
+
+    private void onPlayerActionUpdate() {
+
+        Context context = getApplicationContext();
+        Player player = players.get(currentPlayerIndex);
+        int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", currentPlayerIndex), "id", context.getPackageName());
+        int resourcePlayerAction = context.getResources().getIdentifier(String.format("player%dAction", currentPlayerIndex), "id", context.getPackageName());
+        TextView name = findViewById(resourcePlayerName);
+        TextView action = findViewById(resourcePlayerAction);
+
+        name.setText(player.getName());
+        action.setText(player.getPlayerAction());
     }
 
     @Override
@@ -152,11 +169,26 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private void cleanUp() {
         renderImagesTemp();
         resetPlayerPositions();
+        renderPlayerInfo();
         communityCardIds.clear();
         pot = 0;
         remainPlayers = null;
         winner = null;
         dataObject = null;
+    }
+
+    private void renderPlayerInfo() {
+        for(int i = 0; i < players.size(); i++) {
+            Context context = getApplicationContext();
+            Player player = players.get(i);
+            int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", i), "id", context.getPackageName());
+            int resourcePlayerAction = context.getResources().getIdentifier(String.format("player%dAction", i), "id", context.getPackageName());
+            TextView name = findViewById(resourcePlayerName);
+            TextView action = findViewById(resourcePlayerAction);
+
+            name.setText(player.getName());
+            action.setText("");
+        }
     }
 
     private void resetPlayerPositions() {
@@ -281,6 +313,9 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             player.setController(gameController);
             playerThreadPool.submit((Runnable) player);
         }
+
+        // Render player info.
+        renderPlayerInfo();
 
         // Instantiate controllerThread and start it.
         this.controllerThread = new Thread(gameController);

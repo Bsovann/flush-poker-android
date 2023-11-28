@@ -18,6 +18,7 @@ import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GameController extends AppCompatActivity implements Runnable {
+
     List<Player> remainPlayers;
     private Deck deck;
     private List<Player> players;
@@ -37,12 +38,13 @@ public class GameController extends AppCompatActivity implements Runnable {
 
     private List<Integer> communityCardsId;
     private Semaphore objectLocker;
-    private final int COMMUNITY_CARDS_MSG = 1;
-    private final int REMAIN_PLAYERS_MSG = 2;
-    private final int DEALER_INDEX_MSG = 3;
-    private final int WINNER_MSG = 4;
-    private final int POT_MSG = 5;
-    private final int PLAYER_INDEX_MSG = 6;
+    private static final int COMMUNITY_CARDS_MSG = 1;
+    private static final int REMAIN_PLAYERS_MSG = 2;
+    private static final int DEALER_INDEX_MSG = 3;
+    private static final int WINNER_MSG = 4;
+    private static final int POT_MSG = 5;
+    private static final int PLAYER_INDEX_MSG = 6;
+    private static final int CURRENT_PLAYER_ACTION_MSG = 7;
 
 
     public GameController(List<Player> players, Handler handler,
@@ -118,12 +120,11 @@ public class GameController extends AppCompatActivity implements Runnable {
         // Start Betting Round!
         while (communityCards.size() != 5) {
 
-            notifyCurrentPlayerUpdateToActivity();
-
             if (isBettingRoundComplete()) {
                 dealCommunityCards();
             }
             else {
+                notifyCurrentPlayerUpdateToActivity();
                 // Players can choose to fold, call, or raise.
                 // Update the current bet, pot, and player actions accordingly.
                 synchronized (currentPlayer) {
@@ -148,10 +149,10 @@ public class GameController extends AppCompatActivity implements Runnable {
                 }
 
                 String playerChoice = currentPlayer.getPlayerAction();
-                updateToastUi(currentPlayer.getName() + " " + playerChoice);
-
                 // Process the player's action (e.g., update bets, check for folds, etc.)
                 processPlayerChoice(playerChoice);
+                notifyPotUpdateToActivity();
+                notifyCurrentPlayerActionToActivity();
 
                 // Move to the next player's turn.
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
@@ -159,7 +160,6 @@ public class GameController extends AppCompatActivity implements Runnable {
 
                 this.remainPlayers = players.stream().filter(player -> player.hasFolded() == false).collect(Collectors.toList());
                 notifyRemainPlayersUpdateToActivity(); // set Remain players and compare hands.
-                updateToastUi("Remain Players: " + remainPlayers.size());
 
                 if (remainPlayers.size() == 1) {
                     break;
@@ -180,7 +180,17 @@ public class GameController extends AppCompatActivity implements Runnable {
                 throw new RuntimeException(e);
             }
         }
-        updateToastUi("Game state has been reset!");
+        updateToastUi("New Game!!");
+    }
+
+    private void notifyCurrentPlayerActionToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.CURRENT_PLAYER_ACTION_MSG;
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", currentPlayer.getPlayerAction());
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
     }
 
     private void setRemainPlayers(){

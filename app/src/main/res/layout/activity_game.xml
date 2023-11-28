@@ -320,7 +320,7 @@
 
         <LinearLayout
             android:layout_width="270dp"
-            android:layout_height="85dp"
+            android:layout_height="75dp"
             android:layout_centerInParent="true"
             android:orientation="vertical">
 
@@ -330,7 +330,7 @@
                 android:id="@+id/fragment_card"
                 android:name="com.example.flush_poker_android.Client.CardFragment"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
+                android:layout_height="50dp"
                 android:layout_centerInParent="true" />
 
             <TextView
@@ -353,6 +353,7 @@
             android:layout_marginStart="154dp"
             android:layout_marginTop="14dp"
             android:layout_marginEnd="155dp"
+            android:layout_marginBottom="6dp"
             android:numColumns="2" />
 
         <GridView
@@ -402,41 +403,61 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/myProfile"
-        android:layout_width="63dp"
-        android:layout_height="62dp"
-        android:layout_gravity="center"
-        android:background="@drawable/custom_border_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+
         app:layout_constraintVertical_bias="0.954">
 
-        <ImageView
-            android:layout_width="43dp"
-            android:layout_height="42dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/smilingface" />
-
-        <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
-            android:id="@+id/player0Countdown"
-            android:visibility="invisible"
+        <TextView
+            android:id="@+id/player0Action"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAlignment="center" />
 
+        <RelativeLayout
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:layout_gravity="center"
+            android:background="@drawable/custom_border_background"
+            >
 
-    </RelativeLayout>
+            <ImageView
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
 
-    <RelativeLayout
+            <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
+                android:id="@+id/player0Countdown"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/player0Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="name"
+            android:textAlignment="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/player1"
-        android:layout_width="63dp"
-        android:layout_height="62dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="168dp"
-        android:background="@drawable/custom_border_background"
-
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/relativeLayout"
         app:layout_constraintHorizontal_bias="0.065"
@@ -444,26 +465,44 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.498">
 
-        <ImageView
-            android:id="@+id/player1Image"
-            android:layout_width="43dp"
-            android:layout_height="42dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/smilingface" />
-        <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
-            android:id="@+id/player1Countdown"
+        <TextView
+            android:id="@+id/player1Action"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
-    </RelativeLayout>
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text=""/>
 
-    <RelativeLayout
+        <RelativeLayout
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:background="@drawable/custom_border_background">
+            <ImageView
+                android:id="@+id/player1Image"
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
+            <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
+                android:id="@+id/player1Countdown"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/player1Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="name"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/player4"
-        android:layout_width="63dp"
-        android:layout_height="62dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-
-        android:background="@drawable/custom_border_background"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.065"
@@ -471,75 +510,137 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.498">
 
-        <ImageView
-            android:id="@+id/player4Image"
-            android:layout_width="43dp"
-            android:layout_height="42dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/smilingface" />
-
-        <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
-            android:id="@+id/player4Countdown"
+        <TextView
+            android:id="@+id/player4Action"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
-    </RelativeLayout>
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAlignment="center" />
 
-    <RelativeLayout
+        <RelativeLayout
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:background="@drawable/custom_border_background">
+
+            <ImageView
+                android:id="@+id/player4Image"
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
+
+            <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
+                android:id="@+id/player4Countdown"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/player4Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="name"
+            android:textAlignment="center" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/player2"
-        android:layout_width="63dp"
-        android:layout_height="62dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="112dp"
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/custom_border_background"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintStart_toEndOf="@+id/levelExperience"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
-
-        <ImageView
-            android:id="@+id/player2Image"
-            android:layout_width="43dp"
-            android:layout_height="42dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/smilingface" />
-
-        <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
-            android:id="@+id/player2Countdown"
+        <TextView
+            android:id="@+id/player2Action"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text=""/>
 
-    </RelativeLayout>
+        <RelativeLayout
+            android:background="@drawable/custom_border_background"
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            >
 
-    <RelativeLayout
+            <ImageView
+                android:id="@+id/player2Image"
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
+
+            <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
+                android:id="@+id/player2Countdown"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/player2Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="name"/>
+    </LinearLayout>
+
+
+    <LinearLayout
         android:id="@+id/player3"
-        android:layout_width="63dp"
-        android:layout_height="62dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-
-        android:background="@drawable/custom_border_background"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintEnd_toStartOf="@+id/credit"
         app:layout_constraintStart_toEndOf="@+id/player2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
 
-        <ImageView
-            android:id="@+id/player3Image"
-            android:layout_width="43dp"
-            android:layout_height="42dp"
-            android:layout_centerInParent="true"
-            android:src="@drawable/smilingface" />
-
-        <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
-            android:id="@+id/player3Countdown"
+        <TextView
+            android:id="@+id/player3Action"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
-    </RelativeLayout>
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAlignment="center" />
+
+        <RelativeLayout
+            android:layout_width="63dp"
+            android:layout_height="62dp"
+            android:background="@drawable/custom_border_background">
+
+            <ImageView
+                android:id="@+id/player3Image"
+                android:layout_width="43dp"
+                android:layout_height="42dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/smilingface" />
+
+            <com.example.flush_poker_android.Client.customviews.PlayerCountdownView
+                android:id="@+id/player3Countdown"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/player3Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="name"
+            android:textAlignment="center" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout"
