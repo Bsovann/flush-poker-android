@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.Player;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class TexasHoldEmGamePracticeModeTest {
     @Test
     public void testDealHoleCardsToPlayers() {
         game.dealTwoHoleCardsToPlayers();
-        for (BotPlayer player : game.getPlayers()) {
+        for (Player player : game.getPlayers()) {
             assertEquals(2, player.getHand().size());
         }
     }
@@ -54,7 +54,7 @@ public class TexasHoldEmGamePracticeModeTest {
 
     @Test
     public void testGetCurrentPlayer() {
-        BotPlayer currentPlayer = game.getCurrentPlayer();
+        Player currentPlayer = game.getCurrentPlayer();
         assertNotNull(currentPlayer);
         assertTrue(game.getPlayers().contains(currentPlayer));
     }

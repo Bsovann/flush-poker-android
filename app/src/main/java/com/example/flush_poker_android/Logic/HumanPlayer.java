@@ -3,11 +3,13 @@ package com.example.flush_poker_android.Logic;
 import android.content.Context;
 import android.os.Handler;
 import android.widget.Toast;
+
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
 
-public class HumanPlayer extends Hand implements Runnable, Player {
+public class HumanPlayer extends Hand implements Runnable, Player, Serializable {
     private final String name;
     private int currentBet;
     private String playerAction;
@@ -204,6 +206,15 @@ public class HumanPlayer extends Hand implements Runnable, Player {
     @Override
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
+    }
+
+    @Override
+    public void playerStateReset() {
+    }
+
+    @Override
+    public int getBetAmount() {
+        return 0;
     }
 }
 

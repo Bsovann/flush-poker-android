@@ -1,6 +1,7 @@
 package com.example.flush_poker_android.Client;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
@@ -13,21 +14,24 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
+import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.Player;
+import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -36,18 +40,28 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
-    GridView communityCardView;
-    List<GridView> playersView;
+    List<GridView> playerViews;
     List<CardAdapter> playerAdapter;
-    CardAdapter commnityCardAdapter;
     private Handler handler = new Handler(Looper.getMainLooper());
-    private List<BotPlayer> players;
+    private List<Player> players;
     private int pot;
     private Thread controllerThread;
     private ExecutorService playerThreadPool;
     private GameController gameController;
     private CardFragment cardFragment;
-    private Set<Integer> communityCardIds = new HashSet<>();
+    private List<Integer> communityCardIds = new ArrayList<>();
+    private List<Player> remainPlayers;
+    private int currentPlayerIndex;
+    private int dealerPosition;
+    private Player winner;
+    private List<RelativeLayout> playerPositions = new ArrayList<>();
+    private static final int COMMUNITY_CARDS_MSG = 1;
+    private static final int REMAIN_PLAYERS_MSG = 2;
+    private static final int DEALER_INDEX_MSG = 3;
+    private static final int WINNER_MSG = 4;
+    private static final int POT_MSG = 5;
+    private static final int PLAYER_INDEX_MSG = 6;
+    private static final int CURRENT_PLAYER_ACTION_MSG = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,64 +76,8 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                     .commitNow();
         }
         initWork();
-
-    }
-    private long lastMessageTimestamp;
-    public void handleMessage() {
-        // Create a handler for the UI thread
-        handler = new Handler(getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                // Process data received from the background thread
-                if (msg.what == 1) {
-                    Bundle bundle = msg.getData();
-                    GameInfo dataObject = (GameInfo) bundle.getSerializable("dataObject");
-                    if (dataObject != null) {
-                        // Check if the message is new based on its timestamp
-                        // Process the new data and call onResume
-                        communityCardIds.addAll(dataObject.getCommunityCardIds());
-                        onResume();
-
-                        Log.i("HandleMessage", communityCardIds.toString());
-                    }
-                }
-            }
-        };
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
-//      handleMessage();
-        renderNewUI();
-    }
-
-    private void renderNewUI(){
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                onCardUpdate(communityCardIds.stream().collect(Collectors.toList()));
-                // update playerTurn position
-                // update current pot
-                // update dealer position
-                // update the winner
-            }
-        });
-    }
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        try {
-            controllerThread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    @Override
-    protected void onPause(){
-        super.onPause();
-    }
     private void initWork(){
 
         // Enable immersive mode
@@ -133,18 +91,19 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         // Set up work
         dialog = new Dialog(this);
-        playersView = new ArrayList<>(5);
+        playerViews = new ArrayList<>(5);
         playerAdapter = new ArrayList<>(5);
         players = new ArrayList<>();
 
         // Default info rendering
         renderImagesTemp();
+        setupPlayerPositions();
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
         for(int i = 0; i < 5; i++){
             players.add(new BotPlayer(
-                    "Player "+ i, 50000, handler, getApplicationContext()));
+                    "Player "+ i, 9000, handler, getApplicationContext()));
         }
 
         // Listening to GameController if anything update.
@@ -155,25 +114,142 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         });
 
         // Instantiate GameController
-        this.gameController = new GameController(players, handler, getApplicationContext(), playerThreadPool);
+        this.gameController = new GameController(
+                players,
+                handler,
+                getApplicationContext(),
+                playerThreadPool);
 
         // Set Controller to every player and launch Thread
-        for(BotPlayer player : players) {
+        for(Player player : players) {
             player.setController(gameController);
-            playerThreadPool.submit(player);
+            playerThreadPool.submit((Runnable) player);
         }
+
+        // Render player info.
+        renderPlayerInfo();
 
         // Instantiate controllerThread and start it.
         this.controllerThread = new Thread(gameController);
         controllerThread.start();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
 
     }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        try {
+            controllerThread.join();
+            playerThreadPool.shutdown();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
+    public void handleMessage() {
+        // Create a handler for the UI thread
+        handler = new Handler(getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                // Process data received from the background thread
+                try {
+                    if (msg.what == COMMUNITY_CARDS_MSG) {
+                        Bundle bundle = msg.getData();
+                        List<Integer> cards = (List<Integer>) bundle.getSerializable("data");
+                        communityCardIds.addAll(cards);
+                        onCommunityCardsUpdate(communityCardIds);
+                    } else if (msg.what == REMAIN_PLAYERS_MSG) {
+                        Bundle bundle = msg.getData();
+                        remainPlayers = (List<Player>) bundle.getSerializable("data");
+                    } else if (msg.what == DEALER_INDEX_MSG) {
+                        Bundle bundle = msg.getData();
+                        dealerPosition = (int) bundle.getSerializable("data");
+                        onUpdatePlayerPosition();
+                    } else if (msg.what == WINNER_MSG) {
+                        Bundle bundle = msg.getData();
+                        winner = (Player) bundle.getSerializable("data");
+                        if (winner != null) {
+                            if (communityCardIds.size() == 5)
+                                revealHands();
+
+                            updateWinnerTextView("Winner: " + winner.getName());
+                            // Delay for a specified time before proceeding to reset the game state
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Code to reset the game state goes here
+                                    cleanUp();
+                                    Toast.makeText(HostActivity.this, "New Game!", Toast.LENGTH_SHORT).show();
+                                    synchronized (gameController) {
+                                        gameController.notify();
+                                    }
+                                }
+                            }, 15000);
+                        }
+                    } else if (msg.what == POT_MSG) {
+                        Bundle bundle = msg.getData();
+                        pot = (int) bundle.getSerializable("data");
+                        // update current pot
+                        onPotUpdate();
+                    } else if (msg.what == PLAYER_INDEX_MSG) {
+                        Bundle bundle = msg.getData();
+                        currentPlayerIndex = (int) bundle.getSerializable("data");
+                        onPlayerTurnUpdate();
+                    } else if (msg.what == CURRENT_PLAYER_ACTION_MSG){
+//                        Bundle bundle = msg.getData();
+                        onPlayerActionUpdate();
+                    }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private void updateWinnerTextView(String name) {
+        TextView textview = findViewById(R.id.winner);
+        textview.setText(name);
+    }
+    private void cleanUp() {
+        renderImagesTemp();
+        resetPlayerPositions();
+        renderPlayerInfo();
+        updateWinnerTextView("");
+        communityCardIds.clear();
+        pot = 0;
+        remainPlayers = null;
+        winner = null;
+    }
+    private void renderPlayerInfo() {
+        for(int i = 0; i < players.size(); i++) {
+            Context context = getApplicationContext();
+            Player player = players.get(i);
+            int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", i), "id", context.getPackageName());
+            int resourcePlayerAction = context.getResources().getIdentifier(String.format("player%dAction", i), "id", context.getPackageName());
+            TextView name = findViewById(resourcePlayerName);
+            TextView action = findViewById(resourcePlayerAction);
+
+            name.setText(player.getName());
+            action.setText("");
+        }
+    }
+    private void resetPlayerPositions() {
+        for(RelativeLayout layout : playerPositions)
+            layout.setVisibility(View.INVISIBLE);
+    }
     private void renderImagesTemp(){
-        playersView.add(findViewById(R.id.myCards));
-        playersView.add(findViewById(R.id.player1Cards));
-        playersView.add(findViewById(R.id.player2Cards));
-        playersView.add(findViewById(R.id.player3Cards));
-        playersView.add(findViewById(R.id.player4Cards));
+        playerViews.add(findViewById(R.id.myCards));
+        playerViews.add(findViewById(R.id.player1Cards));
+        playerViews.add(findViewById(R.id.player2Cards));
+        playerViews.add(findViewById(R.id.player3Cards));
+        playerViews.add(findViewById(R.id.player4Cards));
 
         // Add players cards images and render
         for(int i = 0; i < 5; i++) {
@@ -182,8 +258,87 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         // Render card
         for(int i = 0; i < 5; i++) {
-            playersView.get(i).setAdapter(playerAdapter.get(i));
+            playerViews.get(i).setAdapter(playerAdapter.get(i));
         }
+    }
+    private void revealHands(){
+        for(int i = 0; i < remainPlayers.size(); i++) {
+            GridView view = playerViews.get(players.indexOf(remainPlayers.get(i)));
+            List<Integer> playerCardIds = remainPlayers.get(i).getHand()
+                                        .stream().map(card -> CardUtils.getCardImageResourceId(card.toString(), getApplicationContext()))
+                                        .collect(Collectors.toList());
+
+            view.setAdapter(new CardAdapter(this, playerCardIds));
+        }
+    }
+    private void onUpdatePlayerPosition() {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 3; i++){
+                    int posIndex = (dealerPosition + i) % playerPositions.size();
+                    RelativeLayout layout = playerPositions.get(posIndex);
+                    TextView textView = (TextView) layout.getChildAt(0);
+
+                    if(posIndex == dealerPosition)
+                        textView.setText("D");
+                    else if(posIndex == dealerPosition + 1)
+                        textView.setText("SB");
+                    else
+                        textView.setText("BB");
+
+                    layout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+    @Override
+    public void onPlayerTurnUpdate(){
+        PlayerCountdownView playerCountdownView;
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                String resourceName = "player"+ currentPlayerIndex + "Countdown";
+                Context context = getApplicationContext();
+                int resourceId = context.getResources().getIdentifier(resourceName, "id", context.getPackageName());
+
+                PlayerCountdownView playerCountdownView = findViewById(resourceId);
+                playerCountdownView.setVisibility(View.VISIBLE);
+
+                playerCountdownView.startCountdown(10000); // Start a 30-second countdown
+            }
+        });
+    }
+    @Override
+    public void onPotUpdate(){
+        TextView pot = findViewById(R.id.pot);
+        pot.setText(String.format("Pot: %d$", this.pot));
+    }
+    @Override
+    public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (cardFragment != null) {
+                    cardFragment.onCommunityCardsUpdate(updatedCardImages);
+                } else {
+                    // Handle the case where cardFragment is null
+                    Log.e("YourActivity", "cardFragment is null");
+                }
+            }
+        });
+    }
+    private void onPlayerActionUpdate() {
+
+        Context context = getApplicationContext();
+        Player player = players.get(currentPlayerIndex);
+        int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", currentPlayerIndex), "id", context.getPackageName());
+        int resourcePlayerAction = context.getResources().getIdentifier(String.format("player%dAction", currentPlayerIndex), "id", context.getPackageName());
+        TextView name = findViewById(resourcePlayerName);
+        TextView action = findViewById(resourcePlayerAction);
+
+        name.setText(player.getName());
+        action.setText(player.getPlayerAction());
     }
     public void onClickExitBtn(View view){
         Intent intent = new Intent(HostActivity.this, MainActivity.class);
@@ -268,13 +423,11 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             }
         });
     }
-    @Override
-    public void onCardUpdate(List<Integer> updatedCardImages) {
-        if (cardFragment != null) {
-            cardFragment.onCardUpdate(updatedCardImages);
-        } else {
-            // Handle the case where cardFragment is null
-            Log.e("YourActivity", "cardFragment is null");
-        }
+    private void setupPlayerPositions() {
+        playerPositions.add(findViewById(R.id.posIconPlayer0Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer1Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer2Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
     }
 }

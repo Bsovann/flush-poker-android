@@ -1,5 +1,7 @@
 package com.example.flush_poker_android.Logic;
 
+import java.util.List;
+
 public interface Player {
     public void setController(GameController controller);
     public String getPlayerAction();
@@ -18,4 +20,9 @@ public interface Player {
     public void setPlayerAction(String action);
     public void decreaseChips(int amount);
     public void setActionIsDone(boolean b);
+    public void addCard(Card dealCard);
+    public List<? extends Card> getHand();
+    int compareHands(List<Card> communityCards);
+    void playerStateReset();
+    int getBetAmount();
 }

@@ -19,6 +19,7 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     private GameController controller;
     private Handler handlerUi;
     private Context context;
+    private int betAmount = 0;
     public BotPlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
@@ -39,6 +40,13 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
                 }
                 // Perform actions for your turn
                 makeAutoDecision();
+
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
                 synchronized (controller){
                     // Signal the controller that your turn is done
                     actionIsDone = true;
@@ -62,44 +70,59 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     @Override
     public void setAvailableActions(int currentBet) {
         List<String> actions = new ArrayList<>();
+        this.currentBet = currentBet;
 
         // Check if the player can Fold
-        if (!this.hasFolded()) {
+        if (hasFold == false) {
             actions.add("Fold");
         }
         // Check if the player can Check (bet 0 if no one has raised)
-        if (this.getCurrentBet() == currentBet) {
+        if (this.currentBet == 0) {
             actions.add("Check");
         }
 
         // Check if the player can Call (match the current bet)
-        int callAmount = currentBet - this.getCurrentBet();
-        if (callAmount > 0 && callAmount <= this.getChips()) {
+        if (this.currentBet > 0 && this.currentBet <= this.chips) {
             actions.add("Call");
         }
 
         // Check if the player can Raise (if they have enough chips)
-        int minimumRaise = currentBet - this.getCurrentBet() + 1; // Minimum raise amount
-        int maximumRaise = this.getChips(); // Maximum raise is their chip stack
-        if (currentBet > 0 && minimumRaise <= maximumRaise) {
+        int minimumRaise = this.currentBet + 1; // Minimum raise amount
+        int maximumRaise = this.chips; // Maximum raise is their chip stack
+        if (this.currentBet > 0 && minimumRaise <= maximumRaise) {
             actions.add("Raise");
         }
-
         this.availableActions = actions;
+    }
+
+    @Override
+    public int getBetAmount() {
+        return betAmount;
+    }
+    public void playerStateReset(){
+        this.playerAction = "";
+        this.actionIsDone = false;
+        this.availableActions.clear();
+        this.hasFold = false;
+        this.clearHand();
     }
     @Override
     public void check() {
         // Implement checking logic
         // In poker, checking means that the player does not want to bet but wants to stay in the game.
         // You need to implement the logic to determine if a check is allowed based on the game state.
+        this.betAmount = 0;
     }
+
     @Override
     public void bet(int amount) {
         // Implement betting logic
         // This method should handle the player placing a bet with the specified amount.
         // Ensure that the player has enough credits to make the bet, and deduct the amount from their credits.
-        if(chips > amount)
+        if(chips >= amount) {
             this.chips -= amount;
+            this.betAmount = amount;
+        }
     }
     @Override
     public void fold() {
@@ -148,9 +171,9 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     public void makeAutoDecision() {
         // This is a basic AI logic for automatic decision-making.
         // You can make it more sophisticated based on your game rules.
-        int currentBet = controller.getCurrentBet();
-        int minRaise = currentBet - getCurrentBet() + 1;
-        int maxRaise = getChips();
+
+        int minRaise = this.currentBet + 1;
+        int maxRaise = this.chips;
 
         Random random = new Random();
         int decision = random.nextInt(availableActions.size()); // Generate a random decision (0 to 3)
@@ -163,21 +186,16 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
             setPlayerAction("Fold");
         } else if (playerAction.equals("Check")) {
             // 25% chance to check
-            if (getCurrentBet() == currentBet) {
-                check();
-                setPlayerAction("Check");
-            }
+            check();
+            setPlayerAction("Check");
         } else if (playerAction.equals("Call")) {
             // 25% chance to call
-            int callAmount = currentBet - getCurrentBet();
-            if (callAmount > 0 && callAmount <= getChips()) {
-                bet(callAmount);
-                setPlayerAction("Call");
-            }
+            bet(currentBet);
+            setPlayerAction("Call");
         } else {
             // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
-            raise(raiseAmount);
+            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + currentBet;
+            bet(raiseAmount);
             setPlayerAction("Raise");
         }
 
@@ -188,5 +206,12 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
     }
+
+    @Override
+    public int compareHands(List<Card> communityCards) {
+        return super.compareHands(communityCards);
+    }
+
+
 }
 
