@@ -258,6 +258,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         super.onDestroy();
         try {
             controllerThread.join();
+            playerThreadPool.shutdown();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
