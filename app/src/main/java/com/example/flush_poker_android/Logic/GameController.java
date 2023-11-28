@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,7 +13,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GameController extends AppCompatActivity implements Runnable {
@@ -35,9 +33,7 @@ public class GameController extends AppCompatActivity implements Runnable {
     private final Handler mainUiThread;
     private final Context gameContext;
     private ExecutorService playerThreadPool;
-
     private List<Integer> communityCardsId;
-    private Semaphore objectLocker;
     private static final int COMMUNITY_CARDS_MSG = 1;
     private static final int REMAIN_PLAYERS_MSG = 2;
     private static final int DEALER_INDEX_MSG = 3;
@@ -49,14 +45,11 @@ public class GameController extends AppCompatActivity implements Runnable {
 
     public GameController(List<Player> players, Handler handler,
                           Context context,
-                          ExecutorService playerThreadPool,
-                          Semaphore objectLocker) {
+                          ExecutorService playerThreadPool) {
         this.players = players;
         this.mainUiThread = handler;
         this.gameContext = context;
         this.playerThreadPool = playerThreadPool;
-        this.objectLocker = objectLocker;
-
         initializeGame();
     }
 
@@ -121,6 +114,7 @@ public class GameController extends AppCompatActivity implements Runnable {
         while (communityCards.size() != 5) {
 
             if (isBettingRoundComplete()) {
+                currentBet = 0;
                 dealCommunityCards();
             }
             else {
@@ -130,6 +124,7 @@ public class GameController extends AppCompatActivity implements Runnable {
                 synchronized (currentPlayer) {
 
                     currentPlayer.setAvailableActions(currentBet);
+
                     if (!currentPlayer.hasFolded())
                         currentPlayer.notify();
                     else {
@@ -169,9 +164,7 @@ public class GameController extends AppCompatActivity implements Runnable {
 
         if(determineWinner()){
             notifyWinnerUpdateToActivity();
-            updateToastUi("The Winner is " + winner.getName());
         }
-
         synchronized (this){
             try {
                 this.wait();
@@ -180,9 +173,7 @@ public class GameController extends AppCompatActivity implements Runnable {
                 throw new RuntimeException(e);
             }
         }
-        updateToastUi("New Game!!");
     }
-
     private void notifyCurrentPlayerActionToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.CURRENT_PLAYER_ACTION_MSG;
@@ -192,19 +183,12 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
-    private void setRemainPlayers(){
-
-    }
-    // Update Card UI
     private void updateCommunityCardsUI(List<Card> images) {
         this.communityCardsId = images.stream()
                 .map(card -> CardUtils.getCardImageResourceId(card.toString(), gameContext))
                 .collect(Collectors.toList());
         notifyCommunityCardsUpdateToActivity(communityCardsId);
     }
-
-    // Call this method when there's a card update
     private void notifyCommunityCardsUpdateToActivity(List<Integer> cardIds) {
         Message message = mainUiThread.obtainMessage();
         message.what = this.COMMUNITY_CARDS_MSG;
@@ -223,7 +207,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyWinnerUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.WINNER_MSG;
@@ -233,7 +216,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyRemainPlayersUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.REMAIN_PLAYERS_MSG;
@@ -243,7 +225,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyCurrentPlayerUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.PLAYER_INDEX_MSG;
@@ -253,7 +234,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyDealerPositionUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.DEALER_INDEX_MSG;
@@ -263,20 +243,10 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     public synchronized boolean isGameActive() {
         // Check if the game is active
         return players.size() > 1;
     }
-    private void updateToastUi(String playerChoice) {
-        mainUiThread.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(gameContext, playerChoice, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void gameStateReset(){
         // Reset the game state for the next hand.
         for (Player player : players) {
@@ -307,28 +277,23 @@ public class GameController extends AppCompatActivity implements Runnable {
     }
     private void processPlayerChoice(String playerChoice) {
         // Handle the player's choice.
+        int betAmount = currentPlayer.getBetAmount();
         if (playerChoice.equals("Fold")) {
             // Player folds and is out of the hand.
             currentPlayer.fold();
-//            players.remove(currentPlayer);
         } else if (playerChoice.equals("Call")) {
             // Player calls the current bet.
-            int callAmount = currentBet - currentPlayer.getCurrentBet();
-            currentPlayer.bet(callAmount);
-            pot += callAmount;
+            currentBet = betAmount;
+            pot += betAmount;
         } else if (playerChoice.equals("Raise")) {
-            // Player raises the current bet.
-//            int raiseAmount = promptPlayerForRaiseAmount(currentPlayer, currentBet);
-//            currentPlayer.bet(raiseAmount + currentBet);
-//            currentBet += raiseAmount;
-//            pot += currentBet;
+            currentBet = betAmount;
+            pot += betAmount;
         } else if (playerChoice.equals("Check")) {
+            currentBet = betAmount;
+            pot += betAmount;
         }
     }
     public synchronized boolean isBettingRoundComplete() {
-        // Implement the logic to check if the betting round is complete.
-        // You can iterate through the players and check if they have all matched the current bet.
-        // Return true if the round is complete; otherwise, return false.
         for (Player player : remainPlayers) {
             if (!player.actionIsDone()) {
                 return false;
@@ -383,12 +348,6 @@ public class GameController extends AppCompatActivity implements Runnable {
             for (Player player : remainPlayers)
                 player.addCard(deck.dealCard());
         }
-    }
-    public Player getWinner() {
-        return this.winner;
-    }
-    public List getCommunityCards() {
-        return communityCards;
     }
     public int getDealerPosition() {
         return this.dealerPosition;
