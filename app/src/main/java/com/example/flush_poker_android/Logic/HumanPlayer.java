@@ -211,5 +211,10 @@ public class HumanPlayer extends Hand implements Runnable, Player, Serializable 
     @Override
     public void playerStateReset() {
     }
+
+    @Override
+    public int getBetAmount() {
+        return 0;
+    }
 }
 

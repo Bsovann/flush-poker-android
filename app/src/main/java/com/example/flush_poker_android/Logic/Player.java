@@ -24,4 +24,5 @@ public interface Player {
     public List<? extends Card> getHand();
     int compareHands(List<Card> communityCards);
     void playerStateReset();
+    int getBetAmount();
 }

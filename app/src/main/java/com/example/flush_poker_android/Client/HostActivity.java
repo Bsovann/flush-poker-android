@@ -17,6 +17,7 @@ import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,7 +27,6 @@ import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
 import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
-import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.R;
 
 import java.util.ArrayList;
@@ -34,17 +34,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class HostActivity extends AppCompatActivity implements GameUpdateListener {
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
-    GridView communityCardView;
     List<GridView> playerViews;
     List<CardAdapter> playerAdapter;
-    CardAdapter commnityCardAdapter;
     private Handler handler = new Handler(Looper.getMainLooper());
     private List<Player> players;
     private int pot;
@@ -57,11 +54,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private int currentPlayerIndex;
     private int dealerPosition;
     private Player winner;
-    private Semaphore objectLocker = new Semaphore(0);
-
     private List<RelativeLayout> playerPositions = new ArrayList<>();
-    GameInfo dataObject = null;
-
     private static final int COMMUNITY_CARDS_MSG = 1;
     private static final int REMAIN_PLAYERS_MSG = 2;
     private static final int DEALER_INDEX_MSG = 3;
@@ -69,9 +62,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private static final int POT_MSG = 5;
     private static final int PLAYER_INDEX_MSG = 6;
     private static final int CURRENT_PLAYER_ACTION_MSG = 7;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +76,83 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                     .commitNow();
         }
         initWork();
+    }
+
+    private void initWork(){
+
+        // Enable immersive mode
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
+        // Set screen orientation to landscape
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        setContentView(R.layout.activity_game);
+
+        // Set up work
+        dialog = new Dialog(this);
+        playerViews = new ArrayList<>(5);
+        playerAdapter = new ArrayList<>(5);
+        players = new ArrayList<>();
+
+        // Default info rendering
+        renderImagesTemp();
+        setupPlayerPositions();
+
+        this.playerThreadPool = Executors.newFixedThreadPool(5);
+        // Assign Each player to each Thread
+        for(int i = 0; i < 5; i++){
+            players.add(new BotPlayer(
+                    "Player "+ i, 9000, handler, getApplicationContext()));
+        }
+
+        // Listening to GameController if anything update.
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            //Background work here
+            handleMessage();
+        });
+
+        // Instantiate GameController
+        this.gameController = new GameController(
+                players,
+                handler,
+                getApplicationContext(),
+                playerThreadPool);
+
+        // Set Controller to every player and launch Thread
+        for(Player player : players) {
+            player.setController(gameController);
+            playerThreadPool.submit((Runnable) player);
+        }
+
+        // Render player info.
+        renderPlayerInfo();
+
+        // Instantiate controllerThread and start it.
+        this.controllerThread = new Thread(gameController);
+        controllerThread.start();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
 
     }
-    private long lastMessageTimestamp;
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        try {
+            controllerThread.join();
+            playerThreadPool.shutdown();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
     public void handleMessage() {
         // Create a handler for the UI thread
         handler = new Handler(getMainLooper()) {
@@ -114,12 +178,15 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                         if (winner != null) {
                             if (communityCardIds.size() == 5)
                                 revealHands();
+
+                            updateWinnerTextView("Winner: " + winner.getName());
                             // Delay for a specified time before proceeding to reset the game state
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
                                     // Code to reset the game state goes here
                                     cleanUp();
+                                    Toast.makeText(HostActivity.this, "New Game!", Toast.LENGTH_SHORT).show();
                                     synchronized (gameController) {
                                         gameController.notify();
                                     }
@@ -146,37 +213,20 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         };
     }
 
-    private void onPlayerActionUpdate() {
-
-        Context context = getApplicationContext();
-        Player player = players.get(currentPlayerIndex);
-        int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", currentPlayerIndex), "id", context.getPackageName());
-        int resourcePlayerAction = context.getResources().getIdentifier(String.format("player%dAction", currentPlayerIndex), "id", context.getPackageName());
-        TextView name = findViewById(resourcePlayerName);
-        TextView action = findViewById(resourcePlayerAction);
-
-        name.setText(player.getName());
-        action.setText(player.getPlayerAction());
+    private void updateWinnerTextView(String name) {
+        TextView textview = findViewById(R.id.winner);
+        textview.setText(name);
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
-
-    }
-
     private void cleanUp() {
         renderImagesTemp();
         resetPlayerPositions();
         renderPlayerInfo();
+        updateWinnerTextView("");
         communityCardIds.clear();
         pot = 0;
         remainPlayers = null;
         winner = null;
-        dataObject = null;
     }
-
     private void renderPlayerInfo() {
         for(int i = 0; i < players.size(); i++) {
             Context context = getApplicationContext();
@@ -190,12 +240,37 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             action.setText("");
         }
     }
-
     private void resetPlayerPositions() {
         for(RelativeLayout layout : playerPositions)
             layout.setVisibility(View.INVISIBLE);
     }
+    private void renderImagesTemp(){
+        playerViews.add(findViewById(R.id.myCards));
+        playerViews.add(findViewById(R.id.player1Cards));
+        playerViews.add(findViewById(R.id.player2Cards));
+        playerViews.add(findViewById(R.id.player3Cards));
+        playerViews.add(findViewById(R.id.player4Cards));
 
+        // Add players cards images and render
+        for(int i = 0; i < 5; i++) {
+            playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
+        }
+
+        // Render card
+        for(int i = 0; i < 5; i++) {
+            playerViews.get(i).setAdapter(playerAdapter.get(i));
+        }
+    }
+    private void revealHands(){
+        for(int i = 0; i < remainPlayers.size(); i++) {
+            GridView view = playerViews.get(players.indexOf(remainPlayers.get(i)));
+            List<Integer> playerCardIds = remainPlayers.get(i).getHand()
+                                        .stream().map(card -> CardUtils.getCardImageResourceId(card.toString(), getApplicationContext()))
+                                        .collect(Collectors.toList());
+
+            view.setAdapter(new CardAdapter(this, playerCardIds));
+        }
+    }
     private void onUpdatePlayerPosition() {
         new Handler().post(new Runnable() {
             @Override
@@ -217,19 +292,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             }
         });
     }
-
-    private void revealHands(){
-//        this.remainPlayers = this.players.stream().filter(player -> !player.hasFolded()).collect(Collectors.toList());
-        for(int i = 0; i < remainPlayers.size(); i++) {
-            GridView view = playerViews.get(players.indexOf(remainPlayers.get(i)));
-            List<Integer> playerCardIds = remainPlayers.get(i).getHand()
-                                        .stream().map(card -> CardUtils.getCardImageResourceId(card.toString(), getApplicationContext()))
-                                        .collect(Collectors.toList());
-
-            view.setAdapter(new CardAdapter(this, playerCardIds));
-        }
-    }
-
     @Override
     public void onPlayerTurnUpdate(){
         PlayerCountdownView playerCountdownView;
@@ -252,102 +314,31 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         TextView pot = findViewById(R.id.pot);
         pot.setText(String.format("Pot: %d$", this.pot));
     }
-
     @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        try {
-            controllerThread.join();
-            playerThreadPool.shutdown();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    @Override
-    protected void onPause(){
-        super.onPause();
-    }
-    private void initWork(){
-
-        // Enable immersive mode
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-
-        // Set screen orientation to landscape
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        setContentView(R.layout.activity_game);
-
-        // Set up work
-        dialog = new Dialog(this);
-        playerViews = new ArrayList<>(5);
-        playerAdapter = new ArrayList<>(5);
-        players = new ArrayList<>();
-
-        // Default info rendering
-        renderImagesTemp();
-        setupPlayerPositions();
-
-        this.playerThreadPool = Executors.newFixedThreadPool(5);
-        // Assign Each player to each Thread
-        for(int i = 0; i < 5; i++){
-            players.add(new BotPlayer(
-                    "Player "+ i, 50000, handler, getApplicationContext()));
-        }
-
-        // Listening to GameController if anything update.
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            //Background work here
-            handleMessage();
+    public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (cardFragment != null) {
+                    cardFragment.onCommunityCardsUpdate(updatedCardImages);
+                } else {
+                    // Handle the case where cardFragment is null
+                    Log.e("YourActivity", "cardFragment is null");
+                }
+            }
         });
-
-        // Instantiate GameController
-        this.gameController = new GameController(players,
-                handler,
-                getApplicationContext(),
-                playerThreadPool,
-                objectLocker);
-
-        // Set Controller to every player and launch Thread
-        for(Player player : players) {
-            player.setController(gameController);
-            playerThreadPool.submit((Runnable) player);
-        }
-
-        // Render player info.
-        renderPlayerInfo();
-
-        // Instantiate controllerThread and start it.
-        this.controllerThread = new Thread(gameController);
-        controllerThread.start();
-
     }
+    private void onPlayerActionUpdate() {
 
-    private void setupPlayerPositions() {
-        playerPositions.add(findViewById(R.id.posIconPlayer0Layout));
-        playerPositions.add(findViewById(R.id.posIconPlayer1Layout));
-        playerPositions.add(findViewById(R.id.posIconPlayer2Layout));
-        playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
-        playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
-    }
+        Context context = getApplicationContext();
+        Player player = players.get(currentPlayerIndex);
+        int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", currentPlayerIndex), "id", context.getPackageName());
+        int resourcePlayerAction = context.getResources().getIdentifier(String.format("player%dAction", currentPlayerIndex), "id", context.getPackageName());
+        TextView name = findViewById(resourcePlayerName);
+        TextView action = findViewById(resourcePlayerAction);
 
-    private void renderImagesTemp(){
-        playerViews.add(findViewById(R.id.myCards));
-        playerViews.add(findViewById(R.id.player1Cards));
-        playerViews.add(findViewById(R.id.player2Cards));
-        playerViews.add(findViewById(R.id.player3Cards));
-        playerViews.add(findViewById(R.id.player4Cards));
-
-        // Add players cards images and render
-        for(int i = 0; i < 5; i++) {
-            playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
-        }
-
-        // Render card
-        for(int i = 0; i < 5; i++) {
-            playerViews.get(i).setAdapter(playerAdapter.get(i));
-        }
+        name.setText(player.getName());
+        action.setText(player.getPlayerAction());
     }
     public void onClickExitBtn(View view){
         Intent intent = new Intent(HostActivity.this, MainActivity.class);
@@ -432,18 +423,11 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             }
         });
     }
-    @Override
-    public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (cardFragment != null) {
-                    cardFragment.onCommunityCardsUpdate(updatedCardImages);
-                } else {
-                    // Handle the case where cardFragment is null
-                    Log.e("YourActivity", "cardFragment is null");
-                }
-            }
-        });
+    private void setupPlayerPositions() {
+        playerPositions.add(findViewById(R.id.posIconPlayer0Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer1Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer2Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
+        playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
     }
 }
