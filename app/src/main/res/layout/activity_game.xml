@@ -677,6 +677,7 @@
             android:background="@drawable/game_btn_bg"
             android:onClick="onClickCheckBtn"
             android:text="Check"
+            android:visibility="invisible"
             android:textAlignment="gravity"
             android:textAppearance="@style/generalText" />
 
@@ -689,6 +690,7 @@
             android:background="@drawable/game_btn_bg"
             android:onClick="onClickCallBtn"
             android:text="Call"
+            android:visibility="invisible"
             android:textAppearance="@style/generalText" />
 
         <Button
@@ -699,6 +701,7 @@
             android:background="@drawable/game_btn_bg"
             android:onClick="onClickBetBtn"
             android:text="Bet"
+            android:visibility="invisible"
             android:textAppearance="@style/generalText" />
 
     </LinearLayout>
@@ -726,7 +729,8 @@
             android:onClick="onClickExitBtn"
             android:text="Exit"
             android:textAlignment="gravity"
-            android:textAppearance="@style/generalText" />
+            android:textAppearance="@style/generalText"
+            />
 
         <Button
             android:id="@+id/foldBtn"
@@ -736,6 +740,7 @@
             android:background="@drawable/game_btn_bg"
             android:onClick="onClickFoldBtn"
             android:text="Fold"
+            android:visibility="invisible"
             android:textAppearance="@style/generalText" />
 
     </LinearLayout>

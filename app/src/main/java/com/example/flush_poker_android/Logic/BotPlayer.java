@@ -99,6 +99,27 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     public int getBetAmount() {
         return betAmount;
     }
+
+    @Override
+    public void setActionListener(PlayerActionListener listener) {
+
+    }
+
+    @Override
+    public List<String> getAvailableActions() {
+        return null;
+    }
+
+    @Override
+    public void call() {
+        bet(currentBet);
+    }
+
+    @Override
+    public void setHasFold(boolean b) {
+        this.hasFold = b;
+    }
+
     public void playerStateReset(){
         this.playerAction = "";
         this.actionIsDone = false;
@@ -163,6 +184,7 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     @Override
     public void setPlayerAction(String action) {
         this.playerAction = action;
+        this.actionIsDone = true;
     }
     @Override
     public void decreaseChips(int amount) {
@@ -190,7 +212,7 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
             setPlayerAction("Check");
         } else if (playerAction.equals("Call")) {
             // 25% chance to call
-            bet(currentBet);
+            call();
             setPlayerAction("Call");
         } else {
             // 25% chance to raise

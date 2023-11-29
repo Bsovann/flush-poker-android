@@ -25,4 +25,8 @@ public interface Player {
     int compareHands(List<Card> communityCards);
     void playerStateReset();
     int getBetAmount();
+    void setActionListener(PlayerActionListener listener);
+    List<String> getAvailableActions();
+    void call();
+    void setHasFold(boolean b);
 }
