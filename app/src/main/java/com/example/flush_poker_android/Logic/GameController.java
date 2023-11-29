@@ -41,6 +41,7 @@ public class GameController extends AppCompatActivity implements Runnable {
     private static final int POT_MSG = 5;
     private static final int PLAYER_INDEX_MSG = 6;
     private static final int CURRENT_PLAYER_ACTION_MSG = 7;
+    private static final int GAME_START_MSG = 8;
 
 
     public GameController(List<Player> players, Handler handler,
@@ -102,6 +103,7 @@ public class GameController extends AppCompatActivity implements Runnable {
 
         // Initialize hands
         dealTwoHoleCardsToPlayers();
+        notifyGameStartToActivity();
 
         // Player, Right of Big Blind (Clockwise)
         currentPlayerIndex = (bigBlindPosition + 1) % players.size();
@@ -210,7 +212,6 @@ public class GameController extends AppCompatActivity implements Runnable {
     private void notifyWinnerUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.WINNER_MSG;
-
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) this.winner);
         message.setData(bundle);
@@ -219,7 +220,6 @@ public class GameController extends AppCompatActivity implements Runnable {
     private void notifyRemainPlayersUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.REMAIN_PLAYERS_MSG;
-
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) this.remainPlayers);
         message.setData(bundle);
@@ -241,6 +241,11 @@ public class GameController extends AppCompatActivity implements Runnable {
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) this.dealerPosition);
         message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+    private void notifyGameStartToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.GAME_START_MSG;
         mainUiThread.sendMessage(message);
     }
     public synchronized boolean isGameActive() {
@@ -299,8 +304,11 @@ public class GameController extends AppCompatActivity implements Runnable {
                 return false;
             }
         }
-        for (Player player : remainPlayers)
+        for (Player player : remainPlayers) {
             player.setActionIsDone(false);
+            player.setPlayerAction("");
+            player.setHasFold(false);
+        }
         return true;
     }
     public synchronized void dealCommunityCards() {

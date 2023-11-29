@@ -2,112 +2,83 @@ package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
 import android.os.Handler;
-import android.widget.Toast;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
-public class HumanPlayer extends Hand implements Runnable, Player, Serializable {
+public class HumanPlayer extends Hand implements Player, Runnable, Serializable{
     private final String name;
     private int currentBet;
     private String playerAction;
-    private Set<String> availableActions;
+    private List<String> availableActions;
     private Boolean hasFold = false;
     private Boolean actionIsDone = false;
     private int chips;
     private GameController controller;
     private Handler handlerUi;
     private Context context;
+    private int betAmount = 0;
+    private boolean isTimeOut = false;
+
     public HumanPlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
         this.chips = chips;
         this.playerAction = "";
-        this.availableActions = new LinkedHashSet<>();
+        this.availableActions = new ArrayList<>();
         this.handlerUi = handler;
         this.context = context;
     }
+    private PlayerActionListener actionListener;
+
+    @Override
+    public void setActionListener(PlayerActionListener listener) {
+        this.actionListener = listener;
+    }
+
+    @Override
+    public List<String> getAvailableActions() {
+        return this.availableActions;
+    }
+
     @Override
     public void run() {
         while (true) {
             synchronized (this) {
                 try {
-                    this.wait(); // Wait for the controller to signal your turn
+                    this.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                if(actionListener != null) {
+                    actionListener.onPlayerTurn(this);
                 }
 
-                // Perform actions for your turn
-                makeDecision();
+                try {
+                    this.wait(10000); // Wait for the player to perform an action via UI
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
+                // Your turn is over, notify the GameController
                 synchronized (controller){
-                    // Signal the controller that your turn is done
-                    actionIsDone = true;
+                    if(playerAction.isEmpty()){
+                        this.hasFold = true;
+                        this.playerAction = "Fold";
+                        this.actionIsDone = true;
+                    }
                     controller.notify();
                 }
             }
-
         }
     }
-    private void makeDecision() {
-        // This is a basic AI logic for automatic decision-making.
-        // You can make it more sophisticated based on your game rules.
-        int currentBet = controller.getCurrentBet();
-        int minRaise = currentBet - getCurrentBet() + 1;
-        int maxRaise = getChips();
 
-        Random random = new Random();
-        int decision = random.nextInt(4); // Generate a random decision (0 to 3)
-
-        if (decision == 0) {
-            // 25% chance to fold
-            fold();
-            setPlayerAction("Fold");
-        } else if (decision == 1) {
-            // 25% chance to check
-            if (getCurrentBet() == currentBet) {
-                check();
-                setPlayerAction("Check");
-            }
-        } else if (decision == 2) {
-            // 25% chance to call
-            int callAmount = currentBet - getCurrentBet();
-            if (callAmount > 0 && callAmount <= getChips()) {
-                bet(callAmount);
-                setPlayerAction("Call");
-            }
-        } else {
-            // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + minRaise;
-            raise(raiseAmount);
-            setPlayerAction("Raise");
-        }
-
-        // Signal that the AI has completed its action
-        actionIsDone = true;
-    }
     @Override
     public void setController(GameController controller){
         this.controller = controller;
-    }
-
-    private void updateUIToast(String str){
-        handlerUi.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-    private void getPlayerChoice() {
     }
     @Override
     public String getPlayerAction(){
@@ -119,57 +90,90 @@ public class HumanPlayer extends Hand implements Runnable, Player, Serializable 
     }
     @Override
     public void setAvailableActions(int currentBet) {
-        Set<String> actions = new LinkedHashSet<>();
+        List<String> actions = new ArrayList<>();
+        this.currentBet = currentBet;
 
         // Check if the player can Fold
-        if (!this.hasFolded()) {
+        if (hasFold == false) {
             actions.add("Fold");
         }
         // Check if the player can Check (bet 0 if no one has raised)
-        if (this.getCurrentBet() == currentBet) {
+        if (this.currentBet == 0) {
             actions.add("Check");
         }
 
         // Check if the player can Call (match the current bet)
-        int callAmount = currentBet - this.getCurrentBet();
-        if (callAmount > 0 && callAmount <= this.getChips()) {
+        if (this.currentBet > 0 && this.currentBet <= this.chips) {
             actions.add("Call");
         }
 
         // Check if the player can Raise (if they have enough chips)
-        int minimumRaise = currentBet - this.getCurrentBet() + 1; // Minimum raise amount
-        int maximumRaise = this.getChips(); // Maximum raise is their chip stack
-        if (currentBet > 0 && minimumRaise <= maximumRaise) {
+        int minimumRaise = this.currentBet + 1; // Minimum raise amount
+        int maximumRaise = this.chips; // Maximum raise is their chip stack
+        if (this.currentBet > 0 && minimumRaise <= maximumRaise) {
             actions.add("Raise");
         }
-
         this.availableActions = actions;
+    }
+    @Override
+    public int getBetAmount() {
+        return betAmount;
+    }
+    public void playerStateReset(){
+        this.playerAction = "";
+        this.actionIsDone = false;
+        this.availableActions.clear();
+        this.hasFold = false;
+        this.clearHand();
     }
     @Override
     public void check() {
         // Implement checking logic
         // In poker, checking means that the player does not want to bet but wants to stay in the game.
         // You need to implement the logic to determine if a check is allowed based on the game state.
+        this.betAmount = 0;
+        this.actionIsDone = true;
     }
+
+    @Override
+    public void call() {
+        // Implement checking logic
+        // In poker, checking means that the player does not want to bet but wants to stay in the game.
+        // You need to implement the logic to determine if a check is allowed based on the game state.
+        bet(this.currentBet);
+        this.actionIsDone = true;
+    }
+
+    @Override
+    public void setHasFold(boolean b) {
+        this.hasFold = b;
+    }
+
     @Override
     public void bet(int amount) {
         // Implement betting logic
         // This method should handle the player placing a bet with the specified amount.
         // Ensure that the player has enough credits to make the bet, and deduct the amount from their credits.
-        if(chips > amount)
+        if(chips >= amount) {
             this.chips -= amount;
+            this.betAmount = amount;
+            this.actionIsDone = true;
+        }
     }
     @Override
     public void fold() {
         // Implement folding logic
         // Folding means the player chooses to forfeit the current hand and not participate further.
         // You should update the game state to reflect that this player has folded.
+        this.playerAction = "Fold";
         this.hasFold = true;
+        this.actionIsDone = true;
     }
     @Override
     public void raise(int amount){
         int total = currentBet + amount;
         bet(total);
+        this.actionIsDone = true;
     }
     @Override
     public void setCurrentBet(int bet){
@@ -203,18 +207,50 @@ public class HumanPlayer extends Hand implements Runnable, Player, Serializable 
     public void decreaseChips(int amount) {
         this.chips -= amount;
     }
+    public void makeAutoDecision() {
+        // This is a basic AI logic for automatic decision-making.
+        // You can make it more sophisticated based on your game rules.
+
+        int minRaise = this.currentBet + 1;
+        int maxRaise = this.chips;
+
+        Random random = new Random();
+        int decision = random.nextInt(availableActions.size()); // Generate a random decision (0 to 3)
+
+        String playerAction = availableActions.get(decision);
+
+        if (playerAction.equals("Fold")) {
+            // 25% chance to fold
+            fold();
+            setPlayerAction("Fold");
+        } else if (playerAction.equals("Check")) {
+            // 25% chance to check
+            check();
+            setPlayerAction("Check");
+        } else if (playerAction.equals("Call")) {
+            // 25% chance to call
+            bet(currentBet);
+            setPlayerAction("Call");
+        } else {
+            // 25% chance to raise
+            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + currentBet;
+            bet(raiseAmount);
+            setPlayerAction("Raise");
+        }
+
+        // Signal that the AI has completed its action
+        actionIsDone = true;
+    }
     @Override
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
     }
 
     @Override
-    public void playerStateReset() {
+    public int compareHands(List<Card> communityCards) {
+        return super.compareHands(communityCards);
     }
 
-    @Override
-    public int getBetAmount() {
-        return 0;
-    }
+
 }
 
