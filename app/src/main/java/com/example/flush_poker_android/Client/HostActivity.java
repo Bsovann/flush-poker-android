@@ -25,7 +25,9 @@ import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.HumanPlayer;
 import com.example.flush_poker_android.Logic.Player;
+import com.example.flush_poker_android.Logic.PlayerActionListener;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.R;
 
@@ -36,7 +38,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class HostActivity extends AppCompatActivity implements GameUpdateListener {
+public class HostActivity extends AppCompatActivity implements GameUpdateListener, PlayerActionListener {
+
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
@@ -62,7 +65,9 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private static final int POT_MSG = 5;
     private static final int PLAYER_INDEX_MSG = 6;
     private static final int CURRENT_PLAYER_ACTION_MSG = 7;
-
+    private static final int GAME_START_MSG = 8;
+    private Player hostPlayer;
+    PlayerCountdownView playerCountdownView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +106,10 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
-        for(int i = 0; i < 5; i++){
+        hostPlayer = new HumanPlayer("Bondith",9000, handler, getApplicationContext());
+        hostPlayer.setActionListener(this);
+        players.add(hostPlayer);
+        for(int i = 1; i < 5; i++){
             players.add(new BotPlayer(
                     "Player "+ i, 9000, handler, getApplicationContext()));
         }
@@ -132,7 +140,19 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         // Instantiate controllerThread and start it.
         this.controllerThread = new Thread(gameController);
         controllerThread.start();
+
+        // Render My Cards.
+//        renderMyCards();
     }
+
+    private void renderMyCards() {
+        GridView myCards = playerViews.get(0);
+        List<Integer> cardIds = hostPlayer.getHand().stream().map(
+                card -> CardUtils.getCardImageResourceId(card.toString(),
+                        getApplicationContext())).collect(Collectors.toList());
+        myCards.setAdapter(new CardAdapter(this, cardIds));
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -160,7 +180,10 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             public void handleMessage(Message msg) {
                 // Process data received from the background thread
                 try {
-                    if (msg.what == COMMUNITY_CARDS_MSG) {
+                    if(msg.what == GAME_START_MSG){
+                        renderMyCards();
+                    }
+                    else if (msg.what == COMMUNITY_CARDS_MSG) {
                         Bundle bundle = msg.getData();
                         List<Integer> cards = (List<Integer>) bundle.getSerializable("data");
                         communityCardIds.addAll(cards);
@@ -222,6 +245,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         resetPlayerPositions();
         renderPlayerInfo();
         updateWinnerTextView("");
+        turnOffAllActionButtons(hostPlayer.getAvailableActions());
         communityCardIds.clear();
         pot = 0;
         remainPlayers = null;
@@ -294,17 +318,18 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     }
     @Override
     public void onPlayerTurnUpdate(){
-        PlayerCountdownView playerCountdownView;
         new Handler().post(new Runnable() {
             @Override
             public void run() {
+                if(players.get(currentPlayerIndex).getName().equals(hostPlayer.getName())) {
+                    renderAvailableActionsButtons(hostPlayer.getAvailableActions());
+                }
                 String resourceName = "player"+ currentPlayerIndex + "Countdown";
                 Context context = getApplicationContext();
                 int resourceId = context.getResources().getIdentifier(resourceName, "id", context.getPackageName());
 
-                PlayerCountdownView playerCountdownView = findViewById(resourceId);
+                playerCountdownView = findViewById(resourceId);
                 playerCountdownView.setVisibility(View.VISIBLE);
-
                 playerCountdownView.startCountdown(10000); // Start a 30-second countdown
             }
         });
@@ -357,12 +382,27 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         handlePlayerAction("Bet");
     }
     private void handlePlayerAction(String action) {
-        Intent intent = new Intent("com.example.flush_poker_android.ACTION");
-        intent.putExtra("action", action);
+        Player currentPlayer = players.get(currentPlayerIndex);
 
-        // Start the service or broadcast the intent
-        sendBroadcast(intent);
+        if(action.equals("Fold"))
+            currentPlayer.fold();
+        else if (action.equals("Check"))
+            currentPlayer.check();
+        else if (action.equals("Call"))
+            currentPlayer.call();
+        else if (action.equals("Bet"))
+            currentPlayer.bet(currentPlayer.getCurrentBet() + 1000); // Just leave it static for now.
+        else
+            currentPlayer.raise(currentPlayer.getCurrentBet() * 2); // raise double for now.
+
+        currentPlayer.setPlayerAction(action);
+        playerCountdownView.setVisibility(View.INVISIBLE);
+        turnOffAllActionButtons(currentPlayer.getAvailableActions());
+        synchronized (currentPlayer) {
+            currentPlayer.notify(); // Notify the HumanPlayer's thread
+        }
     }
+
     public void onClickChatIcon(View view){
         // Chat Dialog
         dialog.setContentView(R.layout.chat_dialog);
@@ -430,4 +470,34 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
         playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
     }
+
+    @Override
+    public void onPlayerTurn(HumanPlayer player) {
+    }
+    private void renderAvailableActionsButtons(List<String> actions){
+        try{
+            for(String action : actions) {
+                Context context = getApplicationContext();
+                int btnId = context.getResources().getIdentifier(String.format("%sBtn", action.toLowerCase()), "id", context.getPackageName());
+                Button btn = findViewById(btnId);
+                btn.setVisibility(View.VISIBLE);
+            }
+        } catch (NullPointerException e){
+                e.printStackTrace();
+            }
+        }
+    private void turnOffAllActionButtons(List<String> availableActions) {
+        try{
+            for(String action : availableActions) {
+                Context context = getApplicationContext();
+                int btnId = context.getResources().getIdentifier(String.format("%sBtn", action.toLowerCase()), "id", context.getPackageName());
+                Button btn = findViewById(btnId);
+                btn.setVisibility(View.INVISIBLE);
+            }
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+    }
+
 }
+
