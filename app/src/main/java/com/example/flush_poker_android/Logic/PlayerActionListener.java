@@ -1,5 +1,5 @@
 package com.example.flush_poker_android.Logic;
 
 public interface PlayerActionListener {
-    void onPlayerTurn(HumanPlayer player);
+    void onPlayerTurn(PracticeModePlayer player);
 }

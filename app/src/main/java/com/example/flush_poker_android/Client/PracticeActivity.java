@@ -25,7 +25,7 @@ import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
 import com.example.flush_poker_android.Logic.GameController;
-import com.example.flush_poker_android.Logic.HumanPlayer;
+import com.example.flush_poker_android.Logic.PracticeModePlayer;
 import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.PlayerActionListener;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
@@ -106,7 +106,7 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
-        hostPlayer = new HumanPlayer("Bondith",9000, handler, getApplicationContext());
+        hostPlayer = new PracticeModePlayer("Bondith",9000, handler, getApplicationContext());
         hostPlayer.setActionListener(this);
         players.add(hostPlayer);
         for(int i = 1; i < 5; i++){
@@ -472,7 +472,7 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
     }
 
     @Override
-    public void onPlayerTurn(HumanPlayer player) {
+    public void onPlayerTurn(PracticeModePlayer player) {
     }
     private void renderAvailableActionsButtons(List<String> actions){
         try{

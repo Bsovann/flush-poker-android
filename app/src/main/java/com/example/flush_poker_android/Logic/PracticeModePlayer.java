@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class HumanPlayer extends Hand implements Player, Runnable, Serializable{
+public class PracticeModePlayer extends Hand implements Player, Runnable, Serializable{
     private final String name;
     private int currentBet;
     private String playerAction;
@@ -22,7 +22,7 @@ public class HumanPlayer extends Hand implements Player, Runnable, Serializable{
     private int betAmount = 0;
     private boolean isTimeOut = false;
 
-    public HumanPlayer(String name, int chips, Handler handler, Context context) {
+    public PracticeModePlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
         this.chips = chips;
