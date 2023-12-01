@@ -32,9 +32,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="50dp"
-
                 android:drawSelectorOnTop="false">
                 <!-- Preview: layout=@layout/row_devices -->
+            </fragment>
+
+            <fragment
+                class="com.example.flush_poker_android.Client.DeviceListFragment"
+                android:id="@+id/frag_detail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <!-- Preview: layout=@layout/device_detail -->
             </fragment>
 
         </RelativeLayout>
@@ -52,17 +59,9 @@
                     android:id="@+id/findBtn"
                     android:layout_width="100dp"
                     android:layout_height="40dp"
-                    android:layout_marginEnd="50dp"
                     android:background="@drawable/custom_border_background"
                     android:layout_gravity="center"
                     android:text="Find" />
-                <Button
-                    android:id="@+id/startBtn"
-                    android:layout_width="100dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/custom_border_background"
-                    android:layout_gravity="center"
-                    android:text="Start" />
             </LinearLayout>
 
         </RelativeLayout>
