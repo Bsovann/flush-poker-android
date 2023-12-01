@@ -59,7 +59,9 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             clientListener();
             startGame();
         } else{
-            // Got rejected!!
+            // Got rejected / Interrupted
+            // Notify to PeerActivity
+            // PeerActivity: tell user to try again!
         }
     }
 
@@ -91,7 +93,7 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             @Override
             public void run() {
                 // Listen for messages from the server and update player state
-                while (true) {
+                while (isGameActive) {
                     // Example: Listen for messages and handle them
                     Object message = receiveMessage();
                     if (message instanceof GameUpdateMessage) {
