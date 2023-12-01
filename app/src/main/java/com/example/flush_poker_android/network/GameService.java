@@ -20,7 +20,7 @@ import java.net.Socket;
  * A service that process each file transfer request i.e Intent by opening a
  * socket connection with the WiFi Direct Group Owner and writing the file
  */
-public class GameService extends IntentService {
+public class GameService extends IntentService implements Runnable {
     private static final int SOCKET_TIMEOUT = 5000;
     public static final String ACTION_SEND_FILE = "com.example.android.wifidirect.SEND_FILE";
     public static final String EXTRAS_FILE_PATH = "file_url";
@@ -73,5 +73,10 @@ public class GameService extends IntentService {
                 }
             }
         }
+    }
+
+    @Override
+    public void run() {
+
     }
 }

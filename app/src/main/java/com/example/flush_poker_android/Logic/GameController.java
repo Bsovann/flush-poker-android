@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,7 +42,7 @@ public class GameController extends AppCompatActivity implements Runnable {
     private static Semaphore remainingSeats;
     private static final int COMMUNITY_CARDS_MSG = 1, REMAIN_PLAYERS_MSG = 2, DEALER_INDEX_MSG = 3, WINNER_MSG = 4, POT_MSG = 5, PLAYER_INDEX_MSG = 6, CURRENT_PLAYER_ACTION_MSG = 7;
     private ServerSocket serverSocket;
-    private ArrayList<Socket> clientSockets; // list of client sockets to write to
+    private Socket clientSocket; // list of client sockets to write to
 
     public GameController(List<Player> players, Handler handler, Context context, ExecutorService playerThreadPool, Semaphore remainingSeats) {
         this.players = players;
@@ -54,8 +55,15 @@ public class GameController extends AppCompatActivity implements Runnable {
 
     @Override
     public void run() {
-        try {serverSocket = new ServerSocket(4096);} catch (IOException e) {throw new RuntimeException(e);}
+        try {
+            serverSocket = new ServerSocket(4096);
+            Log.d("Networking", "Server Socket Opened");
+        } catch (IOException e) {throw new RuntimeException(e);}
         while (isGameActive()) {
+            try {
+                clientSocket = serverSocket.accept();
+                Log.d("Networking", "Socket Docking Achieved Bon Bon!");
+            } catch (IOException e) {throw new RuntimeException(e);}
             startGame();
         }
     }
@@ -101,7 +109,7 @@ public class GameController extends AppCompatActivity implements Runnable {
         postBlind(bigBlindPlayer, bigBlind);
 
         // Initialize hands
-        dealTwoHoleCardsToPlayers();
+        dealTwoCardsToPlayers();
 
         // Player, Right of Big Blind (Clockwise)
         currentPlayerIndex = (bigBlindPosition + 1) % players.size();
@@ -163,7 +171,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         if(determineWinner()){
             notifyWinnerUpdateToActivity();
             updateToastUi("The Winner is " + winner.getName());
-            endGame();
         }
 
         synchronized (this){
@@ -372,7 +379,7 @@ public class GameController extends AppCompatActivity implements Runnable {
     public int getPot() {
         return pot;
     }
-    public synchronized void dealTwoHoleCardsToPlayers() {
+    public synchronized void dealTwoCardsToPlayers() {
         for(int i = 0; i < 2; i++) {
             for (Player player : remainPlayers)
                 player.addCard(deck.dealCard());

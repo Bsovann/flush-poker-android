@@ -57,7 +57,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private int currentPlayerIndex;
     private int dealerPosition;
     private Player winner;
-    private Semaphore remainingSeats = new Semaphore(4);
+    private Semaphore remainingSeats = new Semaphore(4); // TODO: allow player to set this. Max total seats = 5
 
     private List<RelativeLayout> playerPositions = new ArrayList<>();
     GameInfo dataObject = null;
