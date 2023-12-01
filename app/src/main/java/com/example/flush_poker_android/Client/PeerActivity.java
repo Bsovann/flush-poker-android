@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,11 +25,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
-import com.example.flush_poker_android.Logic.BotPlayer;
-import com.example.flush_poker_android.Logic.GameController;
-import com.example.flush_poker_android.Logic.PracticeModePlayer;
+import com.example.flush_poker_android.Logic.ClientPlayer;
 import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.PlayerActionListener;
+import com.example.flush_poker_android.Logic.PracticeModePlayer;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.R;
 
@@ -48,9 +49,7 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
     private Handler handler = new Handler(Looper.getMainLooper());
     private List<Player> players;
     private int pot;
-    private Thread controllerThread;
     private ExecutorService playerThreadPool;
-    private GameController gameController;
     private CardFragment cardFragment;
     private List<Integer> communityCardIds = new ArrayList<>();
     private List<Player> remainPlayers;
@@ -66,8 +65,13 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
     private static final int PLAYER_INDEX_MSG = 6;
     private static final int CURRENT_PLAYER_ACTION_MSG = 7;
     private static final int GAME_START_MSG = 8;
-    private Player hostPlayer;
+    private Player player;
     PlayerCountdownView playerCountdownView;
+    private String playerName;
+    private int playerCredit = 9000;
+
+    private WifiP2pDevice hostDeviceInfo = null;
+    private WifiP2pConfig hostDeviceConfig = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,9 +84,22 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
                     .add(R.id.fragment_card, CardFragment.class, null)
                     .commitNow();
         }
+        // Get host infomation
+        getHostInformation();
+        // Start
         initWork();
     }
+    private void getHostInformation() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            // Retrieve the WifiP2pDevice object
+            hostDeviceInfo = bundle.getParcelable("device");
 
+            // Retrieve the WifiP2pConfig object
+            hostDeviceConfig = bundle.getParcelable("config");
+            Log.i("Server Info: ", String.format("Name: %s, address: %s", hostDeviceInfo.deviceName ,hostDeviceInfo.deviceAddress));
+        }
+    }
     private void initWork(){
 
         // Enable immersive mode
@@ -104,50 +121,25 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         renderImagesTemp();
         setupPlayerPositions();
 
-        this.playerThreadPool = Executors.newFixedThreadPool(5);
-        // Assign Each player to each Thread
-        hostPlayer = new PracticeModePlayer("Bondith",9000, handler, getApplicationContext());
-        hostPlayer.setActionListener(this);
-        players.add(hostPlayer);
-        for(int i = 1; i < 5; i++){
-            players.add(new BotPlayer(
-                    "Player "+ i, 9000, handler, getApplicationContext()));
-        }
-
-        // Listening to GameController if anything update.
+        // Listening to Player thread if anything update.
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             //Background work here
             handleMessage();
         });
 
-        // Instantiate GameController
-        this.gameController = new GameController(
-                players,
-                handler,
-                getApplicationContext(),
-                playerThreadPool);
-
-        // Set Controller to every player and launch Thread
-        for(Player player : players) {
-            player.setController(gameController);
-            playerThreadPool.submit((Runnable) player);
-        }
+        this.playerThreadPool = Executors.newSingleThreadExecutor();
+        // Assign Each player to each Thread
+        player = new ClientPlayer(hostDeviceInfo, playerName, playerCredit, handler, getApplicationContext());
+        this.playerThreadPool.submit((Runnable) player);
 
         // Render player info.
         renderPlayerInfo();
-
-        // Instantiate controllerThread and start it.
-        this.controllerThread = new Thread(gameController);
-        controllerThread.start();
-
-        // Render My Cards.
-//        renderMyCards();
     }
 
     private void renderMyCards() {
         GridView myCards = playerViews.get(0);
-        List<Integer> cardIds = hostPlayer.getHand().stream().map(
+        List<Integer> cardIds = player.getHand().stream().map(
                 card -> CardUtils.getCardImageResourceId(card.toString(),
                         getApplicationContext())).collect(Collectors.toList());
         myCards.setAdapter(new CardAdapter(this, cardIds));
@@ -202,8 +194,8 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
                                     // Code to reset the game state goes here
                                     cleanUp();
                                     Toast.makeText(PeerActivity.this, "New Game!", Toast.LENGTH_SHORT).show();
-                                    synchronized (gameController) {
-                                        gameController.notify();
+                                    synchronized (player) {
+                                        player.notify();
                                     }
                                 }
                             }, 15000);
@@ -236,7 +228,7 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         resetPlayerPositions();
         renderPlayerInfo();
         updateWinnerTextView("");
-        turnOffAllActionButtons(hostPlayer.getAvailableActions());
+        turnOffAllActionButtons(player.getAvailableActions());
         communityCardIds.clear();
         pot = 0;
         remainPlayers = null;
@@ -312,8 +304,8 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                if(players.get(currentPlayerIndex).getName().equals(hostPlayer.getName())) {
-                    renderAvailableActionsButtons(hostPlayer.getAvailableActions());
+                if(players.get(currentPlayerIndex).getName().equals(player.getName())) {
+                    renderAvailableActionsButtons(player.getAvailableActions());
                 }
                 String resourceName = "player"+ currentPlayerIndex + "Countdown";
                 Context context = getApplicationContext();
