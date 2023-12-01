@@ -10,21 +10,24 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
+import com.example.flush_poker_android.network.PlayerStream;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GameController extends AppCompatActivity implements Runnable {
     List<Player> remainPlayers;
     private Deck deck;
-    private List<Player> players;
     private List<Card> communityCards;
     private Player currentPlayer;
     private int dealerPosition;
@@ -43,9 +46,11 @@ public class GameController extends AppCompatActivity implements Runnable {
     private static final int COMMUNITY_CARDS_MSG = 1, REMAIN_PLAYERS_MSG = 2, DEALER_INDEX_MSG = 3, WINNER_MSG = 4, POT_MSG = 5, PLAYER_INDEX_MSG = 6, CURRENT_PLAYER_ACTION_MSG = 7;
     private ServerSocket serverSocket;
     private Socket clientSocket; // list of client sockets to write to
+    private ArrayList<Player> players = new ArrayList<>(5);
+    private ArrayList<PlayerStream> playerStreams = new ArrayList<>(5);
 
-    public GameController(List<Player> players, Handler handler, Context context, ExecutorService playerThreadPool, Semaphore remainingSeats) {
-        this.players = players;
+
+    public GameController(Handler handler, Context context, ExecutorService playerThreadPool, Semaphore remainingSeats) {
         this.mainUiThread = handler;
         this.gameContext = context;
         this.playerThreadPool = playerThreadPool;
@@ -53,19 +58,40 @@ public class GameController extends AppCompatActivity implements Runnable {
         initializeGame();
     }
 
-    @Override
-    public void run() {
+    private void serverListener(){
         try {
             serverSocket = new ServerSocket(4096);
             Log.d("Networking", "Server Socket Opened");
         } catch (IOException e) {throw new RuntimeException(e);}
-        while (isGameActive()) {
-            try {
-                clientSocket = serverSocket.accept();
-                Log.d("Networking", "Socket Docking Achieved Bon Bon!");
-            } catch (IOException e) {throw new RuntimeException(e);}
-            startGame();
-        }
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            ExecutorService clientService = Executors.newFixedThreadPool(5);
+            int numPlayers = 0;
+            // Listen for connections
+            while (numPlayers < 5) {
+                try {
+                    clientSocket = serverSocket.accept();
+                    clientService.execute(() -> {
+                        try {
+                            playerStreams.add(new PlayerStream((ObjectInputStream) clientSocket.getInputStream(),(ObjectOutputStream)clientSocket.getOutputStream()));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    Log.d("Networking", "Socket Docking Achieved Bon Bon!");
+                } catch (IOException e) {throw new RuntimeException(e);}
+            }
+        });
+    }
+
+    @Override
+    public void run() {
+       this.serverListener();
+//        if(playerStreams != null) {
+//            while (isGameActive()) {
+//                startGame();
+//            }
+//        }
     }
     private void endGame() {
         playerThreadPool.shutdown();
@@ -82,7 +108,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         this.communityCards = new ArrayList<>();
         this.dealerPosition = 0;
         this.pot = 0;
-        this.remainPlayers = players;
     }
     public void startGame() {
         // DeckShuffle
@@ -93,12 +118,12 @@ public class GameController extends AppCompatActivity implements Runnable {
         bigBlind = 20;
         currentBet = bigBlind;
 
-        dealer = players.get(dealerPosition);
+        //dealer = playerStreams.get(dealerPosition);
         notifyDealerPositionUpdateToActivity();
 
         // Determine small blind and big blind positions
-        int smallBlindPosition = (dealerPosition + 1) % players.size();
-        int bigBlindPosition = (dealerPosition + 2) % players.size();
+        int smallBlindPosition = (dealerPosition + 1) % playerStreams.size();
+        int bigBlindPosition = (dealerPosition + 2) % playerStreams.size();
 
         // Player in small blind position posts the small blind
         Player smallBlindPlayer = players.get(smallBlindPosition);
@@ -126,8 +151,6 @@ public class GameController extends AppCompatActivity implements Runnable {
             }
             else {
                 notifyCurrentPlayerUpdateToActivity();
-                // Players can choose to fold, call, or raise.
-                // Update the current bet, pot, and player actions accordingly.
                 synchronized (currentPlayer) {
 
                     currentPlayer.setAvailableActions(currentBet);
@@ -144,6 +167,8 @@ public class GameController extends AppCompatActivity implements Runnable {
                 synchronized (this) {
                     try {
                         this.wait();
+                        //player.connectToService()
+                        //in player class, when server connected, notify ui
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -234,7 +259,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyRemainPlayersUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.REMAIN_PLAYERS_MSG;
@@ -244,7 +268,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyCurrentPlayerUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.PLAYER_INDEX_MSG;
@@ -254,7 +277,6 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     private void notifyDealerPositionUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
         message.what = this.DEALER_INDEX_MSG;
@@ -264,10 +286,9 @@ public class GameController extends AppCompatActivity implements Runnable {
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
-
     public synchronized boolean isGameActive() {
         // Check if the game is active
-        return players.size() > 1;
+        return playerStreams.size() > 1;
     }
     private void updateToastUi(String playerChoice) {
         mainUiThread.post(new Runnable() {

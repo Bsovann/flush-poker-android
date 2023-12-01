@@ -28,7 +28,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
+import com.example.flush_poker_android.network.ClientBroadcastReceiver;
 
 import java.util.ArrayList;
 
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
     private boolean retryChannel = false;
     private final IntentFilter intentFilter = new IntentFilter();
     private Channel channel;
-    private BroadcastReceiver receiver = null;
+    private ClientBroadcastReceiver receiver = null;
     /////////////////////////// End Wifi Direct Instances //////////////////////
     public static final String TAG = "";
     private Dialog dialog;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
             finish();
         }
 
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
+        receiver = new ClientBroadcastReceiver(manager, channel, this);
         dialog = new Dialog(this);
 
 
@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         manager.connect(channel, config, new ActionListener() {
             @Override
             public void onSuccess() {
-                // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+                // ClientBroadcastReceiver will notify us. Ignore for now.
             }
             @Override
             public void onFailure(int reason) {

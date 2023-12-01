@@ -1,10 +1,16 @@
 package com.example.flush_poker_android.Client;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,6 +34,7 @@ import com.example.flush_poker_android.Logic.Player;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.Logic.Utility.GameInfo;
 import com.example.flush_poker_android.R;
+import com.example.flush_poker_android.network.ServerBroadcastReceiver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +48,8 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
     private float screenBrightness = 127 / 255.0f;
-    GridView communityCardView;
     List<GridView> playerViews;
     List<CardAdapter> playerAdapter;
-    CardAdapter commnityCardAdapter;
     private Handler handler = new Handler(Looper.getMainLooper());
     private List<Player> players;
     private int pot;
@@ -58,10 +63,8 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private int dealerPosition;
     private Player winner;
     private Semaphore remainingSeats = new Semaphore(4); // TODO: allow player to set this. Max total seats = 5
-
     private List<RelativeLayout> playerPositions = new ArrayList<>();
     GameInfo dataObject = null;
-
     private static final int COMMUNITY_CARDS_MSG = 1;
     private static final int REMAIN_PLAYERS_MSG = 2;
     private static final int DEALER_INDEX_MSG = 3;
@@ -69,10 +72,15 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private static final int POT_MSG = 5;
     private static final int PLAYER_INDEX_MSG = 6;
     private static final int CURRENT_PLAYER_ACTION_MSG = 7;
-
-
-
-
+    // Wifi Direct
+    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1001;
+    private WifiP2pManager manager;
+    private boolean isWifiP2pEnabled = false;
+    private boolean retryChannel = false;
+    private final IntentFilter intentFilter = new IntentFilter();
+    private WifiP2pManager.Channel channel;
+    private ServerBroadcastReceiver receiver = null;
+    /////////////////////////// End Wifi Direct Instances //////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +94,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                     .commitNow();
         }
         initWork();
-
     }
     private long lastMessageTimestamp;
     public void handleMessage() {
@@ -163,7 +170,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     public void onResume() {
         super.onResume();
         cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
-
+        receiver = new ServerBroadcastReceiver(manager, channel, this);
     }
 
     private void cleanUp() {
@@ -284,6 +291,21 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         playerAdapter = new ArrayList<>(5);
         players = new ArrayList<>();
 
+        // add necessary intent values to be matched.
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    HostActivity.PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION);
+            // After this point you wait for callback in
+            // onRequestPermissionsResult(int, String[], int[]) overridden method
+        }
+
         // Default info rendering
         renderImagesTemp();
         setupPlayerPositions();
@@ -303,7 +325,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         });
 
         // Instantiate GameController
-        this.gameController = new GameController(players, handler, getApplicationContext(), playerThreadPool, remainingSeats);
+        this.gameController = new GameController(handler, getApplicationContext(), playerThreadPool, remainingSeats);
 
         // Set Controller to every player and launch Thread
         for(Player player : players) {
