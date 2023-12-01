@@ -1,38 +1,31 @@
 package com.example.flush_poker_android.Client;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.Manifest;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.Channel;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.SeekBar;
-
-import com.example.flush_poker_android.R;
-import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
-import android.os.Build;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.example.flush_poker_android.network.DisconnectTask;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.flush_poker_android.R;
 import com.example.flush_poker_android.network.PeerDiscoveryTask;
 import com.example.flush_poker_android.network.WiFiDirectBroadcastReceiver;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initWork();
     }
-
     private void initWork(){
         if (!initP2p()) {
             finish();
@@ -88,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
             // onRequestPermissionsResult(int, String[], int[]) overridden method
         }
     }
-
     private boolean initP2p() {
         // Device capability definition check
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT)) {
@@ -123,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
-
     public void onClickPracticeBtn(View view){
         // practice Table Dialog
         dialog.setContentView(R.layout.practice_dialog);
@@ -136,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, HostActivity.class);
+                Intent intent = new Intent(MainActivity.this, PracticeActivity.class);
                 startActivity(intent);
             }
         });
@@ -148,19 +138,19 @@ public class MainActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
 
-        // Join button
+        // start button
         Button startBtn = dialog.findViewById(R.id.startBtn);
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, HostActivity.class);
+                // Send Table Name and Password -> HostActivity -> GameController.
                 startActivity(intent);
             }
         });
     }
-
     public void onClickFindTableBtn(View view){
-        // Challenge Friends Dialog
+        // Find table dialog box
         dialog.setContentView(R.layout.find_table_dialog);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -174,15 +164,7 @@ public class MainActivity extends AppCompatActivity {
                 initDiscover();
             }
         });
-
-        // Join button
-        Button startBtn = dialog.findViewById(R.id.startBtn);
-        startBtn.setOnClickListener(view1 -> {
-            Intent intent = new Intent(MainActivity.this, HostActivity.class);
-            startActivity(intent);
-        });
     }
-
     private void initDiscover(){
         if (!isWifiP2pEnabled) {
             Toast.makeText(MainActivity.this, R.string.p2p_off_warning,
@@ -191,12 +173,11 @@ public class MainActivity extends AppCompatActivity {
         final DeviceListFragment fragment = (DeviceListFragment) getFragmentManager()
                 .findFragmentById(R.id.frag_list);
         fragment.setMainActivityInstance(this);
-        fragment.onInitiateDiscovery();
+//        fragment.onInitiateDiscovery();
 
-        PeerDiscoveryTask pd = new PeerDiscoveryTask(manager, channel, this, fragment);
+        PeerDiscoveryTask pd = new PeerDiscoveryTask(manager, channel, this);
         pd.execute();
     }
-
     public void onClickSettingIcon(View view){
         // SettingDialog
         dialog.setContentView(R.layout.setting_dialog);
@@ -213,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
         Button closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     public void onClickInstructionIcon(View view){
         // Instruction Dialog
         dialog.setContentView(R.layout.instruction_dialog);
@@ -225,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
         Button closeInstructionBtn = dialog.findViewById(R.id.closeInstructionButton);
         closeInstructionBtn.setOnClickListener(x -> dialog.dismiss());
     }
-
     /**Brightness Seekbar*/
     public void setupSeekBarListener(){
         brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -250,17 +229,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     /**
      * @param isWifiP2pEnabled the isWifiP2pEnabled to set
      */
     public void setIsWifiP2pEnabled(boolean isWifiP2pEnabled) {
         this.isWifiP2pEnabled = isWifiP2pEnabled;
     }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -270,24 +246,16 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Fine Location is permitted", Toast.LENGTH_SHORT).show();
         }
     }
-
     @Override
     public void onResume() {
         super.onResume();
         registerReceiver(receiver, intentFilter);
-        startPokerGame();
     }
-
-    private void startPokerGame() {
-
-    }
-
     @Override
     public void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
     }
-
     /**
      * Remove all peers and clear all fields. This is called on
      * BroadcastReceiver receiving a state change event.
