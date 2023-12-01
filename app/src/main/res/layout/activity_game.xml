@@ -330,6 +330,7 @@
         app:layout_constraintVertical_bias="0.516">
 
 
+
         <LinearLayout
             android:layout_width="270dp"
             android:layout_height="75dp"
@@ -345,13 +346,28 @@
                 android:layout_height="50dp"
                 android:layout_centerInParent="true" />
 
-            <TextView
-                android:id="@+id/pot"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Pot: 0"
-                android:textAlignment="center"
-                android:textAppearance="@style/generalText" />
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp">
+                <TextView
+                    android:id="@+id/currentBet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Current Bet: 0"
+                    android:textAlignment="center"/>
+
+                <TextView
+                    android:id="@+id/pot"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Pot: 0"
+                    android:textAlignment="textEnd"/>
+            </LinearLayout>
+
 
         </LinearLayout>
 
@@ -392,15 +408,21 @@
             android:horizontalSpacing="-40dp"
             android:numColumns="2" />
 
-        <GridView
-            android:id="@+id/player2Cards"
-            android:layout_width="70dp"
-            android:layout_height="60dp"
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="63dp"
-            android:horizontalSpacing="-40dp"
-            android:numColumns="2" />
+            >
+            <GridView
+                android:id="@+id/player2Cards"
+                android:layout_width="70dp"
+                android:layout_height="60dp"
+                android:horizontalSpacing="-40dp"
+                android:numColumns="2" />
+        </RelativeLayout>
+
 
         <GridView
             android:id="@+id/player3Cards"
@@ -699,7 +721,7 @@
             android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:background="@drawable/game_btn_bg"
-            android:onClick="onClickBetBtn"
+            android:onClick="onClickRaiseBtn"
             android:text="Raise"
             android:visibility="invisible"
             android:textAppearance="@style/generalText" />

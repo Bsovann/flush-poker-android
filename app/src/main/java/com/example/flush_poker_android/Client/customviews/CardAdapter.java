@@ -1,6 +1,7 @@
 package com.example.flush_poker_android.Client.customviews;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -36,9 +37,17 @@ public class CardAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView cardImageView;
+
+        // Retrieve screen dimensions or density
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        // Calculate desired size for card images (example: 1/4 of screen width)
+        int imageSize = (int) (dpWidth / 20 * displayMetrics.density);
+
         if (convertView == null) {
             cardImageView = new ImageView(context);
-            cardImageView.setLayoutParams(new GridView.LayoutParams(GridView.AUTO_FIT, 150));  // Adjust height as needed
+            cardImageView.setLayoutParams(new GridView.LayoutParams(imageSize, imageSize)); // Set both width and height
             cardImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         } else {
             cardImageView = (ImageView) convertView;

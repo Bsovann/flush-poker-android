@@ -42,6 +42,7 @@ public class GameController extends AppCompatActivity implements Runnable {
     private static final int PLAYER_INDEX_MSG = 6;
     private static final int CURRENT_PLAYER_ACTION_MSG = 7;
     private static final int GAME_START_MSG = 8;
+    private static final int CURRENT_BET_MSG = 9;
 
 
     public GameController(List<Player> players, Handler handler,
@@ -85,6 +86,7 @@ public class GameController extends AppCompatActivity implements Runnable {
         smallBlind = 10;
         bigBlind = 20;
         currentBet = bigBlind;
+        notifyCurrentBetToActivity();
 
         dealer = players.get(dealerPosition);
         notifyDealerPositionUpdateToActivity();
@@ -117,6 +119,7 @@ public class GameController extends AppCompatActivity implements Runnable {
 
             if (isBettingRoundComplete()) {
                 currentBet = 0;
+                notifyCurrentBetToActivity();
                 dealCommunityCards();
             }
             else {
@@ -148,6 +151,7 @@ public class GameController extends AppCompatActivity implements Runnable {
                 String playerChoice = currentPlayer.getPlayerAction();
                 // Process the player's action (e.g., update bets, check for folds, etc.)
                 processPlayerChoice(playerChoice);
+                notifyCurrentBetToActivity();
                 notifyPotUpdateToActivity();
                 notifyCurrentPlayerActionToActivity();
 
@@ -197,6 +201,14 @@ public class GameController extends AppCompatActivity implements Runnable {
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) cardIds);
+        message.setData(bundle);
+        mainUiThread.sendMessage(message);
+    }
+    private void notifyCurrentBetToActivity() {
+        Message message = mainUiThread.obtainMessage();
+        message.what = this.CURRENT_BET_MSG;
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", (Serializable) this.currentBet);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
@@ -297,6 +309,7 @@ public class GameController extends AppCompatActivity implements Runnable {
             currentBet = betAmount;
             pot += betAmount;
         }
+
     }
     public synchronized boolean isBettingRoundComplete() {
         for (Player player : remainPlayers) {
