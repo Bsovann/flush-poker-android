@@ -57,7 +57,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private int currentPlayerIndex;
     private int dealerPosition;
     private Player winner;
-    private Semaphore objectLocker = new Semaphore(0);
+    private Semaphore remainingSeats = new Semaphore(4);
 
     private List<RelativeLayout> playerPositions = new ArrayList<>();
     GameInfo dataObject = null;
@@ -303,11 +303,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         });
 
         // Instantiate GameController
-        this.gameController = new GameController(players,
-                handler,
-                getApplicationContext(),
-                playerThreadPool,
-                objectLocker);
+        this.gameController = new GameController(players, handler, getApplicationContext(), playerThreadPool, remainingSeats);
 
         // Set Controller to every player and launch Thread
         for(Player player : players) {

@@ -10,7 +10,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -18,7 +21,6 @@ import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 public class GameController extends AppCompatActivity implements Runnable {
-
     List<Player> remainPlayers;
     private Deck deck;
     private List<Player> players;
@@ -35,33 +37,24 @@ public class GameController extends AppCompatActivity implements Runnable {
     private final Handler mainUiThread;
     private final Context gameContext;
     private ExecutorService playerThreadPool;
-
     private List<Integer> communityCardsId;
-    private Semaphore objectLocker;
-    private static final int COMMUNITY_CARDS_MSG = 1;
-    private static final int REMAIN_PLAYERS_MSG = 2;
-    private static final int DEALER_INDEX_MSG = 3;
-    private static final int WINNER_MSG = 4;
-    private static final int POT_MSG = 5;
-    private static final int PLAYER_INDEX_MSG = 6;
-    private static final int CURRENT_PLAYER_ACTION_MSG = 7;
+    private static Semaphore remainingSeats;
+    private static final int COMMUNITY_CARDS_MSG = 1, REMAIN_PLAYERS_MSG = 2, DEALER_INDEX_MSG = 3, WINNER_MSG = 4, POT_MSG = 5, PLAYER_INDEX_MSG = 6, CURRENT_PLAYER_ACTION_MSG = 7;
+    private ServerSocket serverSocket;
+    private ArrayList<Socket> clientSockets; // list of client sockets to write to
 
-
-    public GameController(List<Player> players, Handler handler,
-                          Context context,
-                          ExecutorService playerThreadPool,
-                          Semaphore objectLocker) {
+    public GameController(List<Player> players, Handler handler, Context context, ExecutorService playerThreadPool, Semaphore remainingSeats) {
         this.players = players;
         this.mainUiThread = handler;
         this.gameContext = context;
         this.playerThreadPool = playerThreadPool;
-        this.objectLocker = objectLocker;
-
+        this.remainingSeats = remainingSeats;
         initializeGame();
     }
 
     @Override
     public void run() {
+        try {serverSocket = new ServerSocket(4096);} catch (IOException e) {throw new RuntimeException(e);}
         while (isGameActive()) {
             startGame();
         }
@@ -170,6 +163,7 @@ public class GameController extends AppCompatActivity implements Runnable {
         if(determineWinner()){
             notifyWinnerUpdateToActivity();
             updateToastUi("The Winner is " + winner.getName());
+            endGame();
         }
 
         synchronized (this){
