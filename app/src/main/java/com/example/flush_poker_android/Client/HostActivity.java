@@ -1,5 +1,7 @@
 package com.example.flush_poker_android.Client;
 
+import static com.example.flush_poker_android.Client.MainActivity.TAG;
+
 import android.Manifest;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -9,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,8 +26,10 @@ import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
@@ -80,6 +85,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager.Channel channel;
     private ServerBroadcastReceiver receiver = null;
+
     /////////////////////////// End Wifi Direct Instances //////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +100,48 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                     .commitNow();
         }
         initWork();
+        initP2p();
+        initDiscover();
     }
+
+    private boolean initP2p() {
+        // Device capability definition check
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT)) {
+            Log.e(TAG, "Wi-Fi Direct is not supported by this device.");
+            return false;
+        }
+        // Hardware capability check
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiManager == null) {
+            Log.e(TAG, "Cannot get Wi-Fi system service.");
+            return false;
+        }else
+            wifiManager.setWifiEnabled(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (!wifiManager.isP2pSupported()) {
+                Log.e(TAG, "Wi-Fi Direct is not supported by the hardware or Wi-Fi is off.");
+                return false;
+            }
+        }
+        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+
+        if (manager == null) {
+            Log.e(TAG, "Cannot get Wi-Fi Direct system service.");
+            return false;
+        }
+        channel = manager.initialize(this, getMainLooper(), null);
+        if (channel == null) {
+            Log.e(TAG, "Cannot initialize Wi-Fi Direct.");
+            return false;
+        }
+        return true;
+    }
+
+
     private long lastMessageTimestamp;
+
     public void handleMessage() {
         // Create a handler for the UI thread
         handler = new Handler(getMainLooper()) {
@@ -142,7 +188,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                         Bundle bundle = msg.getData();
                         currentPlayerIndex = (int) bundle.getSerializable("data");
                         onPlayerTurnUpdate();
-                    } else if (msg.what == CURRENT_PLAYER_ACTION_MSG){
+                    } else if (msg.what == CURRENT_PLAYER_ACTION_MSG) {
 //                        Bundle bundle = msg.getData();
                         onPlayerActionUpdate();
                     }
@@ -170,7 +216,10 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     public void onResume() {
         super.onResume();
         cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
-        receiver = new ServerBroadcastReceiver(manager, channel, this);
+        ExecutorService es = Executors.newSingleThreadExecutor();
+        es.execute(() -> {
+            receiver = new ServerBroadcastReceiver(manager, channel, this);
+        });
     }
 
     private void cleanUp() {
@@ -185,7 +234,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     }
 
     private void renderPlayerInfo() {
-        for(int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < players.size(); i++) {
             Context context = getApplicationContext();
             Player player = players.get(i);
             int resourcePlayerName = context.getResources().getIdentifier(String.format("player%dName", i), "id", context.getPackageName());
@@ -199,7 +248,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     }
 
     private void resetPlayerPositions() {
-        for(RelativeLayout layout : playerPositions)
+        for (RelativeLayout layout : playerPositions)
             layout.setVisibility(View.INVISIBLE);
     }
 
@@ -207,14 +256,14 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < 3; i++){
+                for (int i = 0; i < 3; i++) {
                     int posIndex = (dealerPosition + i) % playerPositions.size();
                     RelativeLayout layout = playerPositions.get(posIndex);
                     TextView textView = (TextView) layout.getChildAt(0);
 
-                    if(posIndex == dealerPosition)
+                    if (posIndex == dealerPosition)
                         textView.setText("D");
-                    else if(posIndex == dealerPosition + 1)
+                    else if (posIndex == dealerPosition + 1)
                         textView.setText("SB");
                     else
                         textView.setText("BB");
@@ -225,25 +274,25 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         });
     }
 
-    private void revealHands(){
+    private void revealHands() {
 //        this.remainPlayers = this.players.stream().filter(player -> !player.hasFolded()).collect(Collectors.toList());
-        for(int i = 0; i < remainPlayers.size(); i++) {
+        for (int i = 0; i < remainPlayers.size(); i++) {
             GridView view = playerViews.get(players.indexOf(remainPlayers.get(i)));
             List<Integer> playerCardIds = remainPlayers.get(i).getHand()
-                                        .stream().map(card -> CardUtils.getCardImageResourceId(card.toString(), getApplicationContext()))
-                                        .collect(Collectors.toList());
+                    .stream().map(card -> CardUtils.getCardImageResourceId(card.toString(), getApplicationContext()))
+                    .collect(Collectors.toList());
 
             view.setAdapter(new CardAdapter(this, playerCardIds));
         }
     }
 
     @Override
-    public void onPlayerTurnUpdate(){
+    public void onPlayerTurnUpdate() {
         PlayerCountdownView playerCountdownView;
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                String resourceName = "player"+ currentPlayerIndex + "Countdown";
+                String resourceName = "player" + currentPlayerIndex + "Countdown";
                 Context context = getApplicationContext();
                 int resourceId = context.getResources().getIdentifier(resourceName, "id", context.getPackageName());
 
@@ -254,14 +303,15 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             }
         });
     }
+
     @Override
-    public void onPotUpdate(){
+    public void onPotUpdate() {
         TextView pot = findViewById(R.id.pot);
         pot.setText(String.format("Pot: %d$", this.pot));
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
         try {
             controllerThread.join();
@@ -270,11 +320,13 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             throw new RuntimeException(e);
         }
     }
+
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
     }
-    private void initWork(){
+
+    private void initWork() {
 
         // Enable immersive mode
         View decorView = getWindow().getDecorView();
@@ -310,12 +362,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         renderImagesTemp();
         setupPlayerPositions();
 
-        this.playerThreadPool = Executors.newFixedThreadPool(5);
-        // Assign Each player to each Thread
-        for(int i = 0; i < 5; i++){
-            players.add(new BotPlayer(
-                    "Player "+ i, 50000, handler, getApplicationContext()));
-        }
 
         // Listening to GameController if anything update.
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -326,12 +372,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         // Instantiate GameController
         this.gameController = new GameController(handler, getApplicationContext(), playerThreadPool, remainingSeats);
-
-        // Set Controller to every player and launch Thread
-        for(Player player : players) {
-            player.setController(gameController);
-            playerThreadPool.submit((Runnable) player);
-        }
 
         // Render player info.
         renderPlayerInfo();
@@ -350,7 +390,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
     }
 
-    private void renderImagesTemp(){
+    private void renderImagesTemp() {
         playerViews.add(findViewById(R.id.myCards));
         playerViews.add(findViewById(R.id.player1Cards));
         playerViews.add(findViewById(R.id.player2Cards));
@@ -358,31 +398,37 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         playerViews.add(findViewById(R.id.player4Cards));
 
         // Add players cards images and render
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             playerAdapter.add(new CardAdapter(this, Arrays.asList(R.drawable.back_of_card1, R.drawable.back_of_card1)));
         }
 
         // Render card
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             playerViews.get(i).setAdapter(playerAdapter.get(i));
         }
     }
-    public void onClickExitBtn(View view){
+
+    public void onClickExitBtn(View view) {
         Intent intent = new Intent(HostActivity.this, MainActivity.class);
         startActivity(intent);
     }
-    public void onClickFoldBtn(View view){
+
+    public void onClickFoldBtn(View view) {
         handlePlayerAction("Fold");
     }
-    public void onClickCheckBtn(View view){
+
+    public void onClickCheckBtn(View view) {
         handlePlayerAction("Check");
     }
-    public void onClickCallBtn(View view){
+
+    public void onClickCallBtn(View view) {
         handlePlayerAction("Call");
     }
-    public void onClickBetBtn(View view){
+
+    public void onClickBetBtn(View view) {
         handlePlayerAction("Bet");
     }
+
     private void handlePlayerAction(String action) {
         Intent intent = new Intent("com.example.flush_poker_android.ACTION");
         intent.putExtra("action", action);
@@ -390,7 +436,8 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         // Start the service or broadcast the intent
         sendBroadcast(intent);
     }
-    public void onClickChatIcon(View view){
+
+    public void onClickChatIcon(View view) {
         // Chat Dialog
         dialog.setContentView(R.layout.chat_dialog);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -400,7 +447,8 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         Button sendChatBtn = dialog.findViewById(R.id.sendChatButton);
         sendChatBtn.setOnClickListener(x -> dialog.dismiss());
     }
-    public void onClickSettingIcon(View view){
+
+    public void onClickSettingIcon(View view) {
 
         // SettingDialog
         dialog.setContentView(R.layout.setting_dialog);
@@ -416,7 +464,8 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         Button closeSettingBtn = dialog.findViewById(R.id.closeSettingButton);
         closeSettingBtn.setOnClickListener(x -> dialog.dismiss());
     }
-    public void onClickInstructionIcon(View view){
+
+    public void onClickInstructionIcon(View view) {
         // Instruction Dialog
         dialog.setContentView(R.layout.instruction_dialog);
 
@@ -427,11 +476,12 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         Button closeInstructionBtn = dialog.findViewById(R.id.closeInstructionButton);
         closeInstructionBtn.setOnClickListener(x -> dialog.dismiss());
     }
-    public void setupSeekBarListener(){
+
+    public void setupSeekBarListener() {
         brightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int currentValue, boolean fromUser) {
-                if(fromUser){
+                if (fromUser) {
                     screenBrightness = currentValue / 255.0f;
                     WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
                     layoutParams.screenBrightness = screenBrightness;
@@ -450,6 +500,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
             }
         });
     }
+
     @Override
     public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
         new Handler().post(new Runnable() {
@@ -463,5 +514,38 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
                 }
             }
         });
+    }
+
+    public void initDiscover() {
+        if (!isWifiP2pEnabled) {
+//            Toast.makeText(HostActivity.this, R.string.p2p_off_warning,
+//                    Toast.LENGTH_SHORT).show();
+        }
+
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.i("Networking - Server Side", "Init Peer Discover");
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+                Log.i("Networking - Server Side", "Peer Discovery Failed. Reason code: " + reasonCode);
+            }
+        });
+    }
+
+    public void setIsWifiP2pEnabled(boolean b) {
+        isWifiP2pEnabled = b;
     }
 }

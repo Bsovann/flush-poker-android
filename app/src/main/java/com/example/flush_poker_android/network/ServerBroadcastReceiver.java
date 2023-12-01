@@ -47,9 +47,9 @@ public class ServerBroadcastReceiver extends BroadcastReceiver {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                 // Wifi Direct mode is enabled
-//                activity.setIsWifiP2pEnabled(true);
+                activity.setIsWifiP2pEnabled(true);
             } else {
-//                activity.setIsWifiP2pEnabled(false);
+                activity.setIsWifiP2pEnabled(false);
 //                activity.resetData();
             }
             Log.d(TAG, "P2P state changed - " + state);

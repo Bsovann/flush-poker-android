@@ -60,7 +60,7 @@ public class GameController extends AppCompatActivity implements Runnable {
 
     private void serverListener(){
         try {
-            serverSocket = new ServerSocket(4096);
+            serverSocket = new ServerSocket(9999);
             Log.d("Networking", "Server Socket Opened");
         } catch (IOException e) {throw new RuntimeException(e);}
         ExecutorService executorService = Executors.newSingleThreadExecutor();
