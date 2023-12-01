@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements DeviceListFragmen
         });
     }
 
-
+//
     public void onClickSettingIcon(View view){
 
         // SettingDialog
