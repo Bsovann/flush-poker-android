@@ -1,6 +1,7 @@
 package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Handler;
 
 import com.example.flush_poker_android.Logic.Utility.GameUpdateMessage;
@@ -37,8 +38,9 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
     private String server_ip;
     private static int server_port = 9898;
     private boolean isGameActive = false;
+    private WifiP2pDevice hostDeviceInfo;
 
-    public ClientPlayer(String name, int chips, Handler handler, Context context) {
+    public ClientPlayer(WifiP2pDevice hostDeviceInfo, String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
         this.chips = chips;
@@ -46,6 +48,7 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
         this.availableActions = new ArrayList<>();
         this.handlerUi = handler;
         this.context = context;
+        this.hostDeviceInfo = hostDeviceInfo;
     }
 
     @Override
@@ -65,9 +68,8 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             synchronized (this) {
 
                 // Is Player Turn
-
                 try {
-                    this.wait(10000); // Wait for the player to perform an action via UI
+                    this.wait(); // Wait for the player to perform an action via UI
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -79,8 +81,6 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
                     this.actionIsDone = true;
                     // Send Message to notify Server
                 }
-
-
             }
         }
     }
