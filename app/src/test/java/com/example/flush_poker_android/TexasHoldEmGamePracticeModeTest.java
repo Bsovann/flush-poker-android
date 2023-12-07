@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.example.flush_poker_android.Logic.GameController;
+import com.example.flush_poker_android.Logic.PracticeModeGameController;
 import com.example.flush_poker_android.Logic.Player;
 
 import org.junit.Before;
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class TexasHoldEmGamePracticeModeTest {
 
-    private GameController game;
+    private PracticeModeGameController game;
 
     @Before
     public void setUp() throws InterruptedException {

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-public class GameController extends AppCompatActivity implements Runnable {
+public class PracticeModeGameController extends AppCompatActivity implements Runnable {
 
     List<Player> remainPlayers;
     private Deck deck;
@@ -45,9 +45,9 @@ public class GameController extends AppCompatActivity implements Runnable {
     private static final int CURRENT_BET_MSG = 9;
 
 
-    public GameController(List<Player> players, Handler handler,
-                          Context context,
-                          ExecutorService playerThreadPool) {
+    public PracticeModeGameController(List<Player> players, Handler handler,
+                                      Context context,
+                                      ExecutorService playerThreadPool) {
         this.players = players;
         this.mainUiThread = handler;
         this.gameContext = context;

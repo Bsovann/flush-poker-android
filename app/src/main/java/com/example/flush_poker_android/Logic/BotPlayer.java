@@ -16,7 +16,7 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     private Boolean hasFold = false;
     private Boolean actionIsDone = false;
     private int chips;
-    private GameController controller;
+    private PracticeModeGameController controller;
     private Handler handlerUi;
     private Context context;
     private int betAmount = 0;
@@ -56,7 +56,7 @@ public class BotPlayer extends Hand implements Player, Runnable, Serializable{
         }
     }
     @Override
-    public void setController(GameController controller){
+    public void setController(PracticeModeGameController controller){
         this.controller = controller;
     }
     @Override

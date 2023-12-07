@@ -148,7 +148,7 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
         return this.availableActions;
     }
     @Override
-    public void setController(GameController controller){
+    public void setController(PracticeModeGameController controller){
     }
     @Override
     public String getPlayerAction(){

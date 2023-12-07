@@ -3,7 +3,7 @@ package com.example.flush_poker_android.Logic;
 import java.util.List;
 
 public interface Player {
-    public void setController(GameController controller);
+    public void setController(PracticeModeGameController controller);
     public String getPlayerAction();
     public Boolean hasFolded();
     public void setAvailableActions(int currentBet);
