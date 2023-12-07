@@ -18,7 +18,7 @@ import com.example.flush_poker_android.R;
  * A BroadcastReceiver that notifies of important wifi p2p events.
  * @author Kyle Chainey
  */
-public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
+public class ClientBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager manager;
     private Channel channel;
     private MainActivity activity;
@@ -27,8 +27,8 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
      * @param channel Wifi p2p channel
      * @param activity activity associated with the receiver
      */
-    public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,
-                                       MainActivity activity) {
+    public ClientBroadcastReceiver(WifiP2pManager manager, Channel channel,
+                                   MainActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;
