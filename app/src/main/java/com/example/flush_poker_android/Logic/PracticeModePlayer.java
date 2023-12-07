@@ -53,10 +53,6 @@ public class PracticeModePlayer extends Hand implements Player, Runnable, Serial
                     e.printStackTrace();
                 }
 
-                if(actionListener != null) {
-                    actionListener.onPlayerTurn(this);
-                }
-
                 try {
                     this.wait(10000); // Wait for the player to perform an action via UI
                 } catch (InterruptedException e) {
