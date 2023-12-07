@@ -68,6 +68,7 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
     private static final int GAME_START_MSG = 8;
     private Player hostPlayer;
     PlayerCountdownView playerCountdownView;
+    private static final int CURRENT_BET_MSG = 9;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -228,12 +229,20 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
                     } else if (msg.what == CURRENT_PLAYER_ACTION_MSG){
 //                        Bundle bundle = msg.getData();
                         onPlayerActionUpdate();
+                    } else if(msg.what == CURRENT_BET_MSG){
+                        Bundle bundle = msg.getData();
+                        int bet = (int) bundle.getSerializable("data");
+                        updateCurrentBet(bet);
                     }
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
         };
+    }
+    private void updateCurrentBet(int bet){
+        TextView textView = findViewById(R.id.currentBet);
+        textView.setText("Current Bet: " + bet + "$");
     }
 
     private void updateWinnerTextView(String name) {
@@ -378,8 +387,8 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
     public void onClickCallBtn(View view){
         handlePlayerAction("Call");
     }
-    public void onClickBetBtn(View view){
-        handlePlayerAction("Bet");
+    public void onClickRaiseBtn(View view){
+        handlePlayerAction("Raise");
     }
     private void handlePlayerAction(String action) {
         Player currentPlayer = players.get(currentPlayerIndex);
@@ -391,9 +400,9 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
         else if (action.equals("Call"))
             currentPlayer.call();
         else if (action.equals("Bet"))
-            currentPlayer.bet(currentPlayer.getCurrentBet() + 1000); // Just leave it static for now.
+            currentPlayer.bet(gameController.getCurrentBet() + 1000); // Just leave it static for now.
         else
-            currentPlayer.raise(currentPlayer.getCurrentBet() * 2); // raise double for now.
+            currentPlayer.raise(gameController.getCurrentBet() * 2); // raise double for now.
 
         currentPlayer.setPlayerAction(action);
         playerCountdownView.setVisibility(View.INVISIBLE);
