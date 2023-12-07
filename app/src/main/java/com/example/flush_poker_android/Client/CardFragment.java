@@ -1,3 +1,7 @@
+/**
+ * Author: Bondith Sovann
+ * Description: Fragment class representing a CardFragment, which displays a GridView of card images.
+ */
 package com.example.flush_poker_android.Client;
 
 import android.os.Bundle;
@@ -73,7 +77,11 @@ public class CardFragment extends Fragment{
         this.cardAdapter.notifyDataSetChanged();
     }
 
-
+    /**
+     * Author: Bondith Sovann
+     * Description: Updates the card images displayed in the GridView with new data.
+     * @param updatedCardImages The updated list of card images to be displayed.
+     */
     public void onCommunityCardsUpdate(List<Integer> updatedCardImages) {
         // Update the card images in your adapter and refresh the GridView
         if (cardImages != null && cardAdapter != null && gridView != null) {
@@ -85,5 +93,4 @@ public class CardFragment extends Fragment{
             Log.e("CardFragment", "One of the references (cardImages, cardAdapter, gridView) is null");
         }
     }
-
 }

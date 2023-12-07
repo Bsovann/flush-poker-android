@@ -1,20 +1,10 @@
-package com.example.flush_poker_android.Client;
-
 /*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Author: Kyle Chainey
+ * Description: A ListFragment that displays available peers on discovery and requests the
+ * parent activity to handle user interaction events.
+ * This class is adapted from the Android Open Source Project.
  */
+package com.example.flush_poker_android.Client;
 
 import android.app.ListFragment;
 import android.app.ProgressDialog;
@@ -38,6 +28,7 @@ import com.example.flush_poker_android.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * A ListFragment that displays available peers on discovery and requests the
  * parent activity to handle user interaction events
@@ -48,28 +39,32 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     View mContentView = null;
     private WifiP2pDevice device;
     private MainActivity parentInstance = null; // instance of the main activity that encapsulates this fragment
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         this.setListAdapter(new WiFiPeerListAdapter(getActivity(), R.layout.row_devices, peers));
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_list, null);
         return mContentView;
     }
+
     /**
      * @return this device
      */
-    public void setMainActivityInstance(MainActivity activity){
+    public void setMainActivityInstance(MainActivity activity) {
         parentInstance = activity;
     }
 
     public WifiP2pDevice getDevice() {
         return device;
     }
+
     private static String getDeviceStatus(int deviceStatus) {
-        Log.d(MainActivity.TAG, "Peer status :" + deviceStatus);
+        Log.d(MainActivity.TAG, "Peer status: " + deviceStatus);
         switch (deviceStatus) {
             case WifiP2pDevice.AVAILABLE:
                 return "Available";
@@ -85,6 +80,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
                 return "Unknown";
         }
     }
+
     /**
      * Initiate a connection with the peer.
      */
@@ -100,11 +96,13 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         intent.putExtras(bundle);
         startActivity(intent);
     }
+
     /**
      * Array adapter for ListFragment that maintains WifiP2pDevice list.
      */
     private class WiFiPeerListAdapter extends ArrayAdapter<WifiP2pDevice> {
         private List<WifiP2pDevice> items;
+
         /**
          * @param context
          * @param textViewResourceId
@@ -114,6 +112,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             super(context, textViewResourceId, objects);
             items = objects;
         }
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View v = convertView;
@@ -136,8 +135,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             return v;
         }
     }
+
     /**
      * Update UI for this device.
+     *
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
@@ -147,6 +148,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         view = (TextView) mContentView.findViewById(R.id.my_status);
         view.setText(getDeviceStatus(device.status));
     }
+
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
         if (progressDialog != null && progressDialog.isShowing()) {
@@ -160,6 +162,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             return;
         }
     }
+
     public void clearPeers() {
         peers.clear();
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
@@ -173,18 +176,22 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
                 true, new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        //do nothing
+                        // do nothing
                     }
                 });
     }
+
     /**
      * An interface-callback for the activity to listen to fragment interaction
      * events.
      */
     public interface DeviceActionListener {
         void showDetails(WifiP2pDevice device);
+
         void cancelDisconnect();
+
         void connect(WifiP2pConfig config);
+
         void disconnect();
     }
 }

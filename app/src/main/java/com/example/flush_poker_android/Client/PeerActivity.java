@@ -1,3 +1,9 @@
+/*
+ * Author: Bondith Sovann
+ * Description: This class represents the PeerActivity for the Flush Poker Android game.
+ * It handles the game's UI and logic, including player actions, card rendering, and game state updates.
+ * (For Multiplayer Mode)
+ */
 package com.example.flush_poker_android.Client;
 
 import android.app.Dialog;
@@ -24,10 +30,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
-import com.example.flush_poker_android.Logic.PracticeModeGameController;
-import com.example.flush_poker_android.Logic.HumanPlayer;
+import com.example.flush_poker_android.Logic.ControllerPlayer;
 import com.example.flush_poker_android.Logic.Player;
-import com.example.flush_poker_android.Logic.PlayerActionListener;
+import com.example.flush_poker_android.Logic.PracticeModeGameController;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.R;
 
@@ -38,7 +43,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class PeerActivity extends AppCompatActivity implements GameUpdateListener, PlayerActionListener {
+public class PeerActivity extends AppCompatActivity implements GameUpdateListener{
 
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
@@ -82,7 +87,11 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         }
         initWork();
     }
-
+    /*
+     *  Author: Bondith Sovann
+     * Description: Initializes various components and settings for the game.
+     * It sets up the UI, creates player objects, and starts the game controller thread.
+     */
     private void initWork(){
 
         // Enable immersive mode
@@ -106,8 +115,7 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
-        hostPlayer = new HumanPlayer("Bondith",9000, handler, getApplicationContext());
-        hostPlayer.setActionListener(this);
+        hostPlayer = new ControllerPlayer("Bondith",9000, handler, getApplicationContext());
         players.add(hostPlayer);
         for(int i = 1; i < 5; i++){
             players.add(new BotPlayer(
@@ -140,11 +148,12 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         // Instantiate controllerThread and start it.
         this.controllerThread = new Thread(gameController);
         controllerThread.start();
-
-        // Render My Cards.
-//        renderMyCards();
     }
 
+    /*
+     * Author: Bondith Sovann
+     * Description: Renders the player's own cards in the UI.
+     */
     private void renderMyCards() {
         GridView myCards = playerViews.get(0);
         List<Integer> cardIds = hostPlayer.getHand().stream().map(
@@ -153,12 +162,20 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         myCards.setAdapter(new CardAdapter(this, cardIds));
     }
 
+    /*
+     * Author: Bondith Sovann
+     * Description: Handles the onResume event of the activity.
+     */
     @Override
     public void onResume() {
         super.onResume();
         cardFragment = (CardFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_card);
 
     }
+    /*
+     * Author: Bondith Sovann
+     * Description: Handles the onDestroy event of the activity.
+     */
     @Override
     protected void onDestroy(){
         super.onDestroy();
@@ -169,10 +186,19 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
             throw new RuntimeException(e);
         }
     }
+    /*
+     * Author: Bondith Sovann
+     * Description: Handles the onPause event of the activity.
+     */
     @Override
     protected void onPause(){
         super.onPause();
     }
+
+    /*
+     * Author: Bondith Sovann
+     * Description: Handles the handleMessage event for processing updates from the game controller.
+     */
     public void handleMessage() {
         // Create a handler for the UI thread
         handler = new Handler(getMainLooper()) {
@@ -402,7 +428,6 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
             currentPlayer.notify(); // Notify the HumanPlayer's thread
         }
     }
-
     public void onClickChatIcon(View view){
         // Chat Dialog
         dialog.setContentView(R.layout.chat_dialog);
@@ -470,10 +495,6 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
         playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
         playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
     }
-
-    @Override
-    public void onPlayerTurn(HumanPlayer player) {
-    }
     private void renderAvailableActionsButtons(List<String> actions){
         try{
             for(String action : actions) {
@@ -498,6 +519,5 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
             e.printStackTrace();
         }
     }
-
 }
 

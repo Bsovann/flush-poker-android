@@ -1,17 +1,8 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Author: Kyle Chainey
+ * Description: A fragment that manages a particular peer and allows interaction with the device,
+ * including setting up network connections and transferring data.
+ * This class is adapted from the Android Open Source Project.
  */
 package com.example.flush_poker_android.Client;
 
@@ -44,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 /**
  * A fragment that manages a particular peer and allows interaction with device
  * i.e. setting up network connection and transferring data.
@@ -54,10 +46,12 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     private WifiP2pDevice device;
     private WifiP2pInfo info;
     ProgressDialog progressDialog = null;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_detail, null);
@@ -75,6 +69,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 ((DeviceActionListener) getActivity()).connect(config);
             }
         });
+
         mContentView.findViewById(R.id.btn_disconnect).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -82,19 +77,21 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                         ((DeviceActionListener) getActivity()).disconnect();
                     }
                 });
+
         mContentView.findViewById(R.id.btn_start_client).setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Allow user to pick an image from Gallery or other
-                        // registered apps
+                        // Allow the user to pick an image from Gallery or other registered apps
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                         intent.setType("image/*");
                         startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
                     }
                 });
+
         return mContentView;
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Uri uri = data.getData();
@@ -102,13 +99,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         statusText.setText("Sending: " + uri);
         Log.d(MainActivity.TAG, "Intent----------- " + uri);
         Intent serviceIntent = new Intent(getActivity(), MessageService.class);
-//        serviceIntent.setAction(MessageService.ACTION_SEND_FILE);
-//        serviceIntent.putExtra(MessageService.EXTRAS_FILE_PATH, uri.toString());
-//        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_ADDRESS,
-//                info.groupOwnerAddress.getHostAddress());
-//        serviceIntent.putExtra(MessageService.EXTRAS_GROUP_OWNER_PORT, 8988);
         getActivity().startService(serviceIntent);
     }
+
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         if (progressDialog != null && progressDialog.isShowing()) {
@@ -116,30 +109,29 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         }
         this.info = info;
         this.getView().setVisibility(View.VISIBLE);
+
         // The owner IP is now known.
         TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
         view.setText(getResources().getString(R.string.group_owner_text)
-                + ((info.isGroupOwner == true) ? "Yes"
-                : "No"));
+                + ((info.isGroupOwner == true) ? "Yes" : "No"));
+
         // InetAddress from WifiP2pInfo struct.
         view = (TextView) mContentView.findViewById(R.id.device_info);
         view.setText("Group Owner IP - " + info.groupOwnerAddress.getHostAddress());
-        // After the group negotiation, we assign the group owner as the file
-        // server. The file server is single threaded, single connection server
-        // socket.
+
+        // After the group negotiation, we assign the group owner as the file server.
+        // The file server is a single-threaded, single-connection server socket.
         if (info.groupFormed && info.isGroupOwner) {
-            new FileServerAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text))
-                    .execute();
+            new FileServerAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text)).execute();
         } else if (info.groupFormed) {
-            // The other device acts as the client. In this case, we enable the
-            // get file button.
+            // The other device acts as the client. In this case, we enable the "get file" button.
             mContentView.findViewById(R.id.btn_start_client).setVisibility(View.VISIBLE);
-//            ((TextView) mContentView.findViewById(R.id.status_text)).setText(getResources()
-//                    .getString(R.string.client_text));
         }
-        // hide the connect button
+
+        // Hide the connect button
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.GONE);
     }
+
     /**
      * Updates the UI with device data
      *
@@ -153,6 +145,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         view = (TextView) mContentView.findViewById(R.id.device_info);
         view.setText(device.toString());
     }
+
     /**
      * Clears the UI fields after a disconnect or direct mode disable operation.
      */
@@ -166,16 +159,16 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         view.setText("");
         view = (TextView) mContentView.findViewById(R.id.status_text);
         view.setText("");
-//        mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
         this.getView().setVisibility(View.GONE);
     }
+
     /**
-     * A simple server socket that accepts connection and writes some data on
-     * the stream.
+     * A simple server socket that accepts a connection and writes some data on the stream.
      */
     public static class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
         private Context context;
         private TextView statusText;
+
         /**
          * @param context
          * @param statusText
@@ -184,23 +177,24 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
             this.context = context;
             this.statusText = (TextView) statusText;
         }
+
         @Override
         protected String doInBackground(Void... params) {
             try {
                 ServerSocket serverSocket = new ServerSocket(8988);
                 Log.d(MainActivity.TAG, "Server: Socket opened");
                 Socket client = serverSocket.accept();
-                Log.d(MainActivity.TAG, "Server: connection done");
+                Log.d(MainActivity.TAG, "Server: connection established");
+
                 final File f = new File(context.getExternalFilesDir("received"),
-                        "wifip2pshared-" + System.currentTimeMillis()
-                                + ".jpg");
+                        "wifip2pshared-" + System.currentTimeMillis() + ".jpg");
                 File dirs = new File(f.getParent());
                 if (!dirs.exists())
                     dirs.mkdirs();
                 f.createNewFile();
-                Log.d(MainActivity.TAG, "server: copying files " + f.toString());
-                InputStream inputstream = client.getInputStream();
-                copyFile(inputstream, new FileOutputStream(f));
+                Log.d(MainActivity.TAG, "Server: copying files " + f.toString());
+                InputStream inputStream = client.getInputStream();
+                copyFile(inputStream, new FileOutputStream(f));
                 serverSocket.close();
                 return f.getAbsolutePath();
             } catch (IOException e) {
@@ -208,28 +202,19 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 return null;
             }
         }
+
         /*
          * (non-Javadoc)
+         *
          * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
          */
         @Override
         protected void onPostExecute(String result) {
-//            if (result != null) {
-//                statusText.setText("File copied - " + result);
-//                File recvFile = new File(result);
-//                Uri fileUri = MessageService.getUriForFile(
-//                        context,
-//                        "com.example.android.wifidirect.fileprovider",
-//                        recvFile);
-//               Intent intent = new Intent();
-//                intent.setAction(android.content.Intent.ACTION_VIEW);
-//                intent.setDataAndType(fileUri, "image/*");
-//                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                context.startActivity(intent);
-//            }
         }
+
         /*
          * (non-Javadoc)
+         *
          * @see android.os.AsyncTask#onPreExecute()
          */
         @Override
@@ -237,6 +222,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
             statusText.setText("Opening a server socket");
         }
     }
+
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         byte buf[] = new byte[1024];
         int len;

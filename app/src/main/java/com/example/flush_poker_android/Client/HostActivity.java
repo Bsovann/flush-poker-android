@@ -24,10 +24,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
-import com.example.flush_poker_android.Logic.PracticeModeGameController;
-import com.example.flush_poker_android.Logic.HumanPlayer;
+import com.example.flush_poker_android.Logic.ControllerPlayer;
 import com.example.flush_poker_android.Logic.Player;
-import com.example.flush_poker_android.Logic.PlayerActionListener;
+import com.example.flush_poker_android.Logic.PracticeModeGameController;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.R;
 
@@ -38,7 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class HostActivity extends AppCompatActivity implements GameUpdateListener, PlayerActionListener {
+public class HostActivity extends AppCompatActivity implements GameUpdateListener{
 
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
@@ -106,8 +105,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
-        hostPlayer = new HumanPlayer("Bondith",9000, handler, getApplicationContext());
-        hostPlayer.setActionListener(this);
+        hostPlayer = new ControllerPlayer("Bondith",9000, handler, getApplicationContext());
         players.add(hostPlayer);
         for(int i = 1; i < 5; i++){
             players.add(new BotPlayer(
@@ -471,9 +469,6 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
         playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
     }
 
-    @Override
-    public void onPlayerTurn(HumanPlayer player) {
-    }
     private void renderAvailableActionsButtons(List<String> actions){
         try{
             for(String action : actions) {

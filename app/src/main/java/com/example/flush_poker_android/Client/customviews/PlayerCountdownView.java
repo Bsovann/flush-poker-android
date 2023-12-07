@@ -1,3 +1,8 @@
+/**
+ * Author: Bondith Sovann
+ * Description: Custom view class representing a PlayerCountdownView, which is a countdown timer view
+ * with a rounded rectangle shape and changing colors during countdown.
+ */
 package com.example.flush_poker_android.Client.customviews;
 
 import android.content.Context;
@@ -30,6 +35,11 @@ public class PlayerCountdownView extends View {
         init();
     }
 
+    /**
+     * Author: Bondith Sovann
+     * Description: Initializes the PlayerCountdownView by setting up the necessary
+     * Paint, Path, and measurement objects.
+     */
     private void init() {
         foregroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         foregroundPaint.setColor(0xFFFFFFFF); // Countdown color
@@ -79,6 +89,12 @@ public class PlayerCountdownView extends View {
         }
     }
 
+    /**
+     * Author: Bondith Sovann
+     * Description: Starts a countdown with the specified duration, changing the countdown color
+     * during the countdown. When the countdown finishes, the color changes again.
+     * @param duration The duration of the countdown in milliseconds.
+     */
     public void startCountdown(long duration) {
         this.countdownDuration = duration;
         this.startTime = SystemClock.elapsedRealtime();
@@ -101,6 +117,10 @@ public class PlayerCountdownView extends View {
         }.start();
     }
 
+    /**
+     * Author: Bondith Sovann
+     * Description: Cancels the ongoing countdown timer.
+     */
     public void cancelCountdown() {
         if (countDownTimer != null) {
             countDownTimer.cancel();

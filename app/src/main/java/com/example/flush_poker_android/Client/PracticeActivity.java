@@ -1,3 +1,9 @@
+/*
+ * Author: Bondith Sovann
+ * Description: This class represents the PeerActivity for the Flush Poker Android game.
+ * It handles the game's UI and logic, including player actions, card rendering, and game state updates.
+ * (For Single player Mode) - Everything's pretty much the same as PeerActivity
+ */
 package com.example.flush_poker_android.Client;
 
 import android.app.Dialog;
@@ -24,10 +30,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.flush_poker_android.Client.customviews.CardAdapter;
 import com.example.flush_poker_android.Client.customviews.PlayerCountdownView;
 import com.example.flush_poker_android.Logic.BotPlayer;
-import com.example.flush_poker_android.Logic.PracticeModeGameController;
-import com.example.flush_poker_android.Logic.HumanPlayer;
 import com.example.flush_poker_android.Logic.Player;
-import com.example.flush_poker_android.Logic.PlayerActionListener;
+import com.example.flush_poker_android.Logic.PracticeModeGameController;
+import com.example.flush_poker_android.Logic.PracticeModePlayer;
 import com.example.flush_poker_android.Logic.Utility.CardUtils;
 import com.example.flush_poker_android.R;
 
@@ -38,7 +43,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class PracticeActivity extends AppCompatActivity implements GameUpdateListener, PlayerActionListener {
+public class PracticeActivity extends AppCompatActivity implements GameUpdateListener{
 
     private Dialog dialog;
     private SeekBar brightnessSeekBar;
@@ -83,7 +88,6 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
         }
         initWork();
     }
-
     private void initWork(){
 
         // Enable immersive mode
@@ -107,8 +111,7 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
 
         this.playerThreadPool = Executors.newFixedThreadPool(5);
         // Assign Each player to each Thread
-        hostPlayer = new HumanPlayer("Bondith",9000, handler, getApplicationContext());
-        hostPlayer.setActionListener(this);
+        hostPlayer = new PracticeModePlayer("Bondith",9000, handler, getApplicationContext());
         players.add(hostPlayer);
         for(int i = 1; i < 5; i++){
             players.add(new BotPlayer(
@@ -142,10 +145,7 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
         this.controllerThread = new Thread(gameController);
         controllerThread.start();
 
-        // Render My Cards.
-//        renderMyCards();
     }
-
     private void renderMyCards() {
         GridView myCards = playerViews.get(0);
         List<Integer> cardIds = hostPlayer.getHand().stream().map(
@@ -153,7 +153,6 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
                         getApplicationContext())).collect(Collectors.toList());
         myCards.setAdapter(new CardAdapter(this, cardIds));
     }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -244,7 +243,6 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
         TextView textView = findViewById(R.id.currentBet);
         textView.setText("Current Bet: " + bet + "$");
     }
-
     private void updateWinnerTextView(String name) {
         TextView textview = findViewById(R.id.winner);
         textview.setText(name);
@@ -411,7 +409,6 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
             currentPlayer.notify(); // Notify the HumanPlayer's thread
         }
     }
-
     public void onClickChatIcon(View view){
         // Chat Dialog
         dialog.setContentView(R.layout.chat_dialog);
@@ -478,10 +475,6 @@ public class PracticeActivity extends AppCompatActivity implements GameUpdateLis
         playerPositions.add(findViewById(R.id.posIconPlayer2Layout));
         playerPositions.add(findViewById(R.id.posIconPlayer3Layout));
         playerPositions.add(findViewById(R.id.posIconPlayer4Layout));
-    }
-
-    @Override
-    public void onPlayerTurn(HumanPlayer player) {
     }
     private void renderAvailableActionsButtons(List<String> actions){
         try{

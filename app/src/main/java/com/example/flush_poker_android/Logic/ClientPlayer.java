@@ -1,3 +1,9 @@
+/**
+ * This class represents a player in the poker game who connects to a server.
+ * It handles communication with the server, player actions, and game state.
+ *
+ * @author Bondith Sovann
+ */
 package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
@@ -13,7 +19,6 @@ import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,6 +45,15 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
     private boolean isGameActive = false;
     private WifiP2pDevice hostDeviceInfo;
 
+    /**
+     * Constructor for creating a ClientPlayer instance.
+     *
+     * @param hostDeviceInfo The information of the host device.
+     * @param name The name of the player.
+     * @param chips The number of chips the player has.
+     * @param handler The handler for UI interactions.
+     * @param context The Android application context.
+     */
     public ClientPlayer(WifiP2pDevice hostDeviceInfo, String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
         this.name = name;
@@ -50,7 +64,9 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
         this.context = context;
         this.hostDeviceInfo = hostDeviceInfo;
     }
-
+    /**
+     * The main run method for the player's thread.
+     */
     @Override
     public void run() {
         // Connect to server
@@ -63,6 +79,16 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             // Notify to PeerActivity
             // PeerActivity: tell user to try again!
         }
+    }
+    /**
+     * Compares the player's hand with the community cards.
+     *
+     * @param communityCards The community cards to compare with.
+     * @return An integer indicating the result of the hand comparison.
+     */
+    @Override
+    public int compareHands(List<Card> communityCards) {
+        return super.compareHands(communityCards);
     }
 
     private void startGame() {
@@ -86,7 +112,6 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             }
         }
     }
-
     private void clientListener(){
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(new Runnable() {
@@ -131,7 +156,9 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             e.printStackTrace();
         }
     }
-
+    /**
+     * Sends a fold action to the server and updates the player's state.
+     */
     @Override
     public void fold() {
         sendMessage(new PlayerActionMessage("Fold", this.name));
@@ -265,49 +292,11 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
     public void decreaseChips(int amount) {
         this.chips -= amount;
     }
-    public void makeAutoDecision() {
-        // This is a basic AI logic for automatic decision-making.
-        // You can make it more sophisticated based on your game rules.
-
-        int minRaise = this.currentBet + 1;
-        int maxRaise = this.chips;
-
-        Random random = new Random();
-        int decision = random.nextInt(availableActions.size()); // Generate a random decision (0 to 3)
-
-        String playerAction = availableActions.get(decision);
-
-        if (playerAction.equals("Fold")) {
-            // 25% chance to fold
-            fold();
-            setPlayerAction("Fold");
-        } else if (playerAction.equals("Check")) {
-            // 25% chance to check
-            check();
-            setPlayerAction("Check");
-        } else if (playerAction.equals("Call")) {
-            // 25% chance to call
-            bet(currentBet);
-            setPlayerAction("Call");
-        } else {
-            // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + currentBet;
-            bet(raiseAmount);
-            setPlayerAction("Raise");
-        }
-
-        // Signal that the AI has completed its action
-        actionIsDone = true;
-    }
     @Override
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
     }
 
-    @Override
-    public int compareHands(List<Card> communityCards) {
-        return super.compareHands(communityCards);
-    }
 
 
 }
