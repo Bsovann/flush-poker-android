@@ -19,7 +19,7 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
 
     List<Player> remainPlayers;
     private Deck deck;
-    private List<Player> players;
+    private final List<Player> players;
     private List<Card> communityCards;
     private Player currentPlayer;
     private int dealerPosition;
@@ -32,7 +32,7 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
     private Player winner;
     private final Handler mainUiThread;
     private final Context gameContext;
-    private ExecutorService playerThreadPool;
+    private final ExecutorService playerThreadPool;
     private List<Integer> communityCardsId;
     private static final int COMMUNITY_CARDS_MSG = 1;
     private static final int REMAIN_PLAYERS_MSG = 2;
@@ -159,7 +159,7 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
                 currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
                 currentPlayer = players.get(currentPlayerIndex);
 
-                this.remainPlayers = players.stream().filter(player -> player.hasFolded() == false).collect(Collectors.toList());
+                this.remainPlayers = players.stream().filter(player -> !player.hasFolded()).collect(Collectors.toList());
                 notifyRemainPlayersUpdateToActivity(); // set Remain players and compare hands.
 
                 if (remainPlayers.size() == 1) {
@@ -182,7 +182,7 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
     }
     private void notifyCurrentPlayerActionToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.CURRENT_PLAYER_ACTION_MSG;
+        message.what = CURRENT_PLAYER_ACTION_MSG;
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", currentPlayer.getPlayerAction());
@@ -197,7 +197,7 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
     }
     private void notifyCommunityCardsUpdateToActivity(List<Integer> cardIds) {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.COMMUNITY_CARDS_MSG;
+        message.what = COMMUNITY_CARDS_MSG;
 
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) cardIds);
@@ -206,24 +206,24 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
     }
     private void notifyCurrentBetToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.CURRENT_BET_MSG;
+        message.what = CURRENT_BET_MSG;
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data", (Serializable) this.currentBet);
+        bundle.putSerializable("data", this.currentBet);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
     private void notifyPotUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.POT_MSG;
+        message.what = POT_MSG;
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data", (Serializable) this.pot);
+        bundle.putSerializable("data", this.pot);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
     private void notifyWinnerUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.WINNER_MSG;
+        message.what = WINNER_MSG;
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) this.winner);
         message.setData(bundle);
@@ -231,7 +231,7 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
     }
     private void notifyRemainPlayersUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.REMAIN_PLAYERS_MSG;
+        message.what = REMAIN_PLAYERS_MSG;
         Bundle bundle = new Bundle();
         bundle.putSerializable("data", (Serializable) this.remainPlayers);
         message.setData(bundle);
@@ -239,25 +239,25 @@ public class PracticeModeGameController extends AppCompatActivity implements Run
     }
     private void notifyCurrentPlayerUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.PLAYER_INDEX_MSG;
+        message.what = PLAYER_INDEX_MSG;
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data", (Serializable) this.currentPlayerIndex);
+        bundle.putSerializable("data", this.currentPlayerIndex);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
     private void notifyDealerPositionUpdateToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.DEALER_INDEX_MSG;
+        message.what = DEALER_INDEX_MSG;
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data", (Serializable) this.dealerPosition);
+        bundle.putSerializable("data", this.dealerPosition);
         message.setData(bundle);
         mainUiThread.sendMessage(message);
     }
     private void notifyGameStartToActivity() {
         Message message = mainUiThread.obtainMessage();
-        message.what = this.GAME_START_MSG;
+        message.what = GAME_START_MSG;
         mainUiThread.sendMessage(message);
     }
     public synchronized boolean isGameActive() {

@@ -18,9 +18,9 @@ import com.example.flush_poker_android.R;
  * A BroadcastReceiver that notifies of important wifi p2p events.
  */
 public class ServerBroadcastReceiver extends BroadcastReceiver {
-    private WifiP2pManager manager;
-    private Channel channel;
-    private HostActivity activity;
+    private final WifiP2pManager manager;
+    private final Channel channel;
+    private final HostActivity activity;
     private final String TAG = "Server Broadcast Receiver";
     /**
      * @param manager WifiP2pManager system service
@@ -45,13 +45,9 @@ public class ServerBroadcastReceiver extends BroadcastReceiver {
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             // UI update to indicate wifi p2p status.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
-            if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                // Wifi Direct mode is enabled
-                activity.setIsWifiP2pEnabled(true);
-            } else {
-                activity.setIsWifiP2pEnabled(false);
-//                activity.resetData();
-            }
+            // Wifi Direct mode is enabled
+            //                activity.resetData();
+            activity.setIsWifiP2pEnabled(state == WifiP2pManager.WIFI_P2P_STATE_ENABLED);
             Log.d(TAG, "P2P state changed - " + state);
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             Log.d(TAG, "P2P peers changed");
@@ -59,7 +55,7 @@ public class ServerBroadcastReceiver extends BroadcastReceiver {
             if (manager == null) {
                 return;
             }
-            NetworkInfo networkInfo = (NetworkInfo) intent
+            NetworkInfo networkInfo = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {

@@ -4,14 +4,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class PlayerStream{
-    private ObjectInputStream inputStream;
+    private final ObjectInputStream inputStream;
     public ObjectInputStream getInputStream() {
         return inputStream;
     }
     public ObjectOutputStream getOutputStream() {
         return outputStream;
     }
-    private ObjectOutputStream outputStream;
+    private final ObjectOutputStream outputStream;
     public PlayerStream(ObjectInputStream inputStream, ObjectOutputStream outputStream){
         this.inputStream = inputStream;
         this.outputStream = outputStream;

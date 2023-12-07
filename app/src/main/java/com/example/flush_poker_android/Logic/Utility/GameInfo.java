@@ -69,7 +69,7 @@ public class GameInfo implements Serializable {
     }
 
     public List<Player> getRemainingPlayers() {
-        return (List<Player>)remainingPlayers;
+        return remainingPlayers;
     }
 
     public boolean isGameActive() {

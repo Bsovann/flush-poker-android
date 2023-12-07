@@ -95,7 +95,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Uri uri = data.getData();
-        TextView statusText = (TextView) mContentView.findViewById(R.id.status_text);
+        TextView statusText = mContentView.findViewById(R.id.status_text);
         statusText.setText("Sending: " + uri);
         Log.d(MainActivity.TAG, "Intent----------- " + uri);
         Intent serviceIntent = new Intent(getActivity(), MessageService.class);
@@ -111,12 +111,12 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         this.getView().setVisibility(View.VISIBLE);
 
         // The owner IP is now known.
-        TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
+        TextView view = mContentView.findViewById(R.id.group_owner);
         view.setText(getResources().getString(R.string.group_owner_text)
-                + ((info.isGroupOwner == true) ? "Yes" : "No"));
+                + ((info.isGroupOwner) ? "Yes" : "No"));
 
         // InetAddress from WifiP2pInfo struct.
-        view = (TextView) mContentView.findViewById(R.id.device_info);
+        view = mContentView.findViewById(R.id.device_info);
         view.setText("Group Owner IP - " + info.groupOwnerAddress.getHostAddress());
 
         // After the group negotiation, we assign the group owner as the file server.
@@ -140,9 +140,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     public void showDetails(WifiP2pDevice device) {
         this.device = device;
         this.getView().setVisibility(View.VISIBLE);
-        TextView view = (TextView) mContentView.findViewById(R.id.device_address);
+        TextView view = mContentView.findViewById(R.id.device_address);
         view.setText(device.deviceAddress);
-        view = (TextView) mContentView.findViewById(R.id.device_info);
+        view = mContentView.findViewById(R.id.device_info);
         view.setText(device.toString());
     }
 
@@ -151,13 +151,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      */
     public void resetViews() {
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);
-        TextView view = (TextView) mContentView.findViewById(R.id.device_address);
+        TextView view = mContentView.findViewById(R.id.device_address);
         view.setText("");
-        view = (TextView) mContentView.findViewById(R.id.device_info);
+        view = mContentView.findViewById(R.id.device_info);
         view.setText("");
-        view = (TextView) mContentView.findViewById(R.id.group_owner);
+        view = mContentView.findViewById(R.id.group_owner);
         view.setText("");
-        view = (TextView) mContentView.findViewById(R.id.status_text);
+        view = mContentView.findViewById(R.id.status_text);
         view.setText("");
         this.getView().setVisibility(View.GONE);
     }
@@ -166,8 +166,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      * A simple server socket that accepts a connection and writes some data on the stream.
      */
     public static class FileServerAsyncTask extends AsyncTask<Void, Void, String> {
-        private Context context;
-        private TextView statusText;
+        private final Context context;
+        private final TextView statusText;
 
         /**
          * @param context
@@ -192,7 +192,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 if (!dirs.exists())
                     dirs.mkdirs();
                 f.createNewFile();
-                Log.d(MainActivity.TAG, "Server: copying files " + f.toString());
+                Log.d(MainActivity.TAG, "Server: copying files " + f);
                 InputStream inputStream = client.getInputStream();
                 copyFile(inputStream, new FileOutputStream(f));
                 serverSocket.close();
@@ -224,7 +224,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     }
 
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
-        byte buf[] = new byte[1024];
+        byte[] buf = new byte[1024];
         int len;
         try {
             while ((len = inputStream.read(buf)) != -1) {

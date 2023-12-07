@@ -62,13 +62,13 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private ExecutorService playerThreadPool;
     private GameController gameController;
     private CardFragment cardFragment;
-    private List<Integer> communityCardIds = new ArrayList<>();
+    private final List<Integer> communityCardIds = new ArrayList<>();
     private List<Player> remainPlayers;
     private int currentPlayerIndex;
     private int dealerPosition;
     private Player winner;
-    private Semaphore remainingSeats = new Semaphore(4); // TODO: allow player to set this. Max total seats = 5
-    private List<RelativeLayout> playerPositions = new ArrayList<>();
+    private final Semaphore remainingSeats = new Semaphore(4); // TODO: allow player to set this. Max total seats = 5
+    private final List<RelativeLayout> playerPositions = new ArrayList<>();
     GameInfo dataObject = null;
     private static final int COMMUNITY_CARDS_MSG = 1;
     private static final int REMAIN_PLAYERS_MSG = 2;
@@ -81,7 +81,7 @@ public class HostActivity extends AppCompatActivity implements GameUpdateListene
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_FINE_LOCATION = 1001;
     private WifiP2pManager manager;
     private boolean isWifiP2pEnabled = false;
-    private boolean retryChannel = false;
+    private final boolean retryChannel = false;
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager.Channel channel;
     private ServerBroadcastReceiver receiver = null;

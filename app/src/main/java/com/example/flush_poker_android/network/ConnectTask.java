@@ -17,7 +17,7 @@ public class ConnectTask extends AsyncTask<Void, Void, Boolean> {
     private WifiP2pManager manager = null;
     private WifiP2pConfig config = null;
     private WifiP2pManager.Channel channel = null;
-    private Handler uiHandler;
+    private final Handler uiHandler;
     private Context context = null;
 
     /**
