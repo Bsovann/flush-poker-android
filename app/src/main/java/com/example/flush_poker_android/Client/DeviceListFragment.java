@@ -20,6 +20,7 @@ import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -46,6 +47,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     ProgressDialog progressDialog = null;
     View mContentView = null;
     private WifiP2pDevice device;
+    private MainActivity parentInstance = null; // instance of the main activity that encapsulates this fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -59,6 +61,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     /**
      * @return this device
      */
+    public void setMainActivityInstance(MainActivity activity){
+        parentInstance = activity;
+    }
+
     public WifiP2pDevice getDevice() {
         return device;
     }
@@ -85,7 +91,14 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
-        ((DeviceActionListener) getActivity()).showDetails(device);
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+        Bundle bundle = new Bundle();
+        Intent intent = new Intent(parentInstance, PeerActivity.class);
+        bundle.putParcelable("device", device);
+        bundle.putParcelable("config", config);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
     /**
      * Array adapter for ListFragment that maintains WifiP2pDevice list.
@@ -97,8 +110,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
          * @param textViewResourceId
          * @param objects
          */
-        public WiFiPeerListAdapter(Context context, int textViewResourceId,
-                                   List<WifiP2pDevice> objects) {
+        public WiFiPeerListAdapter(Context context, int textViewResourceId, List<WifiP2pDevice> objects) {
             super(context, textViewResourceId, objects);
             items = objects;
         }
@@ -126,7 +138,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     }
     /**
      * Update UI for this device.
-     *
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
@@ -153,9 +164,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         peers.clear();
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
     }
-    /**
-     *
-     */
+
     public void onInitiateDiscovery() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
@@ -164,7 +173,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
                 true, new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-
+                        //do nothing
                     }
                 });
     }

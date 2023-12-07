@@ -9,8 +9,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
-
 import com.example.flush_poker_android.Client.DeviceListFragment;
+import com.example.flush_poker_android.Client.DeviceDetailFragment;
 import com.example.flush_poker_android.Client.MainActivity;
 import com.example.flush_poker_android.R;
 
@@ -70,9 +70,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             if (networkInfo.isConnected()) {
                 // we are connected with the other device, request connection
                 // info to find group owner IP
-//                DeviceDetailFragment fragment = (DeviceDetailFragment) activity
-//                        .getFragmentManager().findFragmentById(R.id.frag_detail);
-//                manager.requestConnectionInfo(channel, fragment);
+                DeviceDetailFragment fragment = (DeviceDetailFragment) activity
+                        .getFragmentManager().findFragmentById(R.id.frag_detail);
+                manager.requestConnectionInfo(channel, fragment);
             } else {
                 // It's a disconnect
                 activity.resetData();

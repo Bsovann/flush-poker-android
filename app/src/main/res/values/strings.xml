@@ -22,4 +22,5 @@
     9. One pair: Two cards of the same rank\n
     10. High card: No pair, the card of the highest rank of each hand is compared\n
     </string>
+    <string name="group_owner_text">kyle</string>
 </resources>
