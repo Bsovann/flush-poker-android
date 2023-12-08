@@ -18,7 +18,7 @@ public class DisconnectTask extends AsyncTask<Void, Void, Boolean> {
     private WifiP2pManager.Channel channel = null;
     private Handler uiHandler = null;
     private final String TAG = "DisconnectTask";
-    private Context context;
+    private final Context context;
 
     /**
      * Constructs a DisconnectTask with the required parameters.

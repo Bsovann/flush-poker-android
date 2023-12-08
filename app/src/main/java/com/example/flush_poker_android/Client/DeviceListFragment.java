@@ -36,7 +36,7 @@ import java.util.List;
  * @author Kyle Chainey
  */
 public class DeviceListFragment extends ListFragment implements PeerListListener {
-    private List<WifiP2pDevice> peers = new ArrayList();
+    private final List<WifiP2pDevice> peers = new ArrayList();
     ProgressDialog progressDialog = null;
     View mContentView = null;
     private WifiP2pDevice device;
@@ -103,7 +103,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * Array adapter for ListFragment that maintains WifiP2pDevice list.
      */
     private class WiFiPeerListAdapter extends ArrayAdapter<WifiP2pDevice> {
-        private List<WifiP2pDevice> items;
+        private final List<WifiP2pDevice> items;
 
         /**
          * @param context
@@ -125,8 +125,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
             }
             WifiP2pDevice device = items.get(position);
             if (device != null) {
-                TextView top = (TextView) v.findViewById(R.id.device_name);
-                TextView bottom = (TextView) v.findViewById(R.id.device_details);
+                TextView top = v.findViewById(R.id.device_name);
+                TextView bottom = v.findViewById(R.id.device_details);
                 if (top != null) {
                     top.setText(device.deviceName);
                 }
@@ -145,9 +145,9 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     public void updateThisDevice(WifiP2pDevice device) {
         this.device = device;
-        TextView view = (TextView) mContentView.findViewById(R.id.my_name);
+        TextView view = mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
-        view = (TextView) mContentView.findViewById(R.id.my_status);
+        view = mContentView.findViewById(R.id.my_status);
         view.setText(getDeviceStatus(device.status));
     }
 
@@ -161,7 +161,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
         if (peers.size() == 0) {
             Log.d(MainActivity.TAG, "No devices found");
-            return;
         }
     }
 

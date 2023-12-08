@@ -20,10 +20,10 @@ public class PracticeModePlayer extends Hand implements Player, Runnable, Serial
     private Boolean actionIsDone = false;
     private int chips;
     private PracticeModeGameController controller;
-    private Handler handlerUi;
-    private Context context;
+    private final Handler handlerUi;
+    private final Context context;
     private int betAmount = 0;
-    private boolean isTimeOut = false;
+    private final boolean isTimeOut = false;
 
     public PracticeModePlayer(String name, int chips, Handler handler, Context context) {
         super(); // Hand, parent's class.
@@ -93,7 +93,7 @@ public class PracticeModePlayer extends Hand implements Player, Runnable, Serial
         this.currentBet = currentBet;
 
         // Check if the player can Fold
-        if (hasFold == false) {
+        if (!hasFold) {
             actions.add("Fold");
         }
         // Check if the player can Check (bet 0 if no one has raised)

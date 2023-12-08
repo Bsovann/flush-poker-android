@@ -57,12 +57,12 @@ public class PeerActivity extends AppCompatActivity implements GameUpdateListene
     private ExecutorService playerThreadPool;
     private PracticeModeGameController gameController;
     private CardFragment cardFragment;
-    private List<Integer> communityCardIds = new ArrayList<>();
+    private final List<Integer> communityCardIds = new ArrayList<>();
     private List<Player> remainPlayers;
     private int currentPlayerIndex;
     private int dealerPosition;
     private Player winner;
-    private List<RelativeLayout> playerPositions = new ArrayList<>();
+    private final List<RelativeLayout> playerPositions = new ArrayList<>();
     private static final int COMMUNITY_CARDS_MSG = 1;
     private static final int REMAIN_PLAYERS_MSG = 2;
     private static final int DEALER_INDEX_MSG = 3;

@@ -18,17 +18,17 @@ import com.example.flush_poker_android.R;
  * A BroadcastReceiver that notifies of important wifi p2p events.
  * @author Kyle Chainey
  */
-public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
-    private WifiP2pManager manager;
-    private Channel channel;
-    private MainActivity activity;
+public class ClientBroadcastReceiver extends BroadcastReceiver {
+    private final WifiP2pManager manager;
+    private final Channel channel;
+    private final MainActivity activity;
     /**
      * @param manager WifiP2pManager system service
      * @param channel Wifi p2p channel
      * @param activity activity associated with the receiver
      */
-    public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,
-                                       MainActivity activity) {
+    public ClientBroadcastReceiver(WifiP2pManager manager, Channel channel,
+                                   MainActivity activity) {
         super();
         this.manager = manager;
         this.channel = channel;
@@ -66,7 +66,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             if (manager == null) {
                 return;
             }
-            NetworkInfo networkInfo = (NetworkInfo) intent
+            NetworkInfo networkInfo = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if (networkInfo.isConnected()) {
                 // we are connected with the other device, request connection
@@ -78,7 +78,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             DeviceListFragment fragment = (DeviceListFragment) activity.getFragmentManager()
                     .findFragmentById(R.id.frag_list);
-            fragment.updateThisDevice((WifiP2pDevice) intent.getParcelableExtra(
+            fragment.updateThisDevice(intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
         }
     }

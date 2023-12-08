@@ -14,7 +14,7 @@ import com.example.flush_poker_android.Client.MainActivity;
  */
 public class PeerDiscoveryTask extends AsyncTask<Void, Void, Boolean> {
     private WifiP2pManager manager = null;
-    private WifiP2pManager.Channel channel;
+    private final WifiP2pManager.Channel channel;
     private MainActivity activity = null;
 
     /**

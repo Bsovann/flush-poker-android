@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author Bondith Sovann */
 public class Hand implements Serializable {
-    private List<Card> cards;
+    private final List<Card> cards;
 
     public Hand() {
         cards = new ArrayList<>();

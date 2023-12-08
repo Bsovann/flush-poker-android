@@ -32,8 +32,8 @@ public class TexasHoldEmGamePracticeModeTest {
     }
 
     @Test
-    public void testDealHoleCardsToPlayers() {
-        game.dealTwoHoleCardsToPlayers();
+    public void testDealCardsToPlayers() {
+
         for (Player player : game.getPlayers()) {
             assertEquals(2, player.getHand().size());
         }

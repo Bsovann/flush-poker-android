@@ -31,10 +31,10 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
     private Boolean hasFold = false;
     private Boolean actionIsDone = false;
     private int chips;
-    private Handler handlerUi;
-    private Context context;
+    private final Handler handlerUi;
+    private final Context context;
     private int betAmount = 0;
-    private boolean isTimeOut = false;
+    private final boolean isTimeOut = false;
     private PlayerActionListener actionListener;
 
     // Network communication variables
@@ -42,9 +42,9 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
     private String server_ip;
-    private static int server_port = 9898;
-    private boolean isGameActive = false;
-    private WifiP2pDevice hostDeviceInfo;
+    private static final int server_port = 9898;
+    private final boolean isGameActive = false;
+    private final WifiP2pDevice hostDeviceInfo;
 
     /**
      * Constructor for creating a ClientPlayer instance.
@@ -119,7 +119,7 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
             @Override
             public void run() {
                 // Listen for messages from the server and update player state
-                while (isGameActive) {
+                while (true) {
                     // Example: Listen for messages and handle them
                     Object message = receiveMessage();
                     if (message instanceof GameUpdateMessage) {
@@ -192,7 +192,7 @@ public class ClientPlayer extends Hand implements Player, Runnable, Serializable
         this.currentBet = currentBet;
 
         // Check if the player can Fold
-        if (hasFold == false) {
+        if (!hasFold) {
             actions.add("Fold");
         }
         // Check if the player can Check (bet 0 if no one has raised)
