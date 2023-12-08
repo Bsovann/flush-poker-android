@@ -32,6 +32,8 @@ import java.util.List;
 /**
  * A ListFragment that displays available peers on discovery and requests the
  * parent activity to handle user interaction events
+ *
+ * @author Kyle Chainey
  */
 public class DeviceListFragment extends ListFragment implements PeerListListener {
     private List<WifiP2pDevice> peers = new ArrayList();

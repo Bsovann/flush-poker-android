@@ -1,9 +1,3 @@
-/**
- * This class represents a Bot Player in a poker game.
- * It implements the Player interface and provides AI logic for making decisions.
- *
- * @author Bondith Sovann
- */
 package com.example.flush_poker_android.Logic;
 import android.content.Context;
 import android.os.Handler;
@@ -12,6 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class represents a Bot Player in a poker game.
+ * It implements the Player interface and provides AI logic for making decisions.
+ *
+ * @author Bondith Sovann
+ */
 public class BotPlayer extends Hand implements Player, Runnable, Serializable{
     private final String name;
     private int currentBet;

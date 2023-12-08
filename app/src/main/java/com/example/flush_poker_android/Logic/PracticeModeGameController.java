@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+/**The PracticeModeGameController handles the flow of all game logic for Single Player.
+ *
+ * @author Bondith Sovann*/
 public class PracticeModeGameController extends AppCompatActivity implements Runnable {
 
     List<Player> remainPlayers;

@@ -50,6 +50,7 @@ public class DisconnectTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
+    /**Overridden AsyncTask method that handles disconnects in the background*/
     protected Boolean doInBackground(Void... voids) {
         manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
             @Override

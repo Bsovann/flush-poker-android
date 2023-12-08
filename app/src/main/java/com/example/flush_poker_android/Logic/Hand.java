@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**Holds a list of cards, forming a Hand.
+ *
+ * Also determines value of the Hand.
+ *
+ * @author Bondith Sovann */
 public class Hand implements Serializable {
     private List<Card> cards;
 

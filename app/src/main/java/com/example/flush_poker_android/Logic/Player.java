@@ -2,6 +2,9 @@ package com.example.flush_poker_android.Logic;
 
 import java.util.List;
 
+/**Interface with methods implemented in Bot, Client, & Controller Player
+ *
+ * @author Bondith Sovann*/
 public interface Player {
     public void setController(PracticeModeGameController controller);
     public String getPlayerAction();
@@ -26,6 +29,7 @@ public interface Player {
     void playerStateReset();
     int getBetAmount();
     void setActionListener(PlayerActionListener listener);
+    /**Get Current list of actions available to the player*/
     List<String> getAvailableActions();
     void call();
     void setHasFold(boolean b);

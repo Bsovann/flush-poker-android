@@ -1,9 +1,4 @@
-/**
- * This class represents a player in the poker game who connects to a server.
- * It handles communication with the server, player actions, and game state.
- *
- * @author Bondith Sovann
- */
+
 package com.example.flush_poker_android.Logic;
 
 import android.content.Context;
@@ -22,6 +17,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * This class represents a player in the poker game who connects to a server.
+ * It handles communication with the server, player actions, and game state.
+ *
+ * @author Bondith Sovann
+ */
 public class ClientPlayer extends Hand implements Player, Runnable, Serializable{
     private final String name;
     private int currentBet;

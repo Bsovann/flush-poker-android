@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**Host Player Class. This player has "ownership" of the GameController.
+ *
+ * @author Bondith Sovann*/
 public class ControllerPlayer extends Hand implements Player, Runnable, Serializable{
     private final String name;
     private int currentBet;

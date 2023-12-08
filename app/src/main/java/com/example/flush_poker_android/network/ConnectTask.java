@@ -14,10 +14,10 @@ import android.widget.Toast;
  * @author Kyle Chainey
  */
 public class ConnectTask extends AsyncTask<Void, Void, Boolean> {
-    private WifiP2pManager manager = null;
-    private WifiP2pConfig config = null;
-    private WifiP2pManager.Channel channel = null;
-    private Handler uiHandler;
+    private WifiP2pManager manager = null; //wifi manager
+    private WifiP2pConfig config = null; //device configuration
+    private WifiP2pManager.Channel channel = null; //device channel
+    private Handler uiHandler; //UI Handler to revert to original activity once connection is established
     private Context context = null;
 
     /**
@@ -51,6 +51,7 @@ public class ConnectTask extends AsyncTask<Void, Void, Boolean> {
         });
     }
 
+    /**Overrridden AsyncTask method to handle connections on a background thread*/
     @Override
     protected Boolean doInBackground(Void... voids) {
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {

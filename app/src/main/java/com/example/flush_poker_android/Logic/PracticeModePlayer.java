@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**Human Player class for Single Player. No networking capabilities.
+ *
+ * @author Bondith Sovann*/
 public class PracticeModePlayer extends Hand implements Player, Runnable, Serializable{
     private final String name;
     private int currentBet;
@@ -203,40 +206,7 @@ public class PracticeModePlayer extends Hand implements Player, Runnable, Serial
     public void decreaseChips(int amount) {
         this.chips -= amount;
     }
-    public void makeAutoDecision() {
-        // This is a basic AI logic for automatic decision-making.
-        // You can make it more sophisticated based on your game rules.
 
-        int minRaise = this.currentBet + 1;
-        int maxRaise = this.chips;
-
-        Random random = new Random();
-        int decision = random.nextInt(availableActions.size()); // Generate a random decision (0 to 3)
-
-        String playerAction = availableActions.get(decision);
-
-        if (playerAction.equals("Fold")) {
-            // 25% chance to fold
-            fold();
-            setPlayerAction("Fold");
-        } else if (playerAction.equals("Check")) {
-            // 25% chance to check
-            check();
-            setPlayerAction("Check");
-        } else if (playerAction.equals("Call")) {
-            // 25% chance to call
-            bet(currentBet);
-            setPlayerAction("Call");
-        } else {
-            // 25% chance to raise
-            int raiseAmount = random.nextInt(maxRaise - minRaise + 1) + currentBet;
-            bet(raiseAmount);
-            setPlayerAction("Raise");
-        }
-
-        // Signal that the AI has completed its action
-        actionIsDone = true;
-    }
     @Override
     public void setActionIsDone(boolean b) {
         this.actionIsDone = b;
