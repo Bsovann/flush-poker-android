@@ -9,7 +9,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-/***/
+/** Unused class, originally meant to serve as a service that processes player actions
+ *
+ * @author Kyle Chainey*/
 public class MessageService  {
 
     private static final int SERVER_PORT = 8888;

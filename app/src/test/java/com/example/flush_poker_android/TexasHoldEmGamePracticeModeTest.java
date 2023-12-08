@@ -10,6 +10,7 @@ import com.example.flush_poker_android.Logic.Player;
 import org.junit.Before;
 import org.junit.Test;
 
+/**@author Bondith Sovann*/
 public class TexasHoldEmGamePracticeModeTest {
 
     private PracticeModeGameController game;

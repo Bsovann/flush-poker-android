@@ -12,6 +12,7 @@ import com.example.flush_poker_android.Logic.Suit;
 import java.util.ArrayList;
 import java.util.List;
 
+/**@author Bondith Sovann*/
 public class HandTest {
 
     private Hand hand;

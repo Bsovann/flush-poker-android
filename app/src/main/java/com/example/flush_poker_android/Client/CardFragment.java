@@ -1,7 +1,4 @@
-/**
- * Author: Bondith Sovann
- * Description: Fragment class representing a CardFragment, which displays a GridView of card images.
- */
+
 package com.example.flush_poker_android.Client;
 
 import android.os.Bundle;
@@ -21,6 +18,11 @@ import com.example.flush_poker_android.R;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UI Fragment for displaying cards
+ *
+ * @author Bondith Sovann
+ */
 public class CardFragment extends Fragment{
 
     private CardAdapter cardAdapter;

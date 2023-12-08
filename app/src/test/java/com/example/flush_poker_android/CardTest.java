@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**@author Bondith Sovann*/
 public class CardTest {
 
     @Test

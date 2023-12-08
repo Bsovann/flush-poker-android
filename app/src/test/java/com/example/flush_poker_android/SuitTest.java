@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import com.example.flush_poker_android.Logic.Suit;
 
+/**@author Bondith Sovann*/
 public class SuitTest {
 
     @Test

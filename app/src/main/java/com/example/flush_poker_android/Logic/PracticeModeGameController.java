@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
  *
  * @author Bondith Sovann*/
 public class PracticeModeGameController extends AppCompatActivity implements Runnable {
-
     List<Player> remainPlayers;
     private Deck deck;
     private final List<Player> players;

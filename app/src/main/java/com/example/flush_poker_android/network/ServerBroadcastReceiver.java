@@ -15,7 +15,9 @@ import com.example.flush_poker_android.Client.HostActivity;
 import com.example.flush_poker_android.R;
 
 /**
- * A BroadcastReceiver that notifies of important wifi p2p events.
+ * Server BroadcastReceiver listens for import P2P events on the Game Host's side.
+ *
+ * @author Kyle Chainey
  */
 public class ServerBroadcastReceiver extends BroadcastReceiver {
     private final WifiP2pManager manager;

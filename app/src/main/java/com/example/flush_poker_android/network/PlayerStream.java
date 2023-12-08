@@ -3,6 +3,9 @@ package com.example.flush_poker_android.network;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/** Object IO Stream for Players
+ *
+ * @author Kyle Chainey */
 public class PlayerStream{
     private final ObjectInputStream inputStream;
     public ObjectInputStream getInputStream() {

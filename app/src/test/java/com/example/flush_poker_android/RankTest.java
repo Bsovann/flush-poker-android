@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import com.example.flush_poker_android.Logic.Rank;
 
+/**@author Bondith Sovann*/
 public class RankTest {
 
     @Test
